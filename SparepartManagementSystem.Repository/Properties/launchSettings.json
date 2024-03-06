@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AXFinMobile.Repository": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "SqlServerConnectionString": "Data Source=10.10.10.157;Initial Catalog=AXFinMobile;Integrated Security=True"
+      }
+    }
+  }
+}

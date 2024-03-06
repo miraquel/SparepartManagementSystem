@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/GoodsReceiptHeaderRepository.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/NumberSequenceRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/PermissionRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RefreshTokenRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RoleRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/UserRepositoryMySql.cs" dialect="MySQL" />
+  </component>
+</project>
