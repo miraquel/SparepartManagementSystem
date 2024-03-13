@@ -34,6 +34,7 @@ public interface IUnitOfWork
     IRefreshTokenRepository RefreshTokenRepository { get; }
     
     IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
+    IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
 
     void Commit();
     void Rollback();

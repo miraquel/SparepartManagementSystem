@@ -18,7 +18,7 @@ public class GMKSMSServiceGroupController : ControllerBase
         _gmkSmsServiceGroup = gmkSmsServiceGroup;
     }
 
-    [HttpGet("GetInventTablePagedList")]
+    [HttpGet(nameof(GetInventTablePagedList))]
     public async Task<IActionResult> GetInventTablePagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] InventTableSearchDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetInventTablePagedList(pageNumber, pageSize, dto);
@@ -29,7 +29,7 @@ public class GMKSMSServiceGroupController : ControllerBase
         return BadRequest(response);
     }
 
-    [HttpGet("GetImageFromNetworkUri")]
+    [HttpGet(nameof(GetImageFromNetworkUri))]
     public async Task<IActionResult> GetImageFromNetworkUri(string networkUri)
     {
         try
@@ -49,7 +49,7 @@ public class GMKSMSServiceGroupController : ControllerBase
         }
     }
 
-    [HttpGet("GetImageWithResolutionFromNetworkUri")]
+    [HttpGet(nameof(GetImageWithResolutionFromNetworkUri))]
     public async Task<IActionResult> GetImageWithResolutionFromNetworkUri(string networkUri, int maxLength)
     {
         try
@@ -89,10 +89,32 @@ public class GMKSMSServiceGroupController : ControllerBase
         }
     }
     
-    [HttpGet("GetPurchTablePagedList")]
+    [HttpGet(nameof(GetPurchTablePagedList))]
     public async Task<IActionResult> GetPurchTablePagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] PurchTableSearchDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetPurchTablePagedList(pageNumber, pageSize, dto);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [HttpGet(nameof(GetPurchLineList))]
+    public async Task<IActionResult> GetPurchLineList([FromQuery] string purchId)
+    {
+        var response = await _gmkSmsServiceGroup.GetPurchLineList(purchId);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [HttpGet(nameof(GetWMSLocationPagedList))]
+    public async Task<IActionResult> GetWMSLocationPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WMSLocationSearchDto dto)
+    {
+        var response = await _gmkSmsServiceGroup.GetWMSLocationPagedList(pageNumber, pageSize, dto);
         if (response.Success)
         {
             return Ok(response);

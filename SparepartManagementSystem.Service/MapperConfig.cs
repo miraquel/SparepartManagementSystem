@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 
 namespace SparepartManagementSystem.Service;
 
@@ -24,9 +25,20 @@ internal static class MapperConfig
             cfg.CreateMap<GoodsReceiptHeader, GoodsReceiptHeaderDto>();
             cfg.CreateMap<GoodsReceiptHeaderDto, GoodsReceiptHeader>();
             cfg.CreateMap<GoodsReceiptLine, GoodsReceiptLineDto>();
+            cfg.CreateMap<GoodsReceiptLineDto, GoodsReceiptLine>();
 
             // Dynamics AX 2012 object mapping
-
+            cfg.CreateMap<GMKInventTableDataContract, InventTableDto>();
+            cfg.CreateMap<InventTableDto, GMKInventTableDataContract>();
+            cfg.CreateMap<GMKPurchTableDataContract, PurchTableDto>();
+            cfg.CreateMap<PurchTableDto, GMKPurchTableDataContract>();
+            cfg.CreateMap<GMKPurchLineDataContract, PurchLineDto>();
+            cfg.CreateMap<PurchLineDto, GMKPurchLineDataContract>();
+            cfg.CreateMap<GMKWMSLocationDataContract, WMSLocationDto>();
+            cfg.CreateMap<WMSLocationDto, GMKWMSLocationDataContract>();
+            cfg.CreateMap<GMKServiceResponseDataContract, GMKServiceResponseDto>();
+            cfg.CreateMap<GMKServiceResponseDto, GMKServiceResponseDataContract>();
+            
         });
 
         //Create an Instance of Mapper and return that Instance

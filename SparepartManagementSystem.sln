@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.API", "SparepartManagementSystem.API\SparepartManagementSystem.API.csproj", "{B97DA27A-FD0A-4EDD-9C43-4C38C8799FD0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.Repository.Migration", "SparepartManagementSystem.Repository.Migration\SparepartManagementSystem.Repository.Migration.csproj", "{60DE2237-6FFA-4B64-9800-BD13073091D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{B97DA27A-FD0A-4EDD-9C43-4C38C8799FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B97DA27A-FD0A-4EDD-9C43-4C38C8799FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B97DA27A-FD0A-4EDD-9C43-4C38C8799FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

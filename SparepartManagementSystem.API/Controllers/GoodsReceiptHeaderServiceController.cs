@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -64,10 +59,46 @@ public class GoodsReceiptHeaderServiceController : ControllerBase
         return BadRequest(result);
     }
     
-    [HttpGet(nameof(GetByParams))]
+    [HttpGet("[action]")]
     public async Task<IActionResult> GetByParams([FromBody] GoodsReceiptHeaderDto dto)
     {
         var result = await _goodsReceiptHeaderService.GetByParams(dto);
+        if (result.Success)
+            return Ok(result);
+        return BadRequest(result);
+    }
+    
+    [HttpGet("[action]")]
+    public async Task<IActionResult> GetByParamsPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] GoodsReceiptHeaderDto dto)
+    {
+        var result = await _goodsReceiptHeaderService.GetByParamsPagedList(pageNumber, pageSize, dto);
+        if (result.Success)
+            return Ok(result);
+        return BadRequest(result);
+    }
+    
+    [HttpPost("[action]")]
+    public async Task<IActionResult> AddWithLines([FromBody] GoodsReceiptHeaderDto dto)
+    {
+        var result = await _goodsReceiptHeaderService.AddWithLines(dto);
+        if (result.Success)
+            return Ok(result);
+        return BadRequest(result);
+    }
+    
+    [HttpGet("[action]/{id:int}")]
+    public async Task<IActionResult> GetByIdWithLines(int id)
+    {
+        var result = await _goodsReceiptHeaderService.GetByIdWithLines(id);
+        if (result.Success)
+            return Ok(result);
+        return BadRequest(result);
+    }
+
+    [HttpPost(nameof(PostToAx))]
+    public async Task<IActionResult> PostToAx([FromBody] GoodsReceiptHeaderDto dto)
+    {
+        var result = await _goodsReceiptHeaderService.PostToAx(dto);
         if (result.Success)
             return Ok(result);
         return BadRequest(result);

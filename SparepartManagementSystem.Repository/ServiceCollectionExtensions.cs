@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INumberSequenceRepository, NumberSequenceRepositoryMySql>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepositoryMySql>();
         services.AddScoped<IGoodsReceiptHeaderRepository, GoodsReceiptHeaderRepositoryMySql>();
+        services.AddScoped<IGoodsReceiptLineRepository, GoodsReceiptLineRepositoryMySql>();
 
         services.AddScoped<IRepositoryFactory, RepositoryFactory>();
         

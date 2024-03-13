@@ -71,7 +71,7 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                                  SELECT * FROM NumberSequences
                                  WHERE NumberSequenceId = @NumberSequenceId
                                  """;
-        var beforeResult = await _sqlConnection.QueryFirstOrDefaultAsync<NumberSequence>(beforeSql, new { NumberSequenceId = id }, _dbTransaction);
+        var beforeResult = await _sqlConnection.QueryFirstAsync<NumberSequence>(beforeSql, new { NumberSequenceId = id }, _dbTransaction);
         const string sql = """
                            DELETE FROM NumberSequences
                            WHERE NumberSequenceId = @NumberSequenceId

@@ -14,6 +14,7 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
     public INumberSequenceRepository NumberSequenceRepository { get; }
     public IRefreshTokenRepository RefreshTokenRepository { get; }
     public IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
+    public IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
     
     public UnitOfWork(IDbTransaction dbTransaction, IConfiguration configuration, IRepositoryFactory repositoryFactory)
     {
@@ -29,6 +30,7 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
             NumberSequenceRepository = repositoryFactory.GetRepository<INumberSequenceRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
             RefreshTokenRepository = repositoryFactory.GetRepository<IRefreshTokenRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
             GoodsReceiptHeaderRepository = repositoryFactory.GetRepository<IGoodsReceiptHeaderRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
+            GoodsReceiptLineRepository = repositoryFactory.GetRepository<IGoodsReceiptLineRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
         }
         else
         {

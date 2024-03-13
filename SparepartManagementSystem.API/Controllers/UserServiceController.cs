@@ -88,7 +88,7 @@ public class UserServiceController : ControllerBase
     // GET: api/UserService/GetByParams
     [HttpGet(nameof(GetByParams))]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.User.Read } })]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetByParams([FromBody] UserDto dto)
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetByParams([FromQuery] UserDto dto)
     {
         var result = await _userService.GetByParams(dto);
         if (result.Success)

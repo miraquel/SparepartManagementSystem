@@ -46,7 +46,7 @@ internal class RoleRepositoryMySql : IRoleRepository
                                  SELECT * FROM Roles
                                  WHERE RoleId = @RoleId
                                  """;
-        var beforeResult = await _sqlConnection.QueryFirstOrDefaultAsync<Role>(beforeSql, new { RoleId = id }, _dbTransaction);
+        var beforeResult = await _sqlConnection.QueryFirstAsync<Role>(beforeSql, new { RoleId = id }, _dbTransaction);
         const string sql = """
                            DELETE FROM Roles
                            WHERE RoleId = @RoleId

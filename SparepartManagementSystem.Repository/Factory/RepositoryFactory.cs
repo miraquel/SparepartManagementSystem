@@ -10,7 +10,8 @@ public class RepositoryFactory : IRepositoryFactory
     private readonly IEnumerable<IPermissionRepository> _permissionRepositories;
     private readonly IEnumerable<IRefreshTokenRepository> _refreshTokenRepositories;
     private readonly IEnumerable<IGoodsReceiptHeaderRepository> _goodsReceiptHeaderRepositories;
-    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories)
+    private readonly IEnumerable<IGoodsReceiptLineRepository> _goodsReceiptLineRepositories;
+    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories, IEnumerable<IGoodsReceiptLineRepository> goodsReceiptLineRepositories)
     {
         _userRepositories = userRepositories;
         _roleRepositories = roleRepositories;
@@ -18,6 +19,7 @@ public class RepositoryFactory : IRepositoryFactory
         _permissionRepositories = permissionRepositories;
         _refreshTokenRepositories = refreshTokenRepositories;
         _goodsReceiptHeaderRepositories = goodsReceiptHeaderRepositories;
+        _goodsReceiptLineRepositories = goodsReceiptLineRepositories;
     }
 
     public T? GetRepository<T>(DatabaseProvider databaseProvider) where T : class
@@ -30,6 +32,7 @@ public class RepositoryFactory : IRepositoryFactory
             var type when type == typeof(IPermissionRepository) => _permissionRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IRefreshTokenRepository) => _refreshTokenRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IGoodsReceiptHeaderRepository) => _goodsReceiptHeaderRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
+            var type when type == typeof(IGoodsReceiptLineRepository) => _goodsReceiptLineRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             _ => throw new ArgumentOutOfRangeException(nameof(T), typeof(T), null)
         };
     }

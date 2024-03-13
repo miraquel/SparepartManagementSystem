@@ -66,7 +66,7 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return before;
     }
 
-    public async Task<RefreshToken?> Add(RefreshToken entity)
+    public async Task<RefreshToken> Add(RefreshToken entity)
     {
         var currentDateTime = DateTime.Now;
         entity.Created = currentDateTime;
@@ -81,13 +81,13 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return await GetById(lastId);
     }
 
-    public Task<RefreshToken?> Delete(int id)
+    public Task<RefreshToken> Delete(int id)
     {
         const string beforeSql = """
                                  SELECT * FROM RefreshTokens
                                  WHERE RefreshTokenId = @RefreshTokenId
                                  """;
-        var beforeResult = _sqlConnection.QueryFirstOrDefaultAsync<RefreshToken>(beforeSql, new { RefreshTokenId = id }, _dbTransaction);
+        var beforeResult = _sqlConnection.QueryFirstAsync<RefreshToken>(beforeSql, new { RefreshTokenId = id }, _dbTransaction);
         const string sql = """
                            DELETE FROM RefreshTokens
                            WHERE RefreshTokenId = @RefreshTokenId

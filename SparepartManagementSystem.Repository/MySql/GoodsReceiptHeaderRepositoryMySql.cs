@@ -35,8 +35,9 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         _ = await _sqlConnection.ExecuteAsync(
             """
             INSERT INTO GoodsReceiptHeaders
-            (PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
-            VALUES (@PackingSlipId, @PurchId, @PurchName, @OrderAccount, @InvoiceAccount, @PurchStatus, @SubmittedDate, @SubmittedBy, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
+            (PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
+            VALUES
+            (@PackingSlipId, @PurchId, @PurchName, @OrderAccount, @InvoiceAccount, @PurchStatus, @IsSubmitted, @SubmittedDate, @SubmittedBy, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
             """,
             entity, _dbTransaction);
 
@@ -66,7 +67,7 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         return _sqlConnection.QueryAsync<GoodsReceiptHeader>(
             """
             SELECT
-            GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
+            GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
             FROM GoodsReceiptHeaders
             """, transaction: _dbTransaction);
     }
@@ -74,7 +75,7 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
     public Task<GoodsReceiptHeader> GetById(int id)
     {
         return _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(
-            "SELECT GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime\r\nFROM GoodsReceiptHeaders\r\nWHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId",
+            "SELECT GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime\r\nFROM GoodsReceiptHeaders\r\nWHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId",
             new { GoodsReceiptHeaderId = id }, _dbTransaction);
     }
 
@@ -89,6 +90,7 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         if (!string.IsNullOrEmpty(entity.InvoiceAccount)) sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{entity.InvoiceAccount}%" });
         if (!string.IsNullOrEmpty(entity.PurchStatus)) sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{entity.PurchStatus}%" });
         if (entity.SubmittedDate > SqlDateTime.MinValue.Value) sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
+        if (entity.IsSubmitted is not null) sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         if (!string.IsNullOrEmpty(entity.SubmittedBy)) sqlBuilder.Where("SubmittedBy LIKE @SubmittedBy", new { SubmittedBy = $"%{entity.SubmittedBy}%" });
         if (!string.IsNullOrEmpty(entity.CreatedBy)) sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
         if (entity.CreatedDateTime > SqlDateTime.MinValue.Value) sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
@@ -97,7 +99,7 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
         var template = sqlBuilder.AddTemplate(
             """
-            SELECT GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
+            SELECT GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
             FROM GoodsReceiptHeaders /**where**/
             """);
         
@@ -112,7 +114,7 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         var builder = new SqlBuilder();
         
         if (entity.GoodsReceiptHeaderId > 0)
-            builder.Set("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
+            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
         if (!string.IsNullOrEmpty(entity.PackingSlipId))
             builder.Set("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
         if (!string.IsNullOrEmpty(entity.PurchId))
@@ -125,6 +127,8 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             builder.Set("InvoiceAccount = @InvoiceAccount", new { entity.InvoiceAccount });
         if (!string.IsNullOrEmpty(entity.PurchStatus))
             builder.Set("PurchStatus = @PurchStatus", new { entity.PurchStatus });
+        if (entity.IsSubmitted is not null)
+            builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         if (entity.SubmittedDate > SqlDateTime.MinValue.Value)
             builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         if (!string.IsNullOrEmpty(entity.SubmittedBy))
@@ -136,13 +140,13 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         
         const string beforeSql = """
                                  SELECT
-                                    GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
+                                    GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
                                  FROM GoodsReceiptHeaders
                                  WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId
                                  """;
         var beforeResult = await _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(beforeSql, new { entity.GoodsReceiptHeaderId }, _dbTransaction);
         
-        var template = builder.AddTemplate($"UPDATE GoodsReceiptHeaders SET /**set**/ WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId");
+        var template = builder.AddTemplate($"UPDATE GoodsReceiptHeaders /**set**/ /**where**/");
         
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
 
@@ -179,6 +183,8 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{entity.InvoiceAccount}%" });
         if (!string.IsNullOrEmpty(entity.PurchStatus))
             sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{entity.PurchStatus}%" });
+        if (entity.IsSubmitted is not null)
+            sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         if (entity.SubmittedDate > SqlDateTime.MinValue.Value)
             sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         if (!string.IsNullOrEmpty(entity.SubmittedBy))
@@ -195,19 +201,41 @@ public class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
         sqlBuilder.AddParameters(new { PageSize = pageSize, Offset = (pageNumber - 1) * pageSize });
         
-        var template = sqlBuilder.AddTemplate(
-            """
-            SELECT
-              GoodsReceiptHeaderId, PackingSlipId, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
-            FROM GoodsReceiptHeaders
-            /**where**/
-            /**orderby**/
-            LIMIT @PageSize OFFSET @Offset
-            """);
+        const string sql = "SELECT * FROM GoodsReceiptHeaders /**where**/ /**orderby**/"; 
+        
+        var template = sqlBuilder.AddTemplate(sql);
         
         var result = await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
-        var resultCount = await _sqlConnection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM GoodsReceiptHeaders /**where**/");
-        return new PagedList<GoodsReceiptHeader>(result, resultCount, pageNumber, pageSize);
+        template = sqlBuilder.AddTemplate("SELECT COUNT(*) FROM GoodsReceiptHeaders /**where**/");
+        var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, transaction: _dbTransaction);
+        return new PagedList<GoodsReceiptHeader>(result, pageNumber, pageSize, resultCount);
+    }
+    public async Task<GoodsReceiptHeader> GetByIdWithLines(int id)
+    {
+        // SELECT Statement for GoodsReceiptHeader joined with GoodsReceiptLine
+        const string sql = """
+                           SELECT
+                           grh.GoodsReceiptHeaderId, grh.PackingSlipId, grh.PurchId, grh.PurchName, grh.OrderAccount, grh.InvoiceAccount, grh.PurchStatus, grh.IsSubmitted, grh.SubmittedDate, grh.SubmittedBy, grh.CreatedBy, grh.CreatedDateTime, grh.ModifiedBy, grh.ModifiedDateTime,
+                           grl.GoodsReceiptLineId, grl.GoodsReceiptHeaderId, grl.ItemId, grl.LineNumber, grl.ItemName, grl.PurchQty, grl.PurchUnit, grl.PurchPrice, grl.LineAmount, grl.InventLocationId, grl.WMSLocationId, grl.CreatedBy, grl.CreatedDateTime, grl.ModifiedBy, grl.ModifiedDateTime
+                           FROM GoodsReceiptHeaders grh
+                           LEFT JOIN GoodsReceiptLines grl ON grh.GoodsReceiptHeaderId = grl.GoodsReceiptHeaderId
+                           WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
+                           """;
+        
+        var result = new GoodsReceiptHeader();
+
+        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine?, GoodsReceiptHeader>(sql, (header, line) =>
+        {
+            if (result.GoodsReceiptHeaderId == 0)
+            {
+                result = header;
+            }
+
+            if (line != null) result.GoodsReceiptLines.Add(line);
+            return result;
+        }, new { GoodsReceiptHeaderId = id }, splitOn: "GoodsReceiptLineId", transaction: _dbTransaction);
+
+        return result;
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

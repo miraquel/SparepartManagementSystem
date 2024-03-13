@@ -9,7 +9,8 @@
 // final String submittedBy;
 
 using System.Data.SqlTypes;
-using SparepartManagementSystem.Domain;
+
+namespace SparepartManagementSystem.Domain;
 
 public class GoodsReceiptHeader : BaseModel
 {
@@ -20,6 +21,10 @@ public class GoodsReceiptHeader : BaseModel
     public string OrderAccount { get; set; } = "";
     public string InvoiceAccount { get; set; } = "";
     public string PurchStatus { get; set; } = "";
+    public bool? IsSubmitted { get; set; }
     public DateTime SubmittedDate { get; set; } = SqlDateTime.MinValue.Value;
     public string SubmittedBy { get; set; } = "";
+
+    // ReSharper disable once CollectionNeverQueried.Global
+    public ICollection<GoodsReceiptLine> GoodsReceiptLines { get; init; } = new List<GoodsReceiptLine>();
 }

@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "ExtendedData": {
     "inputs": [
-      "http://EAD-LAB:8101/DynamicsAx/Services/GMKSMSServiceGroup"
+      "http://AX-TESTING-TEST:8101/DynamicsAx/Services/GMKSMSServiceGroup"
     ],
     "namespaceMappings": [
       "*, SparepartManagementSystem.Service.GMKSMSServiceGroup"

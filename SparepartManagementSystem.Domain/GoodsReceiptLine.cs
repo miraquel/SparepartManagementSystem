@@ -2,16 +2,17 @@ using System.Data.SqlTypes;
 
 namespace SparepartManagementSystem.Domain;
 
-public class GoodsReceiptLine
+public class GoodsReceiptLine : BaseModel
 {
-    public int GoodsReceiptLineId { get; init; }
-    public int GoodsReceiptHeaderId { get; init; }
-    public string ItemId { get; init; } = "";
-    public int Quantity { get; init; }
-    public decimal Price { get; init; }
-    public decimal Amount { get; init; }
-    public string CreatedBy { get; init; } = "";
-    public DateTime CreatedDateTime { get; init; } = SqlDateTime.MinValue.Value;
-    public string ModifiedBy { get; init; } = "";
-    public DateTime ModifiedDateTime { get; init; } = SqlDateTime.MinValue.Value;
+    public int GoodsReceiptLineId { get; set; }
+    public int GoodsReceiptHeaderId { get; set; }
+    public string ItemId { get; set; } = "";
+    public int LineNumber { get; set; }
+    public string ItemName { get; set; } = "";
+    public decimal PurchQty { get; set; }
+    public string PurchUnit { get; set; } = "";
+    public decimal PurchPrice { get; set; }
+    public decimal LineAmount { get; set; }
+    public string InventLocationId { get; set; } = "";
+    public string WMSLocationId { get; set; } = "";
 }
