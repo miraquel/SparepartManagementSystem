@@ -16,6 +16,8 @@ public class GoodsReceiptHeader : BaseModel
 {
     public int GoodsReceiptHeaderId { get; set; }
     public string PackingSlipId { get; set; } = "";
+    public DateTime TransDate { get; init; } = SqlDateTime.MinValue.Value;
+    public string Description { get; init; } = "";
     public string PurchId { get; set; } = "";
     public string PurchName { get; set; } = "";
     public string OrderAccount { get; set; } = "";

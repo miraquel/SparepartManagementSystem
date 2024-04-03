@@ -126,21 +126,21 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<PermissionDto>> Add(PermissionDto dto)
+    public async Task<ServiceResponse> Add(PermissionDto dto)
     {
         try
         {
             var permission = _mapper.Map<Permission>(dto);
 
-            var result = await _unitOfWork.PermissionRepository.Add(permission);
+            await _unitOfWork.PermissionRepository.Add(permission);
+            var lastInsertedId = await _unitOfWork.NumberSequenceRepository.GetLastInsertedId();
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {PermissionId}, Permission added successfully", result?.PermissionId);
+            _logger.Information("id: {PermissionId}, Permission added successfully", lastInsertedId); 
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<PermissionDto>(result),
                 Message = "Permission added successfully",
                 Success = true
             };
@@ -158,7 +158,7 @@ internal class PermissionService : IPermissionService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -167,19 +167,18 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<PermissionDto>> Delete(int id)
+    public async Task<ServiceResponse> Delete(int id)
     {
         try
         {
-            var result = await _unitOfWork.PermissionRepository.Delete(id);
+            await _unitOfWork.PermissionRepository.Delete(id);
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {PermissionId}, Permission deleted successfully", result?.PermissionId);
+            _logger.Information("id: {PermissionId}, Permission deleted successfully", id);
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<PermissionDto>(result),
                 Message = "Permission deleted successfully",
                 Success = true
             };
@@ -197,7 +196,7 @@ internal class PermissionService : IPermissionService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -315,21 +314,20 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<PermissionDto>> Update(PermissionDto dto)
+    public async Task<ServiceResponse> Update(PermissionDto dto)
     {
         try
         {
             var permission = _mapper.Map<Permission>(dto);
 
-            var result = await _unitOfWork.PermissionRepository.Update(permission);
+            await _unitOfWork.PermissionRepository.Update(permission);
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {PermissionId}, Permission updated successfully", result?.PermissionId);
+            _logger.Information("id: {PermissionId}, Permission updated successfully", dto.PermissionId);
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<PermissionDto>(result),
                 Message = "Permission updated successfully",
                 Success = true
             };
@@ -345,7 +343,41 @@ internal class PermissionService : IPermissionService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<PermissionDto>
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<int>> GetLastInsertedId()
+    {
+        try
+        {
+            var result = await _unitOfWork.PermissionRepository.GetLastInsertedId();
+
+            _logger.Information("Permission last inserted id retrieved successfully, id: {LastInsertedId}", result);
+
+            return new ServiceResponse<int>
+            {
+                Data = result,
+                Message = "Permission last inserted id retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

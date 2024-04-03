@@ -149,9 +149,9 @@ public class UserServiceController : ControllerBase
 
     [HttpGet(nameof(GetUsersFromActiveDirectory))]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.User.Read } })]
-    public ActionResult<ServiceResponse<IEnumerable<UserDto>>> GetUsersFromActiveDirectory()
+    public ActionResult<ServiceResponse<IEnumerable<UserDto>>> GetUsersFromActiveDirectory(string searchText = "")
     {
-        var result = _userService.GetUsersFromActiveDirectory();
+        var result = _userService.GetUsersFromActiveDirectory(searchText);
         if (result.Success)
             return Ok(result);
         return BadRequest(result);

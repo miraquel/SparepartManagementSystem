@@ -1,12 +1,18 @@
 ﻿using System.Data;
+using System.Data.SQLite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
 using SparepartManagementSystem.Repository.Factory;
 using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Repository.MySql;
+using SparepartManagementSystem.Repository.SQLite;
 using SparepartManagementSystem.Repository.UnitOfWork;
-using NumberSequenceRepositoryMySql = SparepartManagementSystem.Repository.MySql.NumberSequenceRepositoryMySql;
+using PermissionRepositoryMySql = SparepartManagementSystem.Repository.MySql.PermissionRepositoryMySql;
+using RefreshTokenRepositoryMySql = SparepartManagementSystem.Repository.MySql.RefreshTokenRepositoryMySql;
+using RoleRepositoryMySql = SparepartManagementSystem.Repository.MySql.RoleRepositoryMySql;
+using RowLevelAccessRepositoryMysql = SparepartManagementSystem.Repository.MySql.RowLevelAccessRepositoryMysql;
+using UserRepositoryMySql = SparepartManagementSystem.Repository.MySql.UserRepositoryMySql;
 
 namespace SparepartManagementSystem.Repository;
 
@@ -23,6 +29,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepositoryMySql>();
         services.AddScoped<IGoodsReceiptHeaderRepository, GoodsReceiptHeaderRepositoryMySql>();
         services.AddScoped<IGoodsReceiptLineRepository, GoodsReceiptLineRepositoryMySql>();
+        services.AddScoped<IRowLevelAccessRepository, RowLevelAccessRepositoryMysql>();
+
+        services.AddScoped<IUserRepository, UserRepositorySqLite>();
+        services.AddScoped<IRoleRepository, RoleRepositorySqLite>();
+        services.AddScoped<IPermissionRepository, PermissionRepositorySqLite>();
+        services.AddScoped<INumberSequenceRepository, NumberSequenceRepositorySqLite>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepositorySqLite>();
+        services.AddScoped<IGoodsReceiptHeaderRepository, GoodsReceiptHeaderRepositorySqLite>();
+        services.AddScoped<IGoodsReceiptLineRepository, GoodsReceiptLineRepositorySqLite>();
+        services.AddScoped<IRowLevelAccessRepository, RowLevelAccessRepositorySqLite>();
 
         services.AddScoped<IRepositoryFactory, RepositoryFactory>();
         
@@ -36,6 +52,7 @@ public static class ServiceCollectionExtensions
             {
                 //"SqlServer" => new SqlConnection(connectionString),
                 "MySql" => new MySqlConnection(connectionString),
+                "SqLite" => new SQLiteConnection(connectionString),
                 _ => new MySqlConnection(connectionString)
             };
         });

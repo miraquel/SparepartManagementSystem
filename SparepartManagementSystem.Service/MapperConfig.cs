@@ -26,6 +26,8 @@ internal static class MapperConfig
             cfg.CreateMap<GoodsReceiptHeaderDto, GoodsReceiptHeader>();
             cfg.CreateMap<GoodsReceiptLine, GoodsReceiptLineDto>();
             cfg.CreateMap<GoodsReceiptLineDto, GoodsReceiptLine>();
+            cfg.CreateMap<RowLevelAccess, RowLevelAccessDto>();
+            cfg.CreateMap<RowLevelAccessDto, RowLevelAccess>();
 
             // Dynamics AX 2012 object mapping
             cfg.CreateMap<GMKInventTableDataContract, InventTableDto>();
@@ -38,7 +40,10 @@ internal static class MapperConfig
             cfg.CreateMap<WMSLocationDto, GMKWMSLocationDataContract>();
             cfg.CreateMap<GMKServiceResponseDataContract, GMKServiceResponseDto>();
             cfg.CreateMap<GMKServiceResponseDto, GMKServiceResponseDataContract>();
-            
+            cfg.CreateMap<GMKInventSumDataContract, InventSumDto>();
+            cfg.CreateMap<InventSumDto, GMKInventSumDataContract>();
+            cfg.CreateMap<GMKWorkOrderDataContract, WorkOrderDto>();
+            cfg.CreateMap<WorkOrderDto, GMKWorkOrderDataContract>();
         });
 
         //Create an Instance of Mapper and return that Instance

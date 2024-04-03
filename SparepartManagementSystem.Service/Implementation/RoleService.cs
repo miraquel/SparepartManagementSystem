@@ -19,21 +19,18 @@ internal class RoleService : IRoleService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResponse<RoleDto>> AddUser(UserRoleDto dto)
+    public async Task<ServiceResponse> AddUser(UserRoleDto dto)
     {
         try
         {
-            if (!await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId)) throw new InvalidOperationException("Failed to add user to role");
-
-            var role = await _unitOfWork.RoleRepository.GetByIdWithUsers(dto.RoleId);
+            await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId);
 
             _unitOfWork.Commit();
 
             _logger.Information("User {UserId} added to role {RoleId} successfully", dto.UserId, dto.RoleId);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RoleDto>(role),
                 Message = "User added successfully",
                 Success = true
             };
@@ -51,7 +48,7 @@ internal class RoleService : IRoleService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -60,22 +57,18 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> DeleteUser(UserRoleDto dto)
+    public async Task<ServiceResponse> DeleteUser(UserRoleDto dto)
     {
         try
         {
-            if (!await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId))
-                throw new InvalidOperationException($"Failed to delete user {dto.UserId} from role {dto.RoleId}");
-
-            var role = await _unitOfWork.RoleRepository.GetByIdWithUsers(dto.RoleId);
+            await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId);
 
             _unitOfWork.Commit();
 
             _logger.Information("User {UserId} deleted from role {RoleId} successfully", dto.UserId, dto.RoleId);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RoleDto>(role),
                 Message = "User deleted successfully",
                 Success = true
             };
@@ -93,7 +86,7 @@ internal class RoleService : IRoleService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -172,21 +165,21 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> Add(RoleDto dto)
+    public async Task<ServiceResponse> Add(RoleDto dto)
     {
         try
         {
             var role = _mapper.Map<Role>(dto);
 
-            var inserted = await _unitOfWork.RoleRepository.Add(role);
+            await _unitOfWork.RoleRepository.Add(role);
+            var lastInsertedId = await _unitOfWork.RoleRepository.GetLastInsertedId();
 
             _unitOfWork.Commit();
 
-            _logger.Information("Role {RoleId} added successfully", inserted?.RoleId);
+            _logger.Information("Role {RoleId} added successfully", lastInsertedId);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RoleDto>(inserted),
                 Message = "Role added successfully",
                 Success = true
             };
@@ -204,7 +197,7 @@ internal class RoleService : IRoleService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -213,19 +206,18 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> Delete(int id)
+    public async Task<ServiceResponse> Delete(int id)
     {
         try
         {
-            var deleted = await _unitOfWork.RoleRepository.Delete(id);
+            await _unitOfWork.RoleRepository.Delete(id);
 
             _unitOfWork.Commit();
 
-            _logger.Information("Role {RoleId} deleted successfully", deleted?.RoleId);
+            _logger.Information("Role {RoleId} deleted successfully", id);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RoleDto>(deleted),
                 Message = "Role deleted successfully",
                 Success = true
             };
@@ -243,7 +235,7 @@ internal class RoleService : IRoleService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -359,21 +351,20 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> Update(RoleDto dto)
+    public async Task<ServiceResponse> Update(RoleDto dto)
     {
         try
         {
             var role = _mapper.Map<Role>(dto);
 
-            var updated = await _unitOfWork.RoleRepository.Update(role);
+            await _unitOfWork.RoleRepository.Update(role);
 
             _unitOfWork.Commit();
 
-            _logger.Information("Role {RoleId} updated successfully", updated?.RoleId);
+            _logger.Information("Role {RoleId} updated successfully", role.RoleId);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RoleDto>(updated),
                 Message = "Role updated successfully",
                 Success = true
             };
@@ -391,7 +382,41 @@ internal class RoleService : IRoleService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RoleDto>
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<int>> GetLastInsertedId()
+    {
+        try
+        {
+            var lastInsertedId = await _unitOfWork.RoleRepository.GetLastInsertedId();
+
+            _logger.Information("Role last inserted id retrieved successfully, id: {LastInsertedId}", lastInsertedId);
+
+            return new ServiceResponse<int>
+            {
+                Data = lastInsertedId,
+                Message = "Role last inserted id retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

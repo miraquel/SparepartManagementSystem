@@ -22,7 +22,7 @@ internal class UserRepositoryMySql : IUserRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<User> Add(User entity)
+    public async Task Add(User entity)
     {
         var currentDateTime = DateTime.Now;
         entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
@@ -35,24 +35,13 @@ internal class UserRepositoryMySql : IUserRepository
                            (Username, FirstName, LastName, Email, IsAdministrator, IsEnabled, LastLogin, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES (@Username, @FirstName, @LastName, @Email, @IsAdministrator, @IsEnabled, @LastLogin, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        var lastId = await _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-        return await GetById(lastId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
 
-    public async Task<User> Delete(int id)
+    public async Task Delete(int id)
     {
-        const string beforeSql = """
-                                 SELECT * FROM Users
-                                 WHERE UserId = @UserId
-                                 """;
-        var beforeResult = await _sqlConnection.QueryFirstAsync<User>(beforeSql, new { UserId = id }, _dbTransaction);
-        const string sql = """
-                           DELETE FROM Users
-                           WHERE UserId = @UserId
-                           """;
+        const string sql = "DELETE FROM Users WHERE UserId = @UserId";
         await _sqlConnection.ExecuteAsync(sql, new { UserId = id }, _dbTransaction);
-        return beforeResult;
     }
 
     public async Task<IEnumerable<User>> GetAll()
@@ -95,7 +84,7 @@ internal class UserRepositoryMySql : IUserRepository
         return _sqlConnection.QueryAsync<User>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task<User> Update(User entity)
+    public async Task Update(User entity)
     {
         entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
         entity.ModifiedDateTime = DateTime.Now;
@@ -123,11 +112,12 @@ internal class UserRepositoryMySql : IUserRepository
                            """;
 
         var template = builder.AddTemplate(sql);
-
-        await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-        return await GetById(entity.UserId);
+        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
     }
-
+    public Task<int> GetLastInsertedId()
+    {
+        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+    }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
     public async Task<IEnumerable<User>> GetAllWithRoles()

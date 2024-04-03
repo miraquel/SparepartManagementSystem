@@ -26,10 +26,37 @@ public class GoodsReceiptHeaderDto
             ModifiedDateTime = dto.ModifiedDateTime != SqlDateTime.MinValue.Value ? dto.ModifiedDateTime : ModifiedDateTime
         };
     }
+    
+    public GoodsReceiptHeaderDto ForUpdate(GoodsReceiptHeaderDto dto)
+    {
+        return new GoodsReceiptHeaderDto
+        {
+            GoodsReceiptHeaderId = GoodsReceiptHeaderId,
+            PackingSlipId = dto.PackingSlipId != PackingSlipId ? dto.PackingSlipId : PackingSlipId,
+            PurchId = dto.PurchId != PurchId ? dto.PurchId : PurchId,
+            PurchName = dto.PurchName != PurchName ? dto.PurchName : PurchName,
+            OrderAccount = dto.OrderAccount != OrderAccount ? dto.OrderAccount : OrderAccount,
+            InvoiceAccount = dto.InvoiceAccount != InvoiceAccount ? dto.InvoiceAccount : InvoiceAccount,
+            PurchStatus = dto.PurchStatus != PurchStatus ? dto.PurchStatus : PurchStatus,
+            IsSubmitted = dto.IsSubmitted ?? IsSubmitted,
+            SubmittedBy = dto.SubmittedBy != SubmittedBy ? dto.SubmittedBy : SubmittedBy,
+            SubmittedDate = dto.SubmittedDate != SqlDateTime.MinValue.Value ? dto.SubmittedDate : SubmittedDate,
+            CreatedBy = dto.CreatedBy != CreatedBy ? dto.CreatedBy : CreatedBy,
+            CreatedDateTime = dto.CreatedDateTime != SqlDateTime.MinValue.Value ? dto.CreatedDateTime : CreatedDateTime,
+            ModifiedBy = dto.ModifiedBy != ModifiedBy ? dto.ModifiedBy : ModifiedBy,
+            ModifiedDateTime = dto.ModifiedDateTime != SqlDateTime.MinValue.Value ? dto.ModifiedDateTime : ModifiedDateTime
+        };
+    }
     public int GoodsReceiptHeaderId { get; init; }
 
     [DefaultValue("")]
     public string PackingSlipId { get; init; } = string.Empty;
+    
+    [DefaultValue(typeof (DateTime), "1753-01-01T00:00:00")]
+    public DateTime TransDate { get; init; } = SqlDateTime.MinValue.Value;
+
+    [DefaultValue("")]
+    public string Description { get; init; } = "";
 
     [DefaultValue("")]
     public string PurchId { get; init; } = string.Empty;

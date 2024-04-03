@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
+using SparepartManagementSystem.API.Permission;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
 namespace SparepartManagementSystem.API.Controllers;
@@ -19,6 +21,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
 
     [HttpGet(nameof(GetInventTablePagedList))]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
     public async Task<IActionResult> GetInventTablePagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] InventTableSearchDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetInventTablePagedList(pageNumber, pageSize, dto);
@@ -90,6 +93,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
     
     [HttpGet(nameof(GetPurchTablePagedList))]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
     public async Task<IActionResult> GetPurchTablePagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] PurchTableSearchDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetPurchTablePagedList(pageNumber, pageSize, dto);
@@ -101,6 +105,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
     
     [HttpGet(nameof(GetPurchLineList))]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
     public async Task<IActionResult> GetPurchLineList([FromQuery] string purchId)
     {
         var response = await _gmkSmsServiceGroup.GetPurchLineList(purchId);
@@ -112,9 +117,45 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
     
     [HttpGet(nameof(GetWMSLocationPagedList))]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
     public async Task<IActionResult> GetWMSLocationPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WMSLocationSearchDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetWMSLocationPagedList(pageNumber, pageSize, dto);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [HttpGet("[action]/{purchId}")]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
+    public async Task<IActionResult> GetPurchTable(string purchId)
+    {
+        var response = await _gmkSmsServiceGroup.GetPurchTable(purchId);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [HttpGet(nameof(GetInventSumList))]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = new object[] { new[] { PermissionType.GMKSMSServiceGroup.Read } })]
+    public async Task<IActionResult> GetInventSumList([FromQuery] InventSumSearchDto dto)
+    {
+        var response = await _gmkSmsServiceGroup.GetInventSumList(dto);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [HttpGet(nameof(GetWorkOrderPagedList))]
+    public async Task<IActionResult> GetWorkOrderPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WorkOrderSearchDto dto)
+    {
+        var response = await _gmkSmsServiceGroup.GetWorkOrderPagedList(pageNumber, pageSize, dto);
         if (response.Success)
         {
             return Ok(response);

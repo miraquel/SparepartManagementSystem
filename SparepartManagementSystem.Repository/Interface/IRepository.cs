@@ -11,14 +11,14 @@ public interface IRepository<T>
     /// </summary>
     /// <param name="entity">the model represent as the parameters of the insertion</param>
     /// <returns>returns <typeparamref name="T"/> object</returns>
-    Task<T> Add(T entity);
+    Task Add(T entity);
 
     /// <summary>
     /// Delete method to delete record from the database
     /// </summary>
     /// <param name="id">the id of the record</param>
     /// <returns>returns <typeparamref name="T"/> object</returns>
-    Task<T> Delete(int id);
+    Task Delete(int id);
 
     /// <summary>
     /// Get all records from the database
@@ -48,7 +48,9 @@ public interface IRepository<T>
     /// </summary>
     /// <param name="entity">the model represent as the parameters of the update</param>
     /// <returns>returns <typeparamref name="T"/> object</returns>
-    Task<T> Update(T entity);
+    Task Update(T entity);
+    
+    Task<int> GetLastInsertedId();
 
     DatabaseProvider DatabaseProvider { get; }
 }

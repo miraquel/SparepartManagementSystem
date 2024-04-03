@@ -19,23 +19,22 @@ public class RefreshTokenService : IRefreshTokenService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResponse<RefreshTokenDto>> Add(RefreshTokenDto dto)
+    public async Task<ServiceResponse> Add(RefreshTokenDto dto)
     {
         try
         {
             var entity = _mapper.Map<RefreshToken>(dto);
-            var result = await _unitOfWork.RefreshTokenRepository.Add(entity);
+            await _unitOfWork.RefreshTokenRepository.Add(entity);
+            var lastInsertedId = _unitOfWork.RefreshTokenRepository.GetLastInsertedId();
             
             _unitOfWork.Commit();
 
-            _logger.Information("RefreshTokenService.Add: {@result}", result);
+            _logger.Information("RefreshTokenService.Add: {lastInsertedId}", lastInsertedId);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RefreshTokenDto>(result),
                 Message = "Refresh Token added successfully",
                 Success = true
-
             };
         }
         catch (Exception ex)
@@ -49,7 +48,7 @@ public class RefreshTokenService : IRefreshTokenService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -58,19 +57,18 @@ public class RefreshTokenService : IRefreshTokenService
         }
     }
 
-    public async Task<ServiceResponse<RefreshTokenDto>> Delete(int id)
+    public async Task<ServiceResponse> Delete(int id)
     {
         try
         {
-            var result = await _unitOfWork.RefreshTokenRepository.Delete(id);
+            await _unitOfWork.RefreshTokenRepository.Delete(id);
             
             _unitOfWork.Commit();
 
-            _logger.Information("RefreshTokenService.Delete: {@result}", result);
+            _logger.Information("RefreshTokenService.Delete: {@result}", id);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RefreshTokenDto>(result),
                 Message = "Refresh Token deleted successfully",
                 Success = true
             };
@@ -86,7 +84,7 @@ public class RefreshTokenService : IRefreshTokenService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -207,20 +205,19 @@ public class RefreshTokenService : IRefreshTokenService
         }
     }
 
-    public async Task<ServiceResponse<RefreshTokenDto>> Update(RefreshTokenDto dto)
+    public async Task<ServiceResponse> Update(RefreshTokenDto dto)
     {
         try
         {
             var entity = _mapper.Map<RefreshToken>(dto);
-            var result = await _unitOfWork.RefreshTokenRepository.Update(entity);
+            await _unitOfWork.RefreshTokenRepository.Update(entity);
 
             _unitOfWork.Commit();
 
-            _logger.Information("RefreshTokenService.Update: {@result}", result);
+            _logger.Information("RefreshTokenService.Update: {@result}", entity);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RefreshTokenDto>(result),
                 Message = "Refresh Token updated successfully",
                 Success = true
             };
@@ -238,7 +235,41 @@ public class RefreshTokenService : IRefreshTokenService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<int>> GetLastInsertedId()
+    {
+        try
+        {
+            var result = await _unitOfWork.RefreshTokenRepository.GetLastInsertedId();
+
+            _logger.Information("Refresh token last inserted id retrieved successfully, id: {LastInsertedId}", result);
+
+            return new ServiceResponse<int>
+            {
+                Data = result,
+                Message = "Refresh token last inserted id retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

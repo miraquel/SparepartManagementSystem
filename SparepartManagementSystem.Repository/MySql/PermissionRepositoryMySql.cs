@@ -31,7 +31,7 @@ internal class PermissionRepositoryMySql : IPermissionRepository
             _dbTransaction);
     }
 
-    public async Task<Permission> Add(Permission entity)
+    public async Task Add(Permission entity)
     {
         var currentDateTime = DateTime.Now;
         entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims
@@ -46,24 +46,13 @@ internal class PermissionRepositoryMySql : IPermissionRepository
                            (RoleId, Module, Type, PermissionName, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES (@RoleId, @Module, @Type, @PermissionName, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        var lastId = await _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-        return await GetById(lastId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
 
-    public async Task<Permission> Delete(int id)
+    public async Task Delete(int id)
     {
-        const string beforeSql = """
-                          SELECT * FROM Permissions
-                          WHERE PermissionId = @PermissionId
-                          """;
-        var beforeResult = await _sqlConnection.QueryFirstAsync<Permission>(beforeSql, new { PermissionId = id }, _dbTransaction);
-        const string sql = """
-                           DELETE FROM Permissions
-                           WHERE PermissionId = @PermissionId
-                           """;
-        await _sqlConnection.ExecuteAsync(sql, new { PermissionId = id }, _dbTransaction);
-        return beforeResult;
+        const string sql = "DELETE FROM Permissions WHERE PermissionId = @PermissionId";
+        _ = await _sqlConnection.ExecuteAsync(sql, new { PermissionId = id }, _dbTransaction);
     }
 
     public async Task<IEnumerable<Permission>> GetAll()
@@ -108,7 +97,7 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         return await _sqlConnection.QueryAsync<Permission>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task<Permission> Update(Permission entity)
+    public async Task Update(Permission entity)
     {
         entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims
             .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
@@ -138,10 +127,11 @@ internal class PermissionRepositoryMySql : IPermissionRepository
                            """;
 
         var template = builder.AddTemplate(sql);
-
-        await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-        return await GetById(entity.PermissionId);
+        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
     }
-
+    public Task<int> GetLastInsertedId()
+    {
+        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+    }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

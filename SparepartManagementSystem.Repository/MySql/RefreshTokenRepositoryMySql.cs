@@ -66,7 +66,7 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return before;
     }
 
-    public async Task<RefreshToken> Add(RefreshToken entity)
+    public async Task Add(RefreshToken entity)
     {
         var currentDateTime = DateTime.Now;
         entity.Created = currentDateTime;
@@ -76,24 +76,13 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
                            (UserId, Token, Created, Expires, Revoked, ReplacedByToken)
                            VALUES (@UserId, @Token, @Created, @Expires, @Revoked, @ReplacedByToken)
                            """;
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        var lastId = await _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-        return await GetById(lastId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
 
-    public Task<RefreshToken> Delete(int id)
+    public async Task Delete(int id)
     {
-        const string beforeSql = """
-                                 SELECT * FROM RefreshTokens
-                                 WHERE RefreshTokenId = @RefreshTokenId
-                                 """;
-        var beforeResult = _sqlConnection.QueryFirstAsync<RefreshToken>(beforeSql, new { RefreshTokenId = id }, _dbTransaction);
-        const string sql = """
-                           DELETE FROM RefreshTokens
-                           WHERE RefreshTokenId = @RefreshTokenId
-                           """;
-        _sqlConnection.ExecuteAsync(sql, new { RefreshTokenId = id }, _dbTransaction);
-        return beforeResult;
+        const string sql = "DELETE FROM RefreshTokens WHERE RefreshTokenId = @RefreshTokenId";
+        await _sqlConnection.ExecuteAsync(sql, new { RefreshTokenId = id }, _dbTransaction);
     }
 
     public Task<IEnumerable<RefreshToken>> GetAll()
@@ -105,10 +94,7 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
 
     public Task<RefreshToken> GetById(int id)
     {
-        const string sql = """
-                           SELECT * FROM RefreshTokens
-                           WHERE RefreshTokenId = @RefreshTokenId
-                           """;
+        const string sql = "SELECT * FROM RefreshTokens WHERE RefreshTokenId = @RefreshTokenId";
         return _sqlConnection.QueryFirstAsync<RefreshToken>(sql, new { RefreshTokenId = id }, _dbTransaction);
     }
 
@@ -136,7 +122,7 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return _sqlConnection.QueryAsync<RefreshToken>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task<RefreshToken> Update(RefreshToken entity)
+    public async Task Update(RefreshToken entity)
     {
         const string sql = """
                            UPDATE RefreshTokens
@@ -147,10 +133,11 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
                            ReplacedByToken = @ReplacedByToken
                            WHERE RefreshTokenId = @RefreshTokenId
                            """;
-
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        return await GetById(entity.RefreshTokenId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
-
+    public Task<int> GetLastInsertedId()
+    {
+        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+    }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

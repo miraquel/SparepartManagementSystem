@@ -11,7 +11,10 @@ public class RepositoryFactory : IRepositoryFactory
     private readonly IEnumerable<IRefreshTokenRepository> _refreshTokenRepositories;
     private readonly IEnumerable<IGoodsReceiptHeaderRepository> _goodsReceiptHeaderRepositories;
     private readonly IEnumerable<IGoodsReceiptLineRepository> _goodsReceiptLineRepositories;
-    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories, IEnumerable<IGoodsReceiptLineRepository> goodsReceiptLineRepositories)
+    private readonly IEnumerable<IRowLevelAccessRepository> _rowLevelAccessRepositories;
+    private readonly IEnumerable<IWorkOrderHeaderRepository> _workOrderHeaderRepositories;
+    private readonly IEnumerable<IWorkOrderLineRepository> _workOrderLineRepositories;
+    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories, IEnumerable<IGoodsReceiptLineRepository> goodsReceiptLineRepositories, IEnumerable<IRowLevelAccessRepository> rowLevelAccessRepositories, IEnumerable<IWorkOrderHeaderRepository> workOrderHeaderRepositories, IEnumerable<IWorkOrderLineRepository> workOrderLineRepositories)
     {
         _userRepositories = userRepositories;
         _roleRepositories = roleRepositories;
@@ -20,6 +23,9 @@ public class RepositoryFactory : IRepositoryFactory
         _refreshTokenRepositories = refreshTokenRepositories;
         _goodsReceiptHeaderRepositories = goodsReceiptHeaderRepositories;
         _goodsReceiptLineRepositories = goodsReceiptLineRepositories;
+        _rowLevelAccessRepositories = rowLevelAccessRepositories;
+        _workOrderHeaderRepositories = workOrderHeaderRepositories;
+        _workOrderLineRepositories = workOrderLineRepositories;
     }
 
     public T? GetRepository<T>(DatabaseProvider databaseProvider) where T : class
@@ -33,6 +39,9 @@ public class RepositoryFactory : IRepositoryFactory
             var type when type == typeof(IRefreshTokenRepository) => _refreshTokenRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IGoodsReceiptHeaderRepository) => _goodsReceiptHeaderRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IGoodsReceiptLineRepository) => _goodsReceiptLineRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
+            var type when type == typeof(IRowLevelAccessRepository) => _rowLevelAccessRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
+            var type when type == typeof(IWorkOrderHeaderRepository) => _workOrderHeaderRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
+            var type when type == typeof(IWorkOrderLineRepository) => _workOrderLineRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             _ => throw new ArgumentOutOfRangeException(nameof(T), typeof(T), null)
         };
     }

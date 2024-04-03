@@ -98,6 +98,8 @@ public class InitialMigration : FluentMigrator.Migration
         Create.Table("GoodsReceiptHeaders")
             .WithColumn("GoodsReceiptHeaderId").AsInt32().PrimaryKey().Identity()
             .WithColumn("PackingSlipId").AsString(50).NotNullable()
+            .WithColumn("TransDate").AsDateTime().NotNullable()
+            .WithColumn("Description").AsString(50).NotNullable()
             .WithColumn("PurchId").AsString(50).NotNullable()
             .WithColumn("PurchName").AsString(50).NotNullable()
             .WithColumn("OrderAccount").AsString(50).NotNullable()
@@ -111,12 +113,18 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("ModifiedBy").AsString(50).NotNullable()
             .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
         
+        Create.UniqueConstraint("IX_PackingSlipId")
+            .OnTable("GoodsReceiptHeaders").Columns("PackingSlipId");
+        
         Create.Table("GoodsReceiptLines")
             .WithColumn("GoodsReceiptLineId").AsInt32().PrimaryKey().Identity()
             .WithColumn("GoodsReceiptHeaderId").AsInt32().NotNullable()
             .WithColumn("ItemId").AsString(50).NotNullable()
             .WithColumn("LineNumber").AsInt32().NotNullable()
             .WithColumn("ItemName").AsString(50).NotNullable()
+            .WithColumn("ProductType").AsInt32().NotNullable()
+            .WithColumn("RemainPurchPhysical").AsDecimal().NotNullable()
+            .WithColumn("ReceiveNow").AsDecimal().NotNullable()
             .WithColumn("PurchQty").AsDecimal().NotNullable()
             .WithColumn("PurchUnit").AsString(50).NotNullable()
             .WithColumn("PurchPrice").AsDecimal().NotNullable()
@@ -131,10 +139,72 @@ public class InitialMigration : FluentMigrator.Migration
         Create.ForeignKey("FK_GoodsReceiptLines_GoodsReceiptHeaders")
             .FromTable("GoodsReceiptLines").ForeignColumn("GoodsReceiptHeaderId")
             .ToTable("GoodsReceiptHeaders").PrimaryColumn("GoodsReceiptHeaderId");
+        
+        Create.UniqueConstraint("IX_GoodsReceiptLines_LineNumber")
+            .OnTable("GoodsReceiptLines").Columns("GoodsReceiptHeaderId", "LineNumber");
+        
+        Create.Table("RowLevelAccesses")
+            .WithColumn("RowLevelAccessId").AsInt32().PrimaryKey().Identity()
+            .WithColumn("UserId").AsInt32().NotNullable()
+            .WithColumn("AxTable").AsInt32().NotNullable()
+            .WithColumn("Query").AsString(50).NotNullable()
+            .WithColumn("CreatedBy").AsString(50).NotNullable()
+            .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
+            .WithColumn("ModifiedBy").AsString(50).NotNullable()
+            .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
+        
+        Create.ForeignKey("FK_RowLevelAccess_Users")
+            .FromTable("RowLevelAccesses").ForeignColumn("UserId")
+            .ToTable("Users").PrimaryColumn("UserId");
+        
+        Create.Table("WorkOrderHeaders")
+            .WithColumn("WorkOrderHeaderId").AsInt32().PrimaryKey().Identity()
+            .WithColumn("IsSubmitted").AsBoolean().NotNullable()
+            .WithColumn("SubmittedDate").AsDateTime().NotNullable()
+            .WithColumn("AGSEAMWOID").AsString(50).NotNullable()
+            .WithColumn("AGSEAMWRID").AsString(50).NotNullable()
+            .WithColumn("AGSEAMEntityID").AsString(50).NotNullable()
+            .WithColumn("Name").AsString(50).NotNullable()
+            .WithColumn("HeaderTitle").AsString(50).NotNullable()
+            .WithColumn("AGSEAMPriorityID").AsString(50).NotNullable()
+            .WithColumn("AGSEAMWOTYPE").AsString(50).NotNullable()
+            .WithColumn("AGSEAMWOStatusID").AsString(50).NotNullable()
+            .WithColumn("AGSEAMPlanningStartDate").AsDateTime().NotNullable()
+            .WithColumn("AGSEAMPlanningEndDate").AsDateTime().NotNullable()
+            .WithColumn("EntityShutDown").AsInt32().NotNullable()
+            .WithColumn("WOCloseDate").AsDateTime().NotNullable()
+            .WithColumn("AGSEAMSuspend").AsInt32().NotNullable()
+            .WithColumn("Notes").AsString(50).NotNullable()
+            .WithColumn("CreatedBy").AsString(50).NotNullable()
+            .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
+            .WithColumn("ModifiedBy").AsString(50).NotNullable()
+            .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
+        
+        Create.Table("WorkOrderLines")
+            .WithColumn("WorkOrderLineId").AsInt32().PrimaryKey().Identity()
+            .WithColumn("WorkOrderHeaderId").AsInt32().NotNullable()
+            .WithColumn("ItemId").AsString(50).NotNullable()
+            .WithColumn("ItemName").AsString(50).NotNullable()
+            .WithColumn("RequiredDate").AsDateTime().NotNullable()
+            .WithColumn("Quantity").AsDecimal().NotNullable()
+            .WithColumn("RequestQuantity").AsDecimal().NotNullable()
+            .WithColumn("InventLocationId").AsString(50).NotNullable()
+            .WithColumn("WMSLocationId").AsString(50).NotNullable()
+            .WithColumn("CreatedBy").AsString(50).NotNullable()
+            .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
+            .WithColumn("ModifiedBy").AsString(50).NotNullable()
+            .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
+        
+        Create.ForeignKey("FK_WorkOrderLines_WorkOrderHeaders")
+            .FromTable("WorkOrderLines").ForeignColumn("WorkOrderHeaderId")
+            .ToTable("WorkOrderHeaders").PrimaryColumn("WorkOrderHeaderId");
     }
 
     public override void Down()
     {
+        Delete.Table("WorkOrderLines");
+        Delete.Table("WorkOrderHeaders");
+        Delete.Table("RowLevelAccesses");
         Delete.Table("GoodsReceiptLines");
         Delete.Table("GoodsReceiptHeaders");
         Delete.Table("RefreshTokens");

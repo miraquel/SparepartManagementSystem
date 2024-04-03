@@ -10,4 +10,7 @@ public interface IGMKSMSServiceGroup
     Task<ServiceResponse<IEnumerable<PurchLineDto>>> GetPurchLineList(string purchId);
     Task<ServiceResponse<PagedListDto<WMSLocationDto>>> GetWMSLocationPagedList(int pageNumber, int pageSize, WMSLocationSearchDto dto);
     Task<ServiceResponse<GMKServiceResponseDto>> PostPurchPackingSlip(GoodsReceiptHeaderDto dto);
+    Task<ServiceResponse<PurchTableDto>> GetPurchTable(string purchId);
+    Task<ServiceResponse<IEnumerable<InventSumDto>>> GetInventSumList(InventSumSearchDto dto);
+    Task<ServiceResponse<PagedListDto<WorkOrderDto>>> GetWorkOrderPagedList(int pageNumber, int pageSize, WorkOrderSearchDto dto);
 }

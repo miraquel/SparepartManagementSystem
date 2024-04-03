@@ -15,8 +15,8 @@ namespace SparepartManagementSystem.Repository.Interface;
 /// </summary>
 public interface IRoleRepository : IRepository<Role>
 {
-    Task<bool> AddUser(int roleId, int userId);
-    Task<bool> DeleteUser(int roleId, int userId);
+    Task AddUser(int roleId, int userId);
+    Task DeleteUser(int roleId, int userId);
     Task<IEnumerable<Role>> GetAllWithUsers();
     Task<Role?> GetByIdWithUsers(int id);
 }

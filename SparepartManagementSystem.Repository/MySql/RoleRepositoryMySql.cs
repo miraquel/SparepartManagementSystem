@@ -22,7 +22,7 @@ internal class RoleRepositoryMySql : IRoleRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<Role> Add(Role entity)
+    public async Task Add(Role entity)
     {
         var currentDateTime = DateTime.Now;
         entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
@@ -35,24 +35,13 @@ internal class RoleRepositoryMySql : IRoleRepository
                            (RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES (@RoleName, @Description, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        var lastId = await _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-        return await GetById(lastId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
 
-    public async Task<Role> Delete(int id)
+    public async Task Delete(int id)
     {
-        const string beforeSql = """
-                                 SELECT * FROM Roles
-                                 WHERE RoleId = @RoleId
-                                 """;
-        var beforeResult = await _sqlConnection.QueryFirstAsync<Role>(beforeSql, new { RoleId = id }, _dbTransaction);
-        const string sql = """
-                           DELETE FROM Roles
-                           WHERE RoleId = @RoleId
-                           """;
-        await _sqlConnection.ExecuteAsync(sql, new { RoleId = id }, _dbTransaction);
-        return beforeResult;
+        const string sql = "DELETE FROM Roles WHERE RoleId = @RoleId";
+        _ = await _sqlConnection.ExecuteAsync(sql, new { RoleId = id }, _dbTransaction);
     }
 
     public async Task<IEnumerable<Role>> GetAll()
@@ -98,7 +87,7 @@ internal class RoleRepositoryMySql : IRoleRepository
         return await _sqlConnection.QueryAsync<Role>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task<Role> Update(Role entity)
+    public async Task Update(Role entity)
     {
         entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
         entity.ModifiedDateTime = DateTime.Now;
@@ -122,32 +111,32 @@ internal class RoleRepositoryMySql : IRoleRepository
                            """;
 
         var template = builder.AddTemplate(sql);
-
-        await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-        return await GetById(entity.RoleId);
+        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+    }
+    public Task<int> GetLastInsertedId()
+    {
+        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
-    public async Task<bool> AddUser(int roleId, int userId)
+    public async Task AddUser(int roleId, int userId)
     {
         const string sql = """
                            INSERT INTO UserRoles
                            (UserId, RoleId)
                            VALUES (@UserId, @RoleId)
                            """;
-        var result = await _sqlConnection.ExecuteAsync(sql, new { UserId = userId, RoleId = roleId }, _dbTransaction);
-        return result > 0;
+        _ = await _sqlConnection.ExecuteAsync(sql, new { UserId = userId, RoleId = roleId }, _dbTransaction);
     }
 
-    public async Task<bool> DeleteUser(int roleId, int userId)
+    public async Task DeleteUser(int roleId, int userId)
     {
         const string sql = """
                            DELETE FROM UserRoles
                            WHERE UserId = @UserId AND RoleId = @RoleId
                            """;
-        var result = await _sqlConnection.ExecuteAsync(sql, new { UserId = userId, RoleId = roleId }, _dbTransaction);
-        return result > 0;
+        _ = await _sqlConnection.ExecuteAsync(sql, new { UserId = userId, RoleId = roleId }, _dbTransaction);
     }
 
     public async Task<IEnumerable<Role>> GetAllWithUsers()

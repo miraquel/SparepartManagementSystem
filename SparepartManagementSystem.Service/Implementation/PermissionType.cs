@@ -38,25 +38,22 @@ namespace SparepartManagementSystem.Service.Implementation
     }
     public static class PermissionType
     {
-        public static class InvoiceScanHeader
+        public static class GoodsReceipt
         {
-            public const string Read = "invoiceScanHeader.Read";
-            public const string Create = "invoiceScanHeader.Create";
-            public const string Update = "invoiceScanHeader.Update";
-            public const string Delete = "invoiceScanHeader.Delete";
-            public const string Process = "invoiceScanHeader.Process";
+            public const string Read = "goodsReceipt.Read";
+            public const string Create = "goodsReceipt.Create";
+            public const string Update = "goodsReceipt.Update";
+            public const string Delete = "goodsReceipt.Delete";
+            public const string Process = "goodsReceipt.Process";
         }
-
-        public static class InvoiceScanLine
+        public static class GMKSMSServiceGroup
         {
-            public const string Read = "invoiceScanLine.Read";
-            public const string Create = "invoiceScanLine.Create";
-            public const string Update = "invoiceScanLine.Update";
-            public const string Delete = "invoiceScanLine.Delete";
-            public const string Process = "invoiceScanLine.Process";
+            public const string Read = "gmkSMSServiceGroup.Read";
+            public const string Create = "gmkSMSServiceGroup.Create";
+            public const string Update = "gmkSMSServiceGroup.Update";
+            public const string Delete = "gmkSMSServiceGroup.Delete";
+            public const string Process = "gmkSMSServiceGroup.Process";
         }
-
-
         public static class NumberSequence
         {
             public const string Read = "numberSequence.Read";

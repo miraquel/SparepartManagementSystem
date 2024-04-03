@@ -15,6 +15,9 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
     public IRefreshTokenRepository RefreshTokenRepository { get; }
     public IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
     public IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
+    public IRowLevelAccessRepository RowLevelAccessRepository { get; }
+    public IWorkOrderHeaderRepository WorkOrderHeaderRepository { get; }
+    public IWorkOrderLineRepository WorkOrderLineRepository { get; }
     
     public UnitOfWork(IDbTransaction dbTransaction, IConfiguration configuration, IRepositoryFactory repositoryFactory)
     {
@@ -31,6 +34,9 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
             RefreshTokenRepository = repositoryFactory.GetRepository<IRefreshTokenRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
             GoodsReceiptHeaderRepository = repositoryFactory.GetRepository<IGoodsReceiptHeaderRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
             GoodsReceiptLineRepository = repositoryFactory.GetRepository<IGoodsReceiptLineRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
+            RowLevelAccessRepository = repositoryFactory.GetRepository<IRowLevelAccessRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
+            WorkOrderHeaderRepository = repositoryFactory.GetRepository<IWorkOrderHeaderRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
+            WorkOrderLineRepository = repositoryFactory.GetRepository<IWorkOrderLineRepository>(databaseProviderEnum) ?? throw new NullReferenceException();
         }
         else
         {

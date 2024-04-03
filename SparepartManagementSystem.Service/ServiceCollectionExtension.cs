@@ -2,6 +2,7 @@
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
@@ -14,14 +15,14 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<IMapper>(_ => MapperConfig.InitializeAutoMapper());
         services.AddSingleton<PermissionTypeAccessor>();
-        services.AddScoped<IActiveDirectoryService, ActiveDirectoryService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<INumberSequenceService, NumberSequenceService>();
         services.AddScoped<ILoginService, LoginService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IGoodsReceiptHeaderService, GoodsReceiptHeaderService>();
+        services.AddScoped<IGoodsReceiptService, GoodsReceiptService>();
+        services.AddScoped<IRowLevelAccessService, RowLevelAccessService>();
         services.AddScoped<IGMKSMSServiceGroup, GMKSMSServiceGroupImplementation>();
         services.AddScoped<GMKSMSService, GMKSMSServiceClient>(serviceProvider =>
         {

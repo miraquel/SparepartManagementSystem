@@ -45,7 +45,7 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
             result.LastNumber.ToString().PadLeft(formatString[0].Length, '0'));
     }
 
-    public async Task<NumberSequence> Add(NumberSequence entity)
+    public async Task Add(NumberSequence entity)
     {
         var currentDateTime = DateTime.Now;
         entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims
@@ -60,24 +60,13 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                            (Name, Description, Module, Format, LastNumber, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES(@Name, @Description, @Module, @Format, @LastNumber, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
-        var lastId = await _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-        return await GetById(lastId);
+        _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
 
-    public async Task<NumberSequence> Delete(int id)
+    public async Task Delete(int id)
     {
-        const string beforeSql = """
-                                 SELECT * FROM NumberSequences
-                                 WHERE NumberSequenceId = @NumberSequenceId
-                                 """;
-        var beforeResult = await _sqlConnection.QueryFirstAsync<NumberSequence>(beforeSql, new { NumberSequenceId = id }, _dbTransaction);
-        const string sql = """
-                           DELETE FROM NumberSequences
-                           WHERE NumberSequenceId = @NumberSequenceId
-                           """;
-        await _sqlConnection.ExecuteAsync(sql, new { NumberSequenceId = id }, _dbTransaction);
-        return beforeResult;
+        const string sql = "DELETE FROM NumberSequences WHERE NumberSequenceId = @NumberSequenceId";
+        _ = await _sqlConnection.ExecuteAsync(sql, new { NumberSequenceId = id }, _dbTransaction);
     }
 
     public async Task<IEnumerable<NumberSequence>> GetAll()
@@ -120,7 +109,7 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
         return await _sqlConnection.QueryAsync<NumberSequence>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task<NumberSequence> Update(NumberSequence entity)
+    public async Task Update(NumberSequence entity)
     {
         entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims
             .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
@@ -149,11 +138,12 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                            """;
 
         var template = builder.AddTemplate(sql);
-
-        await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-        return await GetById(entity.NumberSequenceId);
+        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
     }
-
+    public Task<int> GetLastInsertedId()
+    {
+        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+    }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
     [GeneratedRegex("#+")]

@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Serilog;
@@ -8,15 +9,15 @@ using SparepartManagementSystem.Service.Interface;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
-public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
+public class GoodsReceiptService : IGoodsReceiptService
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGMKSMSServiceGroup _gmkSmsServiceGroup;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger _logger = Log.ForContext<GoodsReceiptHeaderService>();
+    private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
 
-    public GoodsReceiptHeaderService(IMapper mapper, IUnitOfWork unitOfWork, IGMKSMSServiceGroup gmkSmsServiceGroup, IHttpContextAccessor httpContextAccessor)
+    public GoodsReceiptService(IMapper mapper, IUnitOfWork unitOfWork, IGMKSMSServiceGroup gmkSmsServiceGroup, IHttpContextAccessor httpContextAccessor)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
@@ -24,19 +25,19 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> Add(GoodsReceiptHeaderDto dto)
+    public async Task<ServiceResponse> Add(GoodsReceiptHeaderDto dto)
     {
         try
         {
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.Add(_mapper.Map<GoodsReceiptHeader>(dto));
+            await _unitOfWork.GoodsReceiptHeaderRepository.Add(_mapper.Map<GoodsReceiptHeader>(dto));
+            var lastInsertedId = await _unitOfWork.GoodsReceiptHeaderRepository.GetLastInsertedId();
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully", result.GoodsReceiptHeaderId);
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully", lastInsertedId);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<GoodsReceiptHeaderDto>(result),
                 Message = "Journal Line added successfully",
                 Success = true
             };
@@ -54,7 +55,7 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -63,19 +64,18 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
         }
     }
 
-    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> Delete(int id)
+    public async Task<ServiceResponse> Delete(int id)
     {
         try
         {
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.Delete(id);
+            await _unitOfWork.GoodsReceiptHeaderRepository.Delete(id);
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header deleted successfully", result.GoodsReceiptHeaderId);
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header deleted successfully", id);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<GoodsReceiptHeaderDto>(result),
                 Message = "Journal Line deleted successfully",
                 Success = true
             };
@@ -93,7 +93,7 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -203,19 +203,18 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
         }
     }
 
-    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> Update(GoodsReceiptHeaderDto dto)
+    public async Task<ServiceResponse> Update(GoodsReceiptHeaderDto dto)
     {
         try
         {
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.Update(_mapper.Map<GoodsReceiptHeader>(dto));
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(_mapper.Map<GoodsReceiptHeader>(dto));
 
             _unitOfWork.Commit();
 
-            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully", result.GoodsReceiptHeaderId);
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully", dto.GoodsReceiptHeaderId);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<GoodsReceiptHeaderDto>(result),
                 Message = "Journal Line updated successfully",
                 Success = true
             };
@@ -233,7 +232,41 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<int>> GetLastInsertedId()
+    {
+        try
+        {
+            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetLastInsertedId();
+            
+            _logger.Information("Goods receipt last inserted id retrieved successfully, id: {GoodsReceiptHeaderId}", result);
+
+            return new ServiceResponse<int>
+            {
+                Data = result,
+                Message = "Goods receipt last inserted id retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -330,26 +363,26 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
             throw;
         }
     }
-    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> AddWithLines(GoodsReceiptHeaderDto dto)
+    public async Task<ServiceResponse> AddWithLines(GoodsReceiptHeaderDto dto)
     {
         try
         {
-            var header = await _unitOfWork.GoodsReceiptHeaderRepository.Add(_mapper.Map<GoodsReceiptHeader>(dto));
+            await _unitOfWork.GoodsReceiptHeaderRepository.Add(_mapper.Map<GoodsReceiptHeader>(dto));
+            var lastInsertedId = await _unitOfWork.GoodsReceiptHeaderRepository.GetLastInsertedId();
+            
             var lines = _mapper.Map<IEnumerable<GoodsReceiptLine>>(dto.GoodsReceiptLines).ToArray();
             foreach (var line in lines)
             {
-                line.GoodsReceiptHeaderId = header.GoodsReceiptHeaderId;
+                line.GoodsReceiptHeaderId = lastInsertedId;
             }
-            var linesResult = await _unitOfWork.GoodsReceiptLineRepository.BulkAdd(lines);
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(header.GoodsReceiptHeaderId);
+            var linesCount = await _unitOfWork.GoodsReceiptLineRepository.BulkAdd(lines);
             
             _unitOfWork.Commit();
             
-            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully with {lines} lines inserted", result.GoodsReceiptHeaderId, linesResult);
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully with {lines} lines inserted", lastInsertedId, linesCount);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<GoodsReceiptHeaderDto>(result),
                 Message = "Journal Line added successfully",
                 Success = true
             };
@@ -367,7 +400,7 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -375,21 +408,99 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
             };
         }
     }
-    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> PostToAx(GoodsReceiptHeaderDto dto)
+    public async Task<ServiceResponse> UpdateWithLines(GoodsReceiptHeaderDto dto)
     {
         try
         {
-            if (dto.GoodsReceiptLines is null || !dto.GoodsReceiptLines.Any())
-                throw new Exception("Goods Receipt Lines is empty");
+            // update the header
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(_mapper.Map<GoodsReceiptHeader>(dto));
+
+            if (dto.GoodsReceiptLines.Any())
+            {
+                var goodsReceiptLines = await _unitOfWork.GoodsReceiptLineRepository.GetByGoodsReceiptHeaderId(dto.GoodsReceiptHeaderId);
+                
+                // if the line is exists in the database, but not exists in the dto, then delete the line
+                foreach (var goodsReceiptLine in goodsReceiptLines)
+                {
+                    if (dto.GoodsReceiptLines.All(x => x.GoodsReceiptLineId != goodsReceiptLine.GoodsReceiptLineId))
+                    {
+                        await _unitOfWork.GoodsReceiptLineRepository.Delete(goodsReceiptLine.GoodsReceiptLineId);
+                    }
+                }
+                
+                var goodsReceiptLinesDto = dto.GoodsReceiptLines as GoodsReceiptLineDto[] ?? dto.GoodsReceiptLines.ToArray();
+                foreach (var goodsReceiptLineDto in goodsReceiptLinesDto)
+                {
+                    // if the line is exists in the database, then update the line, otherwise add the line
+                    if (goodsReceiptLineDto.GoodsReceiptLineId == 0)
+                    {
+                        await _unitOfWork.GoodsReceiptLineRepository.Add(_mapper.Map<GoodsReceiptLine>(goodsReceiptLineDto));
+                    }
+                    else
+                    {
+                        await _unitOfWork.GoodsReceiptLineRepository.Update(_mapper.Map<GoodsReceiptLine>(goodsReceiptLineDto));
+                    }
+                }
+            }
             
-            var updateDto = dto.Merge(new GoodsReceiptHeaderDto
+            _unitOfWork.Commit();
+            
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully with {lines} lines updated", dto.GoodsReceiptHeaderId, dto.GoodsReceiptLines.Count);
+
+            return new ServiceResponse
+            {
+                Message = "Journal Line added successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.Rollback();
+
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse> PostToAx(GoodsReceiptHeaderDto dto)
+    {
+        try
+        {
+            var beforePost = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId);
+            
+            var beforePostDto = _mapper.Map<GoodsReceiptHeaderDto>(beforePost);
+            if (beforePostDto.IsSubmitted is true)
+                throw new Exception("Goods Receipt Header has been posted to AX");
+            
+            if (!beforePostDto.GoodsReceiptLines.Any())
+                throw new Exception("Goods Receipt Line is not exists, at least must be 1 line exists to post the Goods Receipt Header to AX");
+            
+            if (string.IsNullOrEmpty(beforePostDto.PackingSlipId))
+                throw new Exception("Packing Slip Id is required to post the Goods Receipt Header to AX");
+            
+            if (beforePostDto.TransDate.Equals(SqlDateTime.MinValue.Value))
+                throw new Exception("Receipt Date is required to post the Goods Receipt Header to AX");
+            
+            var updateHeaderDto = beforePostDto.Merge(new GoodsReceiptHeaderDto
             {
                 IsSubmitted = true,
                 SubmittedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "System",
                 SubmittedDate = DateTime.Now
             });
             
-            var updateResult = await _unitOfWork.GoodsReceiptHeaderRepository.Update(_mapper.Map<GoodsReceiptHeader>(updateDto));
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(_mapper.Map<GoodsReceiptHeader>(updateHeaderDto));
             
             var result = await _gmkSmsServiceGroup.PostPurchPackingSlip(dto);
             
@@ -400,9 +511,8 @@ public class GoodsReceiptHeaderService : IGoodsReceiptHeaderService
 
             _logger.Information("Goods Receipt Header posted to Ax successfully, Message: {Message}", result.Message);
 
-            return new ServiceResponse<GoodsReceiptHeaderDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<GoodsReceiptHeaderDto>(updateResult),
                 Message = "Goods Receipt Header has been successfully posted to AX",
                 Success = true
             };

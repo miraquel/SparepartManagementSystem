@@ -10,6 +10,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.Repository.Migration", "SparepartManagementSystem.Repository.Migration\SparepartManagementSystem.Repository.Migration.csproj", "{60DE2237-6FFA-4B64-9800-BD13073091D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.Shared", "SparepartManagementSystem.Shared\SparepartManagementSystem.Shared.csproj", "{2E74194F-F370-45A4-8B4E-F6B2900D30C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.Console", "SparepartManagementSystem.Console\SparepartManagementSystem.Console.csproj", "{4A2A6051-305F-4640-B23E-A870B5720BFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparepartManagementSystem.Service.Tests", "SparepartManagementSystem.Service.Tests\SparepartManagementSystem.Service.Tests.csproj", "{D452A1F2-22B2-4039-ACB5-C069A6FCEC31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +42,17 @@ Global
 		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60DE2237-6FFA-4B64-9800-BD13073091D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E74194F-F370-45A4-8B4E-F6B2900D30C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E74194F-F370-45A4-8B4E-F6B2900D30C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E74194F-F370-45A4-8B4E-F6B2900D30C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E74194F-F370-45A4-8B4E-F6B2900D30C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A2A6051-305F-4640-B23E-A870B5720BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A2A6051-305F-4640-B23E-A870B5720BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A2A6051-305F-4640-B23E-A870B5720BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A2A6051-305F-4640-B23E-A870B5720BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D452A1F2-22B2-4039-ACB5-C069A6FCEC31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D452A1F2-22B2-4039-ACB5-C069A6FCEC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D452A1F2-22B2-4039-ACB5-C069A6FCEC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D452A1F2-22B2-4039-ACB5-C069A6FCEC31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

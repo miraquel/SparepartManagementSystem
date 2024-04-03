@@ -59,7 +59,6 @@ public static class Program
                 // break;
             case DatabaseProvider.PostgresSql:
             case DatabaseProvider.Oracle:
-            case DatabaseProvider.Mock:
             default:
                 throw new InvalidOperationException("Database provider not supported");
         }

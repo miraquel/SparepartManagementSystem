@@ -35,6 +35,9 @@ public interface IUnitOfWork
     
     IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
     IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
+    IRowLevelAccessRepository RowLevelAccessRepository { get; }
+    IWorkOrderHeaderRepository WorkOrderHeaderRepository { get; }
+    IWorkOrderLineRepository WorkOrderLineRepository { get; }
 
     void Commit();
     void Rollback();

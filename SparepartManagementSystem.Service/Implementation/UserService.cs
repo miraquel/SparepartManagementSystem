@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.DirectoryServices.Protocols;
+using System.Net;
+using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
@@ -16,32 +18,29 @@ internal class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILoginService _loginService;
-    private readonly IActiveDirectoryService _activeDirectoryService;
 
-    public UserService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, ILoginService loginService, IActiveDirectoryService activeDirectoryService)
+    public UserService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, ILoginService loginService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _configuration = configuration;
         _loginService = loginService;
-        _activeDirectoryService = activeDirectoryService;
     }
 
-    public async Task<ServiceResponse<UserDto>> Add(UserDto dto)
+    public async Task<ServiceResponse> Add(UserDto dto)
     {
         try
         {
             var user = _mapper.Map<User>(dto);
 
-            var inserted = await _unitOfWork.UserRepository.Add(user);
+            await _unitOfWork.UserRepository.Add(user);
 
             _unitOfWork.Commit();
 
-            _logger.Information("User {UserId} added successfully", inserted?.UserId);
+            _logger.Information("User {UserId} added successfully", user.UserId);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<UserDto>(inserted),
                 Message = "User added successfully",
                 Success = true
             };
@@ -59,7 +58,7 @@ internal class UserService : IUserService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -68,19 +67,18 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> Delete(int id)
+    public async Task<ServiceResponse> Delete(int id)
     {
         try
         {
-            var deleted = await _unitOfWork.UserRepository.Delete(id);
+            await _unitOfWork.UserRepository.Delete(id);
 
             _unitOfWork.Commit();
 
-            _logger.Information("User {UserId} deleted successfully", deleted?.UserId);
+            _logger.Information("User {UserId} deleted successfully", id);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<UserDto>(deleted),
                 Message = "User deleted successfully",
                 Success = true
             };
@@ -98,7 +96,7 @@ internal class UserService : IUserService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -148,7 +146,7 @@ internal class UserService : IUserService
         {
             var user = await _unitOfWork.UserRepository.GetById(id);
 
-            _logger.Information("User {UserId} retrieved successfully", user?.UserId);
+            _logger.Information("User {UserId} retrieved successfully", user.UserId);
 
             return new ServiceResponse<UserDto>
             {
@@ -214,21 +212,20 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> Update(UserDto dto)
+    public async Task<ServiceResponse> Update(UserDto dto)
     {
         try
         {
             var user = _mapper.Map<User>(dto);
 
-            var updated = await _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.UserRepository.Update(user);
 
             _unitOfWork.Commit();
 
-            _logger.Information("User {UserId} updated successfully", updated?.UserId);
+            _logger.Information("User {UserId} updated successfully", user.UserId);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<UserDto>(updated),
                 Message = "User updated successfully",
                 Success = true
             };
@@ -246,7 +243,41 @@ internal class UserService : IUserService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<int>> GetLastInsertedId()
+    {
+        try
+        {
+            var result = await _unitOfWork.UserRepository.GetLastInsertedId();
+
+            _logger.Information("User last inserted id retrieved successfully, id: {LastInsertedId}", result);
+
+            return new ServiceResponse<int>
+            {
+                Data = result,
+                Message = "User last inserted id retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -255,20 +286,16 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> AddRole(UserRoleDto dto)
+    public async Task<ServiceResponse> AddRole(UserRoleDto dto)
     {
         try
         {
-            if (!await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId))
-                throw new InvalidOperationException("Failed to add role to user");
-
-            var user = await _unitOfWork.UserRepository.GetByIdWithRoles(dto.UserId);
+            await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId);
 
             _unitOfWork.Commit();
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<UserDto>(user),
                 Message = "Role added to user successfully",
                 Success = true
             };
@@ -284,7 +311,7 @@ internal class UserService : IUserService
 
             if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -293,20 +320,16 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> DeleteRole(UserRoleDto dto)
+    public async Task<ServiceResponse> DeleteRole(UserRoleDto dto)
     {
         try
         {
-            if (!await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId))
-                throw new InvalidOperationException($"Failed to delete role {dto.UserId} from user {dto.RoleId}");
-
-            var user = await _unitOfWork.UserRepository.GetByIdWithRoles(dto.UserId);
+            await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId);
 
             _unitOfWork.Commit();
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<UserDto>(user),
                 Message = "User deleted successfully",
                 Success = true
             };
@@ -322,7 +345,7 @@ internal class UserService : IUserService
 
             if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
 
-            return new ServiceResponse<UserDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -372,7 +395,7 @@ internal class UserService : IUserService
         {
             var result = await _unitOfWork.UserRepository.GetByIdWithRoles(id);
 
-            _logger.Information("User {UserId} retrieved successfully", result?.UserId);
+            _logger.Information("User {UserId} retrieved successfully", result.UserId);
 
             return new ServiceResponse<UserDto>
             {
@@ -407,7 +430,7 @@ internal class UserService : IUserService
         {
             var result = await _unitOfWork.UserRepository.GetByUsernameWithRoles(username);
 
-            _logger.Information("User {Username} retrieved successfully", result?.Username);
+            _logger.Information("User {Username} retrieved successfully", result.Username);
 
             return new ServiceResponse<UserDto>
             {
@@ -436,15 +459,54 @@ internal class UserService : IUserService
         }
     }
 
-    public ServiceResponse<IEnumerable<UserDto>> GetUsersFromActiveDirectory()
+    public ServiceResponse<IEnumerable<ActiveDirectoryDto>> GetUsersFromActiveDirectory(string searchText)
     {
         try
         {
-            var users = _activeDirectoryService.GetUsersFromActiveDirectory();
+            var ldapConnectionString = _configuration.GetSection("ActiveDirectory:ConnectionString").Value;
+            var ldapNames = _configuration.GetSection("ActiveDirectory:Names").Value;
+            var ldapUsername = _configuration.GetSection("ActiveDirectory:Username").Value;
+            var ldapPassword = _configuration.GetSection("ActiveDirectory:Password").Value;
 
-            return new ServiceResponse<IEnumerable<UserDto>>
+            if (ldapConnectionString == null)
+                throw new InvalidOperationException("LDAP Connection String is not found in configuration");
+
+            using var ldapConnection = new LdapConnection(ldapConnectionString);
+
+            ldapConnection.AuthType = AuthType.Basic;
+            ldapConnection.Credential = new NetworkCredential(ldapUsername, ldapPassword);
+
+            if (ldapNames == null)
+                throw new InvalidOperationException("LDAP Names is not found in configuration");
+
+            string[] attributes = { "givenName", "sn", "sAMAccountName", "userPrincipalName" };
+
+            var ldapFilterMap = new Dictionary<string, string>
             {
-                Data = _mapper.Map<IEnumerable<UserDto>>(users),
+                { "givenName", string.IsNullOrEmpty(searchText) ? "*" : $"*{searchText}*" },
+                { "sn", string.IsNullOrEmpty(searchText) ? "*" : $"*{searchText}*" },
+                { "sAMAccountName", string.IsNullOrEmpty(searchText) ? "*" : $"*{searchText}*" },
+                { "userPrincipalName", string.IsNullOrEmpty(searchText) ? "*" : $"*{searchText}*" }
+            };
+
+            var ldapFilter = $"(|{string.Join("", ldapFilterMap.Select(x => $"({x.Key}={x.Value})"))})";
+
+            var searchResponse = (SearchResponse)ldapConnection.SendRequest(
+                new SearchRequest(
+                    ldapNames,
+                    ldapFilter,
+                    SearchScope.Subtree, attributes));
+
+            var users = from SearchResultEntry entry in searchResponse.Entries
+                let firstName = entry.Attributes["givenName"] != null ? entry.Attributes["givenName"][0].ToString() : ""
+                let lastName = entry.Attributes["sn"] != null ? entry.Attributes["sn"][0].ToString() : ""
+                let username = entry.Attributes["sAMAccountName"] != null ? entry.Attributes["sAMAccountName"][0].ToString() : ""
+                let email = entry.Attributes["userPrincipalName"] != null ? entry.Attributes["userPrincipalName"][0].ToString() : ""
+                select new ActiveDirectoryDto { FirstName = firstName, LastName = lastName, Username = username, Email = email };
+
+            return new ServiceResponse<IEnumerable<ActiveDirectoryDto>>
+            {
+                Data = users,
                 Message = "Active Directory Users retrieved",
                 Success = true
             };
@@ -458,7 +520,7 @@ internal class UserService : IUserService
 
             if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
 
-            return new ServiceResponse<IEnumerable<UserDto>>
+            return new ServiceResponse<IEnumerable<ActiveDirectoryDto>>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

@@ -6,5 +6,5 @@ public enum DatabaseProvider
     MySql,
     PostgresSql,
     Oracle,
-    Mock
+    SqLite
 }
