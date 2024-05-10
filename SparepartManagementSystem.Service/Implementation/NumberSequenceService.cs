@@ -1,35 +1,44 @@
-﻿using AutoMapper;
+﻿using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
 public class NumberSequenceService : INumberSequenceService
 {
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger _logger = Log.ForContext<NumberSequenceService>();
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public NumberSequenceService(IUnitOfWork unitOfWork, IMapper mapper)
+    public NumberSequenceService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ServiceResponse> Add(NumberSequenceDto dto)
+    public async Task<ServiceResponse> AddNumberSequence(NumberSequenceDto dto)
     {
         try
         {
-            await _unitOfWork.NumberSequenceRepository.Add(_mapper.Map<NumberSequence>(dto));
-            var lastInsertedId = await _unitOfWork.NumberSequenceRepository.GetLastInsertedId();
-
-            _unitOfWork.Commit();
+            var numberSequenceAdd = _mapper.MapToNumberSequence(dto);
+            numberSequenceAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            numberSequenceAdd.CreatedDateTime = DateTime.Now;
+            numberSequenceAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            numberSequenceAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.NumberSequenceRepository.Add(numberSequenceAdd);
+            
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence added successfully", lastInsertedId);
 
+            _unitOfWork.Commit();
+            
             return new ServiceResponse
             {
                 Message = "Journal Line added successfully",
@@ -58,15 +67,15 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse> Delete(int id)
+    public async Task<ServiceResponse> DeleteNumberSequence(int id)
     {
         try
         {
             await _unitOfWork.NumberSequenceRepository.Delete(id);
 
-            _unitOfWork.Commit();
-
             _logger.Information("id: {NumberSequenceId}, Number Sequence deleted successfully", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -96,7 +105,7 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetAll()
+    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetAllNumberSequence()
     {
         try
         {
@@ -106,7 +115,7 @@ public class NumberSequenceService : INumberSequenceService
 
             return new ServiceResponse<IEnumerable<NumberSequenceDto>>
             {
-                Data = _mapper.Map<IEnumerable<NumberSequenceDto>>(result),
+                Data = _mapper.MapToListOfNumberSequenceDto(result),
                 Message = "Journal Line added successfully",
                 Success = true
             };
@@ -131,17 +140,17 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse<NumberSequenceDto>> GetById(int id)
+    public async Task<ServiceResponse<NumberSequenceDto>> GetNumberSequenceById(int id)
     {
         try
         {
             var result = await _unitOfWork.NumberSequenceRepository.GetById(id);
 
-            _logger.Information("id: {NumberSequenceId}, Number Sequence retrieved successfully", result?.NumberSequenceId);
+            _logger.Information("id: {NumberSequenceId}, Number Sequence retrieved successfully", result.NumberSequenceId);
 
             return new ServiceResponse<NumberSequenceDto>
             {
-                Data = _mapper.Map<NumberSequenceDto>(result),
+                Data = _mapper.MapToNumberSequenceDto(result),
                 Message = "Journal Line added successfully",
                 Success = true
             };
@@ -166,17 +175,17 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetByParams(NumberSequenceDto dto)
+    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(NumberSequenceDto dto)
     {
         try
         {
-            var result = (await _unitOfWork.NumberSequenceRepository.GetByParams(_mapper.Map<NumberSequence>(dto))).ToList();
+            var result = (await _unitOfWork.NumberSequenceRepository.GetByParams(_mapper.MapToNumberSequence(dto))).ToList();
 
             _logger.Information("Number Sequence get by params successfully with total {TotalRecord} rows", result.Count);
 
             return new ServiceResponse<IEnumerable<NumberSequenceDto>>
             {
-                Data = _mapper.Map<IEnumerable<NumberSequenceDto>>(result),
+                Data = _mapper.MapToListOfNumberSequenceDto(result),
                 Message = "Journal Line added successfully",
                 Success = true
             };
@@ -201,15 +210,25 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse> Update(NumberSequenceDto dto)
+    public async Task<ServiceResponse> UpdateNumberSequence(NumberSequenceDto dto)
     {
         try
         {
-            await _unitOfWork.NumberSequenceRepository.Update(_mapper.Map<NumberSequence>(dto));
+            var oldRecord = await _unitOfWork.NumberSequenceRepository.GetById(dto.NumberSequenceId, true);
 
-            _unitOfWork.Commit();
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Number Sequence has been modified by another user. Please refresh and try again.");
+            }
+            
+            var newRecord = _mapper.MapToNumberSequence(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.NumberSequenceRepository.Update(NumberSequence.ForUpdate(oldRecord, newRecord));
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence updated successfully", dto.NumberSequenceId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -231,40 +250,6 @@ public class NumberSequenceService : INumberSequenceService
             _logger.Error(ex, ex.Message);
 
             return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
-    }
-    public async Task<ServiceResponse<int>> GetLastInsertedId()
-    {
-        try
-        {
-            var result = await _unitOfWork.NumberSequenceRepository.GetLastInsertedId();
-
-            _logger.Information("Number Sequence last inserted id retrieved successfully, id: {LastInsertedId}", result);
-
-            return new ServiceResponse<int>
-            {
-                Data = result,
-                Message = "Number sequence last inserted id retrieved successfully",
-                Success = true
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

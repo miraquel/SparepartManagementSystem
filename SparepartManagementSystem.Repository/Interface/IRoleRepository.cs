@@ -18,5 +18,5 @@ public interface IRoleRepository : IRepository<Role>
     Task AddUser(int roleId, int userId);
     Task DeleteUser(int roleId, int userId);
     Task<IEnumerable<Role>> GetAllWithUsers();
-    Task<Role?> GetByIdWithUsers(int id);
+    Task<Role> GetByIdWithUsers(int id);
 }

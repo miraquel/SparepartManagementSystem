@@ -1,8 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlTypes;
-using System.Security.Claims;
 using Dapper;
-using Microsoft.AspNetCore.Http;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
 using static System.String;
@@ -13,23 +11,15 @@ internal class RoleRepositoryMySql : IRoleRepository
 {
     private readonly IDbTransaction _dbTransaction;
     private readonly IDbConnection _sqlConnection;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RoleRepositoryMySql(IDbConnection sqlConnection, IDbTransaction dbTransaction, IHttpContextAccessor httpContextAccessor)
+    public RoleRepositoryMySql(IDbConnection sqlConnection, IDbTransaction dbTransaction)
     {
         _sqlConnection = sqlConnection;
         _dbTransaction = dbTransaction;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task Add(Role entity)
     {
-        var currentDateTime = DateTime.Now;
-        entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.CreatedDateTime = currentDateTime;
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = currentDateTime;
-
         const string sql = """
                            INSERT INTO Roles
                            (RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
@@ -54,14 +44,20 @@ internal class RoleRepositoryMySql : IRoleRepository
         return await _sqlConnection.QueryAsync<Role>(sql, transaction: _dbTransaction);
     }
 
-    public async Task<Role> GetById(int id)
+    public async Task<Role> GetById(int id, bool forUpdate = false)
     {
         const string sql = """
                            SELECT RoleId, RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
                            FROM Roles
                            WHERE RoleId = @RoleId
                            """;
-        return await _sqlConnection.QueryFirstAsync<Role>(sql, new { RoleId = id }, _dbTransaction);
+        const string sqlForUpdate = """
+                                    SELECT RoleId, RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
+                                    FROM Roles
+                                    WHERE RoleId = @RoleId
+                                    FOR UPDATE
+                                    """;
+        return await _sqlConnection.QueryFirstAsync<Role>(forUpdate ? sqlForUpdate : sql, new { RoleId = id }, _dbTransaction);
     }
 
     public async Task<IEnumerable<Role>> GetByParams(Role entity)
@@ -69,46 +65,72 @@ internal class RoleRepositoryMySql : IRoleRepository
         var builder = new SqlBuilder();
 
         if (entity.RoleId > 0)
+        {
             builder.Where("RoleId = @RoleId", new { entity.RoleId });
-        if (!IsNullOrEmpty(entity.RoleName))
-            builder.Where("RoleName LIKE @RoleName", new { RoleName = $"%{entity.RoleName}%" });
-        if (!IsNullOrEmpty(entity.Description))
-            builder.Where("Description LIKE @Description", new { Description = $"%{entity.Description}%" });
-        if (!IsNullOrEmpty(entity.CreatedBy))
-            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
-        if (!IsNullOrEmpty(entity.ModifiedBy))
-            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+        }
 
-        var template = builder.AddTemplate("SELECT * FROM Roles /**where**/");
+        if (!IsNullOrEmpty(entity.RoleName))
+        {
+            builder.Where("RoleName LIKE @RoleName", new { RoleName = $"%{entity.RoleName}%" });
+        }
+
+        if (!IsNullOrEmpty(entity.Description))
+        {
+            builder.Where("Description LIKE @Description", new { Description = $"%{entity.Description}%" });
+        }
+
+        if (!IsNullOrEmpty(entity.CreatedBy))
+        {
+            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
+        }
+
+        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
+        {
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+        }
+
+        if (!IsNullOrEmpty(entity.ModifiedBy))
+        {
+            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
+        }
+
+        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        {
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+        }
+
+        const string sql = "SELECT * FROM Roles /**where**/";
+        var template = builder.AddTemplate(sql);
         return await _sqlConnection.QueryAsync<Role>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
     public async Task Update(Role entity)
     {
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = DateTime.Now;
-
         var builder = new SqlBuilder();
 
-        if (!IsNullOrEmpty(entity.RoleName)) builder.Set("RoleName = @RoleName", new { entity.RoleName });
+        if (!IsNullOrEmpty(entity.RoleName))
+        {
+            builder.Set("RoleName = @RoleName", new { entity.RoleName });
+        }
+
         if (!IsNullOrEmpty(entity.Description))
+        {
             builder.Set("Description = @Description", new { entity.Description });
+        }
+
         if (!IsNullOrEmpty(entity.ModifiedBy))
+        {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
         if (entity.ModifiedDateTime > DateTime.MinValue)
+        {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        }
 
         builder.Where("RoleId = @RoleId", new { entity.RoleId });
 
-        const string sql = """
-                           UPDATE Roles
-                           /**set**/
-                           /**where**/
-                           """;
+        const string sql = "UPDATE Roles /**set**/ /**where**/";
 
         var template = builder.AddTemplate(sql);
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
@@ -167,7 +189,7 @@ internal class RoleRepositoryMySql : IRoleRepository
         return result;
     }
 
-    public async Task<Role?> GetByIdWithUsers(int id)
+    public async Task<Role> GetByIdWithUsers(int id)
     {
         const string sql = """
                            SELECT r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime,

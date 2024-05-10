@@ -12,13 +12,13 @@ namespace SparepartManagementSystem.Service.DTO
             TotalCount = totalCount;
         }
 
-        public IEnumerable<T> Items { get; set; }
+        public IEnumerable<T> Items { get; init; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public int PageNumber { get; set; }
+        public int PageNumber { get; init; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public int PageSize { get; set; }
+        public int PageSize { get; init; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public int TotalCount { get; set; }
+        public int TotalCount { get; init; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]

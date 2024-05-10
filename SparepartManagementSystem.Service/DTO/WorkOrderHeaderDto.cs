@@ -5,10 +5,10 @@ namespace SparepartManagementSystem.Service.DTO;
 
 public class WorkOrderHeaderDto
 {
-    public int WorkOrderHeaderId { get; set; }
-    public bool? IsSubmitted { get; set; }
-    public DateTime SubmittedDate { get; set; } = SqlDateTime.MinValue.Value;
-    public string AGSEAMWOID { get; set; } = "";
+    public int WorkOrderHeaderId { get; init; }
+    public bool? IsSubmitted { get; init; }
+    public DateTime SubmittedDate { get; init; } = SqlDateTime.MinValue.Value;
+    public string AGSEAMWOID { get; init; } = "";
     public string AGSEAMWRID { get; init; } = "";
     public string AGSEAMEntityID { get; init; } = "";
     public string Name { get; init; } = "";
@@ -26,5 +26,5 @@ public class WorkOrderHeaderDto
     public DateTime CreatedDateTime { get; init; } = SqlDateTime.MinValue.Value;
     public string ModifiedBy { get; init; } = "";
     public DateTime ModifiedDateTime { get; init; } = SqlDateTime.MinValue.Value;
-    public ICollection<WorkOrderLineDto> WorkOrderLines { get; set; } = new List<WorkOrderLineDto>();
+    public ICollection<WorkOrderLineDto> WorkOrderLines { get; init; } = new List<WorkOrderLineDto>();
 }

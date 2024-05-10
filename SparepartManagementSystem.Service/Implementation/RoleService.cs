@@ -1,33 +1,36 @@
-﻿using AutoMapper;
+﻿using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
 internal class RoleService : IRoleService
 {
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger _logger = Log.ForContext<RoleService>();
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RoleService(IUnitOfWork unitOfWork, IMapper mapper)
+    public RoleService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ServiceResponse> AddUser(UserRoleDto dto)
+    public async Task<ServiceResponse> AddUserToRole(UserRoleDto dto)
     {
         try
         {
             await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId);
 
-            _unitOfWork.Commit();
-
             _logger.Information("User {UserId} added to role {RoleId} successfully", dto.UserId, dto.RoleId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -57,15 +60,15 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse> DeleteUser(UserRoleDto dto)
+    public async Task<ServiceResponse> DeleteUserFromRole(UserRoleDto dto)
     {
         try
         {
             await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId);
 
-            _unitOfWork.Commit();
-
             _logger.Information("User {UserId} deleted from role {RoleId} successfully", dto.UserId, dto.RoleId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -95,7 +98,7 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetAllWithUsers()
+    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetAllRoleWithUsers()
     {
         try
         {
@@ -105,7 +108,7 @@ internal class RoleService : IRoleService
 
             return new ServiceResponse<IEnumerable<RoleDto>>
             {
-                Data = _mapper.Map<IEnumerable<RoleDto>>(result),
+                Data = _mapper.MapToListOfRoleDto(result),
                 Message = "Roles retrieved successfully",
                 Success = true
             };
@@ -130,7 +133,7 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> GetByIdWithUsers(int id)
+    public async Task<ServiceResponse<RoleDto>> GetRoleByIdWithUsers(int id)
     {
         try
         {
@@ -140,7 +143,7 @@ internal class RoleService : IRoleService
 
             return new ServiceResponse<RoleDto>
             {
-                Data = _mapper.Map<RoleDto>(updated),
+                Data = _mapper.MapToRoleDto(updated),
                 Message = "Role updated successfully",
                 Success = true
             };
@@ -165,18 +168,21 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse> Add(RoleDto dto)
+    public async Task<ServiceResponse> AddRole(RoleDto dto)
     {
         try
         {
-            var role = _mapper.Map<Role>(dto);
-
-            await _unitOfWork.RoleRepository.Add(role);
-            var lastInsertedId = await _unitOfWork.RoleRepository.GetLastInsertedId();
-
-            _unitOfWork.Commit();
+            var roleAdd = _mapper.MapToRole(dto);
+            roleAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            roleAdd.CreatedDateTime = DateTime.Now;
+            roleAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            roleAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RoleRepository.Add(roleAdd);
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("Role {RoleId} added successfully", lastInsertedId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -206,15 +212,15 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse> Delete(int id)
+    public async Task<ServiceResponse> DeleteRole(int id)
     {
         try
         {
             await _unitOfWork.RoleRepository.Delete(id);
 
-            _unitOfWork.Commit();
-
             _logger.Information("Role {RoleId} deleted successfully", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -244,7 +250,7 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetAll()
+    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetAllRole()
     {
         try
         {
@@ -254,7 +260,7 @@ internal class RoleService : IRoleService
 
             return new ServiceResponse<IEnumerable<RoleDto>>
             {
-                Data = _mapper.Map<IEnumerable<RoleDto>>(roles),
+                Data = _mapper.MapToListOfRoleDto(roles),
                 Message = "Roles retrieved successfully",
                 Success = true
             };
@@ -279,7 +285,7 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<RoleDto>> GetById(int id)
+    public async Task<ServiceResponse<RoleDto>> GetRoleById(int id)
     {
         try
         {
@@ -289,7 +295,7 @@ internal class RoleService : IRoleService
 
             return new ServiceResponse<RoleDto>
             {
-                Data = _mapper.Map<RoleDto>(role),
+                Data = _mapper.MapToRoleDto(role),
                 Message = "Role retrieved successfully",
                 Success = true
             };
@@ -314,11 +320,11 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetByParams(RoleDto dto)
+    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetRoleByParams(RoleDto dto)
     {
         try
         {
-            var role = _mapper.Map<Role>(dto);
+            var role = _mapper.MapToRole(dto);
 
             var roles = (await _unitOfWork.RoleRepository.GetByParams(role)).ToList();
 
@@ -326,7 +332,7 @@ internal class RoleService : IRoleService
 
             return new ServiceResponse<IEnumerable<RoleDto>>
             {
-                Data = _mapper.Map<IEnumerable<RoleDto>>(roles),
+                Data = _mapper.MapToListOfRoleDto(roles),
                 Message = "Roles retrieved successfully",
                 Success = true
             };
@@ -351,17 +357,25 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse> Update(RoleDto dto)
+    public async Task<ServiceResponse> UpdateRole(RoleDto dto)
     {
         try
         {
-            var role = _mapper.Map<Role>(dto);
+            var oldRecord = await _unitOfWork.RoleRepository.GetById(dto.RoleId, true);
 
-            await _unitOfWork.RoleRepository.Update(role);
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Role has been modified by another user. Please refresh the page and try again.");
+            }
+            
+            var newRecord = _mapper.MapToRole(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RoleRepository.Update(Role.ForUpdate(oldRecord, newRecord));
 
+            _logger.Information("Role {RoleId} updated successfully", newRecord.RoleId);
+            
             _unitOfWork.Commit();
-
-            _logger.Information("Role {RoleId} updated successfully", role.RoleId);
 
             return new ServiceResponse
             {
@@ -383,40 +397,6 @@ internal class RoleService : IRoleService
             _logger.Error(ex, ex.Message);
 
             return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
-    }
-    public async Task<ServiceResponse<int>> GetLastInsertedId()
-    {
-        try
-        {
-            var lastInsertedId = await _unitOfWork.RoleRepository.GetLastInsertedId();
-
-            _logger.Information("Role last inserted id retrieved successfully, id: {LastInsertedId}", lastInsertedId);
-
-            return new ServiceResponse<int>
-            {
-                Data = lastInsertedId,
-                Message = "Role last inserted id retrieved successfully",
-                Success = true
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

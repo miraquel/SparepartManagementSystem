@@ -2,7 +2,13 @@
 
 namespace SparepartManagementSystem.Service.Interface
 {
-    public interface INumberSequenceService : IService<NumberSequenceDto>
+    public interface INumberSequenceService
     {
+        Task<ServiceResponse> AddNumberSequence(NumberSequenceDto entity);
+        Task<ServiceResponse> UpdateNumberSequence(NumberSequenceDto entity);
+        Task<ServiceResponse> DeleteNumberSequence(int id);
+        Task<ServiceResponse<NumberSequenceDto>> GetNumberSequenceById(int id);
+        Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetAllNumberSequence();
+        Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(NumberSequenceDto entity);
     }
 }

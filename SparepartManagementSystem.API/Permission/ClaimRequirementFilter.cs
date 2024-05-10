@@ -34,7 +34,7 @@ public class ClaimRequirementFilter : IAsyncAuthorizationFilter
 
         if (userIdClaim == null) return hasPermission;
         
-        var userDto = await _userService.GetByIdWithRoles(int.Parse(userIdClaim.Value));
+        var userDto = await _userService.GetUserByIdWithRoles(int.Parse(userIdClaim.Value));
 
         if (userDto.Data == null) return hasPermission;
         
@@ -47,14 +47,13 @@ public class ClaimRequirementFilter : IAsyncAuthorizationFilter
             var roles = userDto.Data.Roles;
             var permissions = new List<PermissionDto>();
 
-            if (roles != null)
-                foreach (var role in roles)
-                {
-                    var permissionsDto = (await _permissionService.GetByRoleId(role.RoleId)).Data;
+            foreach (var role in roles)
+            {
+                var permissionsDto = (await _permissionService.GetByRoleId(role.RoleId)).Data;
 
-                    if (permissionsDto != null)
-                        permissions.AddRange(permissionsDto);
-                }
+                if (permissionsDto != null)
+                    permissions.AddRange(permissionsDto);
+            }
 
             hasPermission = permissions.Exists(x => _permissions.Contains(x.PermissionName));
         }

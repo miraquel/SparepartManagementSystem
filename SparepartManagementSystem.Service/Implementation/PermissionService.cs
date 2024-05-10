@@ -1,24 +1,27 @@
-﻿using AutoMapper;
+﻿using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
 internal class PermissionService : IPermissionService
 {
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly PermissionTypeAccessor _permissionTypeAccessor;
     private readonly ILogger _logger = Log.ForContext<PermissionService>();
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PermissionService(IUnitOfWork unitOfWork, IMapper mapper, PermissionTypeAccessor permissionTypeAccessor)
+    public PermissionService(IUnitOfWork unitOfWork, MapperlyMapper mapper, PermissionTypeAccessor permissionTypeAccessor, IHttpContextAccessor httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _permissionTypeAccessor = permissionTypeAccessor;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public ServiceResponse<IEnumerable<PermissionDto>> GetAllPermissionTypes()
@@ -101,7 +104,7 @@ internal class PermissionService : IPermissionService
 
             return new ServiceResponse<IEnumerable<PermissionDto>>
             {
-                Data = _mapper.Map<IEnumerable<PermissionDto>>(result),
+                Data = _mapper.MapToListOfPermissionDto(result),
                 Message = "Permission retrieved successfully",
                 Success = true
             };
@@ -126,18 +129,22 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse> Add(PermissionDto dto)
+    public async Task<ServiceResponse> AddPermission(PermissionDto dto)
     {
         try
         {
-            var permission = _mapper.Map<Permission>(dto);
+            var permissionAdd = _mapper.MapToPermission(dto);
+            permissionAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            permissionAdd.CreatedDateTime = DateTime.Now;
+            permissionAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            permissionAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.PermissionRepository.Add(permissionAdd);
+            
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
-            await _unitOfWork.PermissionRepository.Add(permission);
-            var lastInsertedId = await _unitOfWork.NumberSequenceRepository.GetLastInsertedId();
-
+            _logger.Information("id: {PermissionId}, Permission added successfully", lastInsertedId);
+            
             _unitOfWork.Commit();
-
-            _logger.Information("id: {PermissionId}, Permission added successfully", lastInsertedId); 
 
             return new ServiceResponse
             {
@@ -167,15 +174,15 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse> Delete(int id)
+    public async Task<ServiceResponse> DeletePermission(int id)
     {
         try
         {
             await _unitOfWork.PermissionRepository.Delete(id);
 
-            _unitOfWork.Commit();
-
             _logger.Information("id: {PermissionId}, Permission deleted successfully", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -205,7 +212,7 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetAll()
+    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetAllPermission()
     {
         try
         {
@@ -215,7 +222,7 @@ internal class PermissionService : IPermissionService
 
             return new ServiceResponse<IEnumerable<PermissionDto>>
             {
-                Data = _mapper.Map<IEnumerable<PermissionDto>>(result),
+                Data = _mapper.MapToListOfPermissionDto(result),
                 Message = "Permission retrieved successfully",
                 Success = true
             };
@@ -240,17 +247,17 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<PermissionDto>> GetById(int id)
+    public async Task<ServiceResponse<PermissionDto>> GetPermissionById(int id)
     {
         try
         {
             var result = await _unitOfWork.PermissionRepository.GetById(id);
 
-            _logger.Information("id: {PermissionId}, Permission retrieved successfully", result?.PermissionId);
+            _logger.Information("id: {PermissionId}, Permission retrieved successfully", result.PermissionId);
 
             return new ServiceResponse<PermissionDto>
             {
-                Data = _mapper.Map<PermissionDto>(result),
+                Data = _mapper.MapToPermissionDto(result),
                 Message = "Permission retrieved successfully",
                 Success = true
             };
@@ -277,11 +284,11 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetByParams(PermissionDto dto)
+    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetPermissionByParams(PermissionDto dto)
     {
         try
         {
-            var permission = _mapper.Map<Permission>(dto);
+            var permission = _mapper.MapToPermission(dto);
 
             var result = (await _unitOfWork.PermissionRepository.GetByParams(permission)).ToList();
 
@@ -289,7 +296,7 @@ internal class PermissionService : IPermissionService
 
             return new ServiceResponse<IEnumerable<PermissionDto>>
             {
-                Data = _mapper.Map<IEnumerable<PermissionDto>>(result),
+                Data = _mapper.MapToListOfPermissionDto(result),
                 Message = "Permission retrieved successfully",
                 Success = true
             };
@@ -314,17 +321,25 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse> Update(PermissionDto dto)
+    public async Task<ServiceResponse> UpdatePermission(PermissionDto dto)
     {
         try
         {
-            var permission = _mapper.Map<Permission>(dto);
+            var oldRecord = await _unitOfWork.PermissionRepository.GetById(dto.PermissionId, true);
 
-            await _unitOfWork.PermissionRepository.Update(permission);
-
-            _unitOfWork.Commit();
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Record has been modified by another user. Please refresh and try again.");
+            }
+            
+            var newRecord = _mapper.MapToPermission(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.PermissionRepository.Update(Permission.ForUpdate(oldRecord, newRecord));
 
             _logger.Information("id: {PermissionId}, Permission updated successfully", dto.PermissionId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -344,40 +359,6 @@ internal class PermissionService : IPermissionService
             _logger.Error(ex, ex.Message);
 
             return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
-    }
-    public async Task<ServiceResponse<int>> GetLastInsertedId()
-    {
-        try
-        {
-            var result = await _unitOfWork.PermissionRepository.GetLastInsertedId();
-
-            _logger.Information("Permission last inserted id retrieved successfully, id: {LastInsertedId}", result);
-
-            return new ServiceResponse<int>
-            {
-                Data = result,
-                Message = "Permission last inserted id retrieved successfully",
-                Success = true
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<int>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

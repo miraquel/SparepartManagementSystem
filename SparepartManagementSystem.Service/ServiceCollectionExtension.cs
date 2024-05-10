@@ -1,11 +1,10 @@
 ﻿using System.ServiceModel;
-using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service;
 
@@ -13,16 +12,20 @@ public static class ServiceCollectionExtension
 {
     public static void AddService(this IServiceCollection services)
     {
-        services.AddScoped<IMapper>(_ => MapperConfig.InitializeAutoMapper());
+        //services.AddScoped<IMapper>(_ => MapperConfig.InitializeAutoMapper());
+        // Mapperly
+        services.AddScoped(_ => new MapperlyMapper());
+        
         services.AddSingleton<PermissionTypeAccessor>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserWarehouseService, UserWarehouseService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<INumberSequenceService, NumberSequenceService>();
         services.AddScoped<ILoginService, LoginService>();
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IGoodsReceiptService, GoodsReceiptService>();
         services.AddScoped<IRowLevelAccessService, RowLevelAccessService>();
+        services.AddScoped<IWorkOrderService, WorkOrderService>();
         services.AddScoped<IGMKSMSServiceGroup, GMKSMSServiceGroupImplementation>();
         services.AddScoped<GMKSMSService, GMKSMSServiceClient>(serviceProvider =>
         {

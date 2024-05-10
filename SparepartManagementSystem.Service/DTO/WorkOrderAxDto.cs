@@ -1,10 +1,9 @@
-using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 
 namespace SparepartManagementSystem.Service.DTO;
 
-public class WorkOrderDto
+public class WorkOrderAxDto
 {
     public string AGSEAMWOID { get; init; } = "";
     public string AGSEAMWRID { get; init; } = "";

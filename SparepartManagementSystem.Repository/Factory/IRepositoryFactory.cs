@@ -3,5 +3,5 @@
 public interface IRepositoryFactory
 {
     // get repository by interface
-    T? GetRepository<T>(DatabaseProvider databaseProvider) where T : class;
+    T GetRepository<T>(DatabaseProvider databaseProvider) where T : class;
 }

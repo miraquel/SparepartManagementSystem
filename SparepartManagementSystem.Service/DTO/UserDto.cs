@@ -7,34 +7,35 @@ namespace SparepartManagementSystem.Service.DTO;
 public class UserDto
 {
     [DefaultValue("")]
-    public string CreatedBy { get; set; } = "";
+    public string CreatedBy { get; init; } = "";
 
     [DefaultValue(typeof(DateTime), "1753-01-01T00:00:00")]
-    public DateTime CreatedDateTime { get; set; } = SqlDateTime.MinValue.Value;
+    public DateTime CreatedDateTime { get; init; } = SqlDateTime.MinValue.Value;
 
     [DefaultValue("")]
-    public string Email { get; set; } = "";
+    public string Email { get; init; } = "";
 
     [DefaultValue("")]
-    public string FirstName { get; set; } = "";
+    public string FirstName { get; init; } = "";
     
     [DefaultValue("")]
-    public string LastName { get; set; } = "";
+    public string LastName { get; init; } = "";
 
     [DefaultValue("")]
-    public string ModifiedBy { get; set; } = "";
+    public string ModifiedBy { get; init; } = "";
 
     [DefaultValue(typeof(DateTime), "1753-01-01T00:00:00")]
-    public DateTime ModifiedDateTime { get; set; } = SqlDateTime.MinValue.Value;
+    public DateTime ModifiedDateTime { get; init; } = SqlDateTime.MinValue.Value;
 
-    public ICollection<RoleDto>? Roles { get; init; }
+    public ICollection<RoleDto> Roles { get; init; } = [];
+    public ICollection<UserWarehouseDto> UserWarehouses { get; init; } = [];
 
     public int UserId { get; init; }
 
     [DefaultValue("")]
-    public string Username { get; set; } = "";
+    public string Username { get; init; } = "";
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-    public bool IsAdministrator { get; set; }
+    public bool IsAdministrator { get; init; }
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-    public bool IsEnabled { get; set; }
+    public bool IsEnabled { get; init; }
 }

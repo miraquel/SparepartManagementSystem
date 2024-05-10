@@ -5,8 +5,8 @@ namespace SparepartManagementSystem.Service.DTO
     public class TokenDto
     {
         [DefaultValue("")]
-        public string AccessToken { get; set; } = "";
+        public string AccessToken { get; init; } = "";
         [DefaultValue("")]
-        public string RefreshToken { get; set; } = "";
+        public string RefreshToken { get; init; } = "";
     }
 }

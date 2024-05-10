@@ -2,8 +2,14 @@ using SparepartManagementSystem.Service.DTO;
 
 namespace SparepartManagementSystem.Service.Interface;
 
-public interface IRowLevelAccessService : IService<RowLevelAccessDto>
+public interface IRowLevelAccessService
 {
-    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetByUserId(int userId);
-    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> BulkDelete(IEnumerable<int> ids);
+    Task<ServiceResponse> AddRowLevelAccess(RowLevelAccessDto entity);
+    Task<ServiceResponse> UpdateRowLevelAccess(RowLevelAccessDto entity);
+    Task<ServiceResponse> DeleteRowLevelAccess(int id);
+    Task<ServiceResponse<RowLevelAccessDto>> GetRowLevelAccessById(int id);
+    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetAllRowLevelAccess();
+    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(RowLevelAccessDto entity);
+    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByUserId(int userId);
+    Task<ServiceResponse> BulkDeleteRowLevelAccess(IEnumerable<int> ids);
 }

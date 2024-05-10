@@ -19,6 +19,6 @@ public interface IPermissionRepository : IRepository<Permission>
     /// Get permission by role id
     /// </summary>
     /// <param name="roleId">Role id</param>
-    /// <returns><see cref="IEnumerable{Permission}"/> where <typeparamref name="T"/> is <see cref="Permission"/></returns>
+    /// <returns><see cref="IEnumerable{Permission}"/></returns>
     Task<IEnumerable<Permission>> GetByRoleId(int roleId);
 }

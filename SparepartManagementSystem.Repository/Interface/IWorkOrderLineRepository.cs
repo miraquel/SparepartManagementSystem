@@ -4,5 +4,6 @@ namespace SparepartManagementSystem.Repository.Interface;
 
 public interface IWorkOrderLineRepository : IRepository<WorkOrderLine>
 {
-    public Task<IEnumerable<WorkOrderLine>> GetByWorkOrderHeaderId(int id);
+    Task<IEnumerable<WorkOrderLine>> GetByWorkOrderHeaderId(int id);
+    Task BulkAdd(IEnumerable<WorkOrderLine> entities);
 }

@@ -81,6 +81,14 @@ public static class Program
             options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
             options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
         });
+        builder.Services.AddApiVersioning(options =>
+        {
+            options.ReportApiVersions = true;
+        }).AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
         builder.Services.AddHttpContextAccessor();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -93,7 +101,15 @@ public static class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                var descriptions = app.DescribeApiVersions();
+
+                foreach (var description in descriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+            });
         }
 
         app.UseHttpsRedirection();

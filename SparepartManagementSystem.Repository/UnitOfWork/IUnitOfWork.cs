@@ -23,6 +23,8 @@ public interface IUnitOfWork
 
     /// <inheritdoc cref="IUserRepository"/>
     IUserRepository UserRepository { get; }
+    
+    IUserWarehouseRepository UserWarehouseRepository { get; }
 
     /// <inheritdoc cref="IPermissionRepository"/>
     IPermissionRepository PermissionRepository { get; }
@@ -38,6 +40,8 @@ public interface IUnitOfWork
     IRowLevelAccessRepository RowLevelAccessRepository { get; }
     IWorkOrderHeaderRepository WorkOrderHeaderRepository { get; }
     IWorkOrderLineRepository WorkOrderLineRepository { get; }
+    IItemRequisitionRepository ItemRequisitionRepository { get; }
+    Task<int> GetLastInsertedId();
 
     void Commit();
     void Rollback();

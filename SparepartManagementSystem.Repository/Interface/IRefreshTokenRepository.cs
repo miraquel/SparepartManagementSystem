@@ -20,8 +20,9 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken>
     /// </summary>
     /// <param name="userId">User Id</param>
     /// <param name="token">Token</param>
+    /// <param name="forUpdate"></param>
     /// <returns><see cref="RefreshToken"/></returns>
-    Task<RefreshToken> GetByUserIdAndToken(int userId, string token);
+    Task<RefreshToken> GetByUserIdAndToken(int userId, string token, bool forUpdate = false);
 
     /// <summary>
     /// Get refresh token by user id
@@ -35,12 +36,12 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken>
     /// </summary>
     /// <param name="id">Refresh Token Id</param>
     /// <returns><see cref="RefreshToken"/></returns>
-    Task<RefreshToken> Revoke(int id);
+    Task Revoke(int id);
 
     /// <summary>
     /// Revoke all refresh token by user id
     /// </summary>
     /// <param name="userId">User Id</param>
     /// <returns><see cref="RefreshToken"/></returns>
-    Task<IEnumerable<RefreshToken>> RevokeAll(int userId);
+    Task RevokeAll(int userId);
 }

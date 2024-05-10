@@ -1,8 +1,6 @@
 using System.Data;
 using System.Data.SqlTypes;
-using System.Security.Claims;
 using Dapper;
-using Microsoft.AspNetCore.Http;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
 
@@ -12,26 +10,17 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
 {
     private readonly IDbTransaction _dbTransaction;
     private readonly IDbConnection _sqlConnection;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public GoodsReceiptHeaderRepositoryMySql(
         IDbTransaction dbTransaction,
-        IDbConnection sqlConnection,
-        IHttpContextAccessor httpContextAccessor)
+        IDbConnection sqlConnection)
     {
         _dbTransaction = dbTransaction;
         _sqlConnection = sqlConnection;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task Add(GoodsReceiptHeader entity)
     {
-        var currentDateTime = DateTime.Now;
-        entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.CreatedDateTime = currentDateTime;
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = currentDateTime;
-
         const string sql = """
                            INSERT INTO GoodsReceiptHeaders
                            (PackingSlipId, TransDate, Description, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
@@ -54,10 +43,11 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         return _sqlConnection.QueryAsync<GoodsReceiptHeader>(sql, transaction: _dbTransaction);
     }
 
-    public Task<GoodsReceiptHeader> GetById(int id)
+    public Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId";
-        return _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        const string sqlForUpdate = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId FOR UPDATE";
+        return _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
     }
 
     public Task<IEnumerable<GoodsReceiptHeader>> GetByParams(GoodsReceiptHeader entity)
@@ -88,42 +78,74 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
 
     public async Task Update(GoodsReceiptHeader entity)
     {
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = DateTime.Now;
-        
-        const string sqlBeforeUpdate = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId FOR UPDATE";
-        var beforeUpdate = await _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(sqlBeforeUpdate, new { entity.GoodsReceiptHeaderId }, _dbTransaction);
-        
         var builder = new SqlBuilder();
-        
-        if (entity.GoodsReceiptHeaderId > 0)
-            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
-        if (entity.PackingSlipId != beforeUpdate.PackingSlipId)
+
+        if (!string.IsNullOrEmpty(entity.PackingSlipId))
+        {
             builder.Set("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
-        if (entity.TransDate != beforeUpdate.TransDate)
+        }
+
+        if (entity.TransDate > SqlDateTime.MinValue.Value)
+        {
             builder.Set("TransDate = @TransDate", new { entity.TransDate });
-        if (entity.Description != beforeUpdate.Description)
+        }
+
+        if (!string.IsNullOrEmpty(entity.Description))
+        {
             builder.Set("Description = @Description", new { entity.Description });
-        if (entity.PurchId != beforeUpdate.PurchId)
+        }
+
+        if (!string.IsNullOrEmpty(entity.PurchId))
+        {
             builder.Set("PurchId = @PurchId", new { entity.PurchId });
-        if (entity.PurchName != beforeUpdate.PurchName)
+        }
+
+        if (!string.IsNullOrEmpty(entity.PurchName))
+        {
             builder.Set("PurchName = @PurchName", new { entity.PurchName });
-        if (entity.OrderAccount != beforeUpdate.OrderAccount)
+        }
+
+        if (!string.IsNullOrEmpty(entity.OrderAccount))
+        {
             builder.Set("OrderAccount = @OrderAccount", new { entity.OrderAccount });
-        if (entity.InvoiceAccount != beforeUpdate.InvoiceAccount)
+        }
+
+        if (!string.IsNullOrEmpty(entity.InvoiceAccount))
+        {
             builder.Set("InvoiceAccount = @InvoiceAccount", new { entity.InvoiceAccount });
-        if (entity.PurchStatus != beforeUpdate.PurchStatus)
+        }
+
+        if (!string.IsNullOrEmpty(entity.PurchStatus))
+        {
             builder.Set("PurchStatus = @PurchStatus", new { entity.PurchStatus });
-        if (entity.IsSubmitted != beforeUpdate.IsSubmitted)
+        }
+
+        if (entity.IsSubmitted is not null)
+        {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
-        if (entity.SubmittedDate != beforeUpdate.SubmittedDate)
+        }
+
+        if (entity.SubmittedDate > SqlDateTime.MinValue.Value)
+        {
             builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
-        if (entity.SubmittedBy != beforeUpdate.SubmittedBy)
+        }
+
+        if (!string.IsNullOrEmpty(entity.SubmittedBy))
+        {
             builder.Set("SubmittedBy = @SubmittedBy", new { entity.SubmittedBy });
-        if (entity.CreatedBy != beforeUpdate.CreatedBy)
+        }
+
+        if (!string.IsNullOrEmpty(entity.ModifiedBy))
+        {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        if (entity.CreatedDateTime != beforeUpdate.CreatedDateTime)
+        }
+
+        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        }
+        
+        builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
         
         const string sql = "UPDATE GoodsReceiptHeaders /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
@@ -199,7 +221,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         
         return new PagedList<GoodsReceiptHeader>(result, pageNumber, pageSize, resultCount);
     }
-    public async Task<GoodsReceiptHeader> GetByIdWithLines(int id)
+    public async Task<GoodsReceiptHeader> GetByIdWithLines(int id, bool forUpdate = false)
     {
         // SELECT Statement for GoodsReceiptHeader joined with GoodsReceiptLine
         const string sql = """
@@ -211,9 +233,19 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
                            WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
                            """;
         
+        const string sqlForUpdate = """
+                                      SELECT
+                                      grh.*,
+                                      grl.*
+                                      FROM GoodsReceiptHeaders grh
+                                      LEFT JOIN GoodsReceiptLines grl ON grh.GoodsReceiptHeaderId = grl.GoodsReceiptHeaderId
+                                      WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
+                                      FOR UPDATE
+                                      """;
+        
         var result = new GoodsReceiptHeader();
 
-        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine?, GoodsReceiptHeader>(sql, (header, line) =>
+        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine?, GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, (header, line) =>
         {
             if (result.GoodsReceiptHeaderId == 0)
             {

@@ -1,5 +1,4 @@
 using SparepartManagementSystem.Domain.Enums;
-using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 
 namespace SparepartManagementSystem.Service.DTO;
 

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -11,11 +11,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.1.28"/>
+        <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="MySqlConnector" Version="2.3.5"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+        <PackageReference Include="MySqlConnector" Version="2.3.7" />
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     </ItemGroup>

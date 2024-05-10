@@ -1,6 +1,6 @@
 ﻿using System.DirectoryServices.Protocols;
 using System.Net;
-using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
@@ -8,6 +8,7 @@ using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
@@ -15,33 +16,57 @@ internal class UserService : IUserService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger _logger = Log.ForContext<UserService>();
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILoginService _loginService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, ILoginService loginService)
+    public UserService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IConfiguration configuration, ILoginService loginService, IHttpContextAccessor httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _configuration = configuration;
         _loginService = loginService;
+        _httpContextAccessor = httpContextAccessor;
     }
-
-    public async Task<ServiceResponse> Add(UserDto dto)
+    
+    public async Task<ServiceResponse> AddUser(UserDto dto)
     {
         try
         {
-            var user = _mapper.Map<User>(dto);
+            if (dto.UserWarehouses is null || dto.UserWarehouses.Count == 0)
+            {
+                throw new InvalidOperationException("UserWarehouse is required");
+            }
+            
+            var userAdd = _mapper.MapToUser(dto);
+            userAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            userAdd.CreatedDateTime = DateTime.Now;
+            userAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            userAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.UserRepository.Add(userAdd);
+            
+            var userId = await _unitOfWork.GetLastInsertedId();
 
-            await _unitOfWork.UserRepository.Add(user);
+            var userWarehousesAdd = _mapper.MapToListOfUserWarehouse(dto.UserWarehouses).ToArray();
+            
+            foreach (var userWarehouseAdd in userWarehousesAdd)
+            {
+                userWarehouseAdd.UserId = userId;
+                userWarehouseAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+                userWarehouseAdd.CreatedDateTime = DateTime.Now;
+                userWarehouseAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+                userWarehouseAdd.ModifiedDateTime = DateTime.Now;
+                await _unitOfWork.UserWarehouseRepository.Add(userWarehouseAdd);
+            }
 
+            _logger.Information("User {UserId} added successfully with UserWarehouse {UserWarehouseId}", userAdd.UserId, string.Join(", ", userWarehousesAdd.Select(uw => uw.UserWarehouseId)));
+            
             _unitOfWork.Commit();
-
-            _logger.Information("User {UserId} added successfully", user.UserId);
 
             return new ServiceResponse
             {
-                Message = "User added successfully",
+                Message = "User added successfully with UserWarehouse",
                 Success = true
             };
         }
@@ -67,15 +92,15 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse> Delete(int id)
+    public async Task<ServiceResponse> DeleteUser(int id)
     {
         try
         {
             await _unitOfWork.UserRepository.Delete(id);
 
-            _unitOfWork.Commit();
-
             _logger.Information("User {UserId} deleted successfully", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -105,7 +130,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetAll()
+    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetAllUser()
     {
         try
         {
@@ -115,7 +140,7 @@ internal class UserService : IUserService
 
             return new ServiceResponse<IEnumerable<UserDto>>
             {
-                Data = _mapper.Map<IEnumerable<UserDto>>(users),
+                Data = _mapper.MapToListOfUserDto(users),
                 Message = "Users retrieved successfully",
                 Success = true
             };
@@ -140,7 +165,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> GetById(int id)
+    public async Task<ServiceResponse<UserDto>> GetUserById(int id)
     {
         try
         {
@@ -150,7 +175,7 @@ internal class UserService : IUserService
 
             return new ServiceResponse<UserDto>
             {
-                Data = _mapper.Map<UserDto>(user),
+                Data = _mapper.MapToUserDto(user),
                 Message = "User retrieved successfully",
                 Success = true
             };
@@ -175,11 +200,11 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetByParams(UserDto dto)
+    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetUserByParams(UserDto dto)
     {
         try
         {
-            var user = _mapper.Map<User>(dto);
+            var user = _mapper.MapToUser(dto);
 
             var users = (await _unitOfWork.UserRepository.GetByParams(user)).ToList();
 
@@ -187,7 +212,7 @@ internal class UserService : IUserService
 
             return new ServiceResponse<IEnumerable<UserDto>>
             {
-                Data = _mapper.Map<IEnumerable<UserDto>>(users),
+                Data = _mapper.MapToListOfUserDto(users),
                 Message = "Users retrieved successfully",
                 Success = true
             };
@@ -212,17 +237,25 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse> Update(UserDto dto)
+    public async Task<ServiceResponse> UpdateUser(UserDto dto)
     {
         try
         {
-            var user = _mapper.Map<User>(dto);
+            var oldRecord = await _unitOfWork.UserRepository.GetById(dto.UserId, true);
 
-            await _unitOfWork.UserRepository.Update(user);
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("User has been modified by another user, please refresh and try again.");
+            }
+            
+            var newRecord = _mapper.MapToUser(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.UserRepository.Update(User.ForUpdate(oldRecord, newRecord));
 
+            _logger.Information("User {UserId} updated successfully", newRecord.UserId);
+            
             _unitOfWork.Commit();
-
-            _logger.Information("User {UserId} updated successfully", user.UserId);
 
             return new ServiceResponse
             {
@@ -251,42 +284,8 @@ internal class UserService : IUserService
             };
         }
     }
-    public async Task<ServiceResponse<int>> GetLastInsertedId()
-    {
-        try
-        {
-            var result = await _unitOfWork.UserRepository.GetLastInsertedId();
 
-            _logger.Information("User last inserted id retrieved successfully, id: {LastInsertedId}", result);
-
-            return new ServiceResponse<int>
-            {
-                Data = result,
-                Message = "User last inserted id retrieved successfully",
-                Success = true
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<int>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
-    }
-
-    public async Task<ServiceResponse> AddRole(UserRoleDto dto)
+    public async Task<ServiceResponse> AddRoleToUser(UserRoleDto dto)
     {
         try
         {
@@ -320,7 +319,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse> DeleteRole(UserRoleDto dto)
+    public async Task<ServiceResponse> DeleteRoleFromUser(UserRoleDto dto)
     {
         try
         {
@@ -364,7 +363,7 @@ internal class UserService : IUserService
 
             return new ServiceResponse<IEnumerable<UserDto>>
             {
-                Data = _mapper.Map<IEnumerable<UserDto>>(result),
+                Data = _mapper.MapToListOfUserDto(result),
                 Message = "User updated successfully",
                 Success = true
             };
@@ -389,7 +388,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> GetByIdWithRoles(int id)
+    public async Task<ServiceResponse<UserDto>> GetUserByIdWithRoles(int id)
     {
         try
         {
@@ -399,7 +398,7 @@ internal class UserService : IUserService
 
             return new ServiceResponse<UserDto>
             {
-                Data = _mapper.Map<UserDto>(result),
+                Data = _mapper.MapToUserDto(result),
                 Message = "User updated successfully",
                 Success = true
             };
@@ -424,7 +423,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserDto>> GetByUsernameWithRoles(string username)
+    public async Task<ServiceResponse<UserDto>> GetUserByUsernameWithRoles(string username)
     {
         try
         {
@@ -434,7 +433,42 @@ internal class UserService : IUserService
 
             return new ServiceResponse<UserDto>
             {
-                Data = _mapper.Map<UserDto>(result),
+                Data = _mapper.MapToUserDto(result),
+                Message = "User retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<UserDto>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse<UserDto>> GetUserByIdWithUserWarehouse(int id)
+    {
+        try
+        {
+            var result = await _unitOfWork.UserRepository.GetByIdWithUserWarehouse(id);
+
+            _logger.Information("User {UserId} retrieved successfully", result.UserId);
+
+            return new ServiceResponse<UserDto>
+            {
+                Data = _mapper.MapToUserDto(result),
                 Message = "User retrieved successfully",
                 Success = true
             };
@@ -479,7 +513,7 @@ internal class UserService : IUserService
             if (ldapNames == null)
                 throw new InvalidOperationException("LDAP Names is not found in configuration");
 
-            string[] attributes = { "givenName", "sn", "sAMAccountName", "userPrincipalName" };
+            string[] attributes = ["givenName", "sn", "sAMAccountName", "userPrincipalName"];
 
             var ldapFilterMap = new Dictionary<string, string>
             {
@@ -541,15 +575,17 @@ internal class UserService : IUserService
 
             var refreshTokenResult = _loginService.GenerateToken(user, true);
 
-            await _unitOfWork.RefreshTokenRepository.Add(new RefreshToken
+            var newRefreshTokenEntity = new RefreshToken
             {
                 UserId = user.UserId,
                 Token = refreshTokenResult,
                 Expires = DateTime.UtcNow.AddSeconds(int.Parse(
                     _configuration.GetSection("Jwt:RefreshTokenExpiration").Value ??
-                    throw new InvalidOperationException("Jwt Configuration not set properly, missing Refresh Token Expiration"))),
+                    throw new InvalidOperationException(
+                        "Jwt Configuration not set properly, missing Refresh Token Expiration"))),
                 Created = DateTime.UtcNow
-            });
+            };
+            await _unitOfWork.RefreshTokenRepository.Add(newRefreshTokenEntity);
 
             var token = new TokenDto
             {
@@ -557,9 +593,9 @@ internal class UserService : IUserService
                 RefreshToken = refreshTokenResult
             };
 
-            _unitOfWork.Commit();
-
             _logger.Information("User {Username} logged in successfully, {User}", user.Username, JsonConvert.SerializeObject(user));
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse<TokenDto>
             {
@@ -594,12 +630,9 @@ internal class UserService : IUserService
 
             var principal = _loginService.ValidateToken(token);
 
-            var userId = principal.Claims.FirstOrDefault(x => x.Type == "userid")?.Value ??
-                         throw new InvalidOperationException("Invalid token");
-            var user = await _unitOfWork.UserRepository.GetByIdWithRoles(int.Parse(userId)) ??
-                       throw new InvalidOperationException($"UserId {userId} not found");
-            var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByUserIdAndToken(user.UserId, token) ??
-                               throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
+            var userId = principal.Claims.FirstOrDefault(x => x.Type == "userid")?.Value ?? throw new InvalidOperationException("Invalid token");
+            var user = await _unitOfWork.UserRepository.GetByIdWithRoles(int.Parse(userId)) ?? throw new InvalidOperationException($"UserId {userId} not found");
+            var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByUserIdAndToken(user.UserId, token, true) ?? throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
 
             if (!refreshToken.IsActive) throw new InvalidOperationException("Invalid token");
 
@@ -633,6 +666,8 @@ internal class UserService : IUserService
             };
 
             _logger.Information("Token refreshed successfully, {Token}", JsonConvert.SerializeObject(result));
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse<TokenDto>
             {
@@ -663,24 +698,22 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<RefreshTokenDto>>> RevokeAllTokens(int userId)
+    public async Task<ServiceResponse> RevokeAllTokens(int userId)
     {
         try
         {
             _ = _unitOfWork.RefreshTokenRepository.GetByUserId(userId) ??
                 throw new InvalidOperationException($"RefreshToken with UserId {userId} not found");
 
-            var result = await _unitOfWork.RefreshTokenRepository.RevokeAll(userId);
-
+            await _unitOfWork.RefreshTokenRepository.RevokeAll(userId);
+            
+            _logger.Information("All tokens revoked successfully for UserId {UserId}", userId);
+            
             _unitOfWork.Commit();
 
-            var tokens = result as RefreshToken[] ?? result.ToArray();
-            _logger.Information("Token revoked successfully, {Token}", JsonConvert.SerializeObject(tokens));
-
-            return new ServiceResponse<IEnumerable<RefreshTokenDto>>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<IEnumerable<RefreshTokenDto>>(tokens),
-                Message = "Token revoked successfully",
+                Message = "All Tokens revoked successfully",
                 Success = true
             };
         }
@@ -697,7 +730,7 @@ internal class UserService : IUserService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<IEnumerable<RefreshTokenDto>>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,
@@ -706,7 +739,7 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<RefreshTokenDto>> RevokeToken(string token)
+    public async Task<ServiceResponse> RevokeToken(string token)
     {
         try
         {
@@ -721,15 +754,14 @@ internal class UserService : IUserService
             var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByUserIdAndToken(userId, token) ??
                                throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
 
-            var result = await _unitOfWork.RefreshTokenRepository.Revoke(refreshToken.RefreshTokenId);
+            await _unitOfWork.RefreshTokenRepository.Revoke(refreshToken.RefreshTokenId);
 
+            _logger.Information("Token revoked successfully, {Token}", token);
+            
             _unitOfWork.Commit();
 
-            _logger.Information("Token revoked successfully, {Token}", JsonConvert.SerializeObject(result));
-
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
-                Data = _mapper.Map<RefreshTokenDto>(result),
                 Message = "Token revoked successfully",
                 Success = true
             };
@@ -747,7 +779,7 @@ internal class UserService : IUserService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<RefreshTokenDto>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

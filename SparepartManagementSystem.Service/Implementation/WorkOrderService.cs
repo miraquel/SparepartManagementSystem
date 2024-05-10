@@ -1,26 +1,24 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
 public class WorkOrderService : IWorkOrderService
 {
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IGMKSMSServiceGroup _gmkSmsServiceGroup;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public WorkOrderService(IMapper mapper, IUnitOfWork unitOfWork, IGMKSMSServiceGroup gmkSmsServiceGroup, IHttpContextAccessor httpContextAccessor)
+    public WorkOrderService(MapperlyMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _gmkSmsServiceGroup = gmkSmsServiceGroup;
         _httpContextAccessor = httpContextAccessor;
     }
     
@@ -28,13 +26,18 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            await _unitOfWork.WorkOrderHeaderRepository.Add(_mapper.Map<WorkOrderHeader>(dto));
+            var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
+            workOrderHeaderAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            workOrderHeaderAdd.CreatedDateTime = DateTime.Now;
+            workOrderHeaderAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            workOrderHeaderAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd);
             
-            _unitOfWork.Commit();
-            
-            var lastInsertedId = await _unitOfWork.WorkOrderHeaderRepository.GetLastInsertedId();
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
                 
             _logger.Information("Work Order Header added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -63,15 +66,87 @@ public class WorkOrderService : IWorkOrderService
             };
         }
     }
+
+    public async Task<ServiceResponse> AddWorkOrderHeaderWithLines(WorkOrderHeaderDto dto)
+    {
+        try
+        {
+            var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            var currentDateTime = DateTime.Now;
+            
+            var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
+            workOrderHeaderAdd.CreatedBy = currentUser;
+            workOrderHeaderAdd.CreatedDateTime = currentDateTime;
+            workOrderHeaderAdd.ModifiedBy = currentUser;
+            workOrderHeaderAdd.ModifiedDateTime = currentDateTime;
+            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd);
+            
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
+            
+            var workOrderLines = _mapper.MapToListOfWorkOrderLine(dto.WorkOrderLines).ToArray();
+
+            foreach (var workOrderLine in workOrderLines)
+            {
+                workOrderLine.WorkOrderHeaderId = lastInsertedId;
+                workOrderLine.CreatedBy = currentUser;
+                workOrderLine.CreatedDateTime = currentDateTime;
+                workOrderLine.ModifiedBy = currentUser;
+                workOrderLine.ModifiedDateTime = currentDateTime;
+            }
+            
+            await _unitOfWork.WorkOrderLineRepository.BulkAdd(workOrderLines);
+                
+            _logger.Information("Work Order Header and lines added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
+            
+            _unitOfWork.Commit();
+
+            return new ServiceResponse
+            {
+                Success = true,
+                Message = "Work Order Header added successfully",
+            };
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.Rollback();
+
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
     public async Task<ServiceResponse> UpdateWorkOrderHeader(WorkOrderHeaderDto dto)
     {
         try
         {
-            await _unitOfWork.WorkOrderHeaderRepository.Update(_mapper.Map<WorkOrderHeader>(dto));
+            var oldRecord = await _unitOfWork.WorkOrderHeaderRepository.GetById(dto.WorkOrderHeaderId, true);
+
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Work Order Header has been modified by another user, please refresh and try again");
+            }
             
-            _unitOfWork.Commit();
+            var newRecord = _mapper.MapToWorkOrderHeader(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderHeaderRepository.Update(WorkOrderHeader.ForUpdate(oldRecord, newRecord));
             
             _logger.Information("Work Order Header updated successfully, Work Order Header Id: {WorkOrderHeaderId}", dto.WorkOrderHeaderId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -106,9 +181,9 @@ public class WorkOrderService : IWorkOrderService
         {
             await _unitOfWork.WorkOrderHeaderRepository.Delete(id);
             
-            _unitOfWork.Commit();
-            
             _logger.Information("Work Order Header deleted successfully, Work Order Header Id: {WorkOrderHeaderId}", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -146,7 +221,7 @@ public class WorkOrderService : IWorkOrderService
             return new ServiceResponse<WorkOrderHeaderDto>
             {
                 Success = true,
-                Data = _mapper.Map<WorkOrderHeaderDto>(workOrderHeader)
+                Data = _mapper.MapToWorkOrderHeaderDto(workOrderHeader)
             };
         }
         catch (Exception ex)
@@ -172,13 +247,17 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var workOrderHeaders = await _unitOfWork.WorkOrderHeaderRepository.GetAllPagedList(pageNumber, pageSize);
+            var result = await _unitOfWork.WorkOrderHeaderRepository.GetAllPagedList(pageNumber, pageSize);
             
-            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", workOrderHeaders);
+            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", result.TotalCount);
             
             return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
             {
-                Data = _mapper.Map<PagedListDto<WorkOrderHeaderDto>>(workOrderHeaders),
+                Data = new PagedListDto<WorkOrderHeaderDto>(
+                    _mapper.MapToListOfWorkOrderHeaderDto(result.Items),
+                    result.PageNumber,
+                    result.PageSize,
+                    result.TotalCount),
                 Message = "Work Order Headers retrieved successfully",
                 Success = true,
             };
@@ -206,13 +285,17 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var workOrderHeaders = await _unitOfWork.WorkOrderHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, _mapper.Map<WorkOrderHeader>(entity));
+            var result = await _unitOfWork.WorkOrderHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, _mapper.MapToWorkOrderHeader(entity));
             
-            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", workOrderHeaders);
+            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", result.TotalCount);
             
             return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
             {
-                Data = _mapper.Map<PagedListDto<WorkOrderHeaderDto>>(workOrderHeaders),
+                Data = new PagedListDto<WorkOrderHeaderDto>(
+                    _mapper.MapToListOfWorkOrderHeaderDto(result.Items),
+                    result.PageNumber,
+                    result.PageSize,
+                    result.TotalCount),
                 Message = "Work Order Headers retrieved successfully",
                 Success = true,
             };
@@ -240,13 +323,18 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            await _unitOfWork.WorkOrderLineRepository.Add(_mapper.Map<WorkOrderLine>(dto));
+            var workOrderLineAdd = _mapper.MapToWorkOrderLine(dto);
+            workOrderLineAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            workOrderLineAdd.CreatedDateTime = DateTime.Now;
+            workOrderLineAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            workOrderLineAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderLineRepository.Add(workOrderLineAdd);
             
-            _unitOfWork.Commit();
-            
-            var lastInsertedId = await _unitOfWork.WorkOrderLineRepository.GetLastInsertedId();
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
                 
             _logger.Information("Work Order Line added successfully, Work Order Line Id: {WorkOrderLineId}", lastInsertedId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -279,11 +367,21 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            await _unitOfWork.WorkOrderLineRepository.Update(_mapper.Map<WorkOrderLine>(dto));
+            var oldRecord = await _unitOfWork.WorkOrderLineRepository.GetById(dto.WorkOrderLineId, true);
             
-            _unitOfWork.Commit();
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Work Order Line has been modified by another user, please refresh and try again");
+            }
+            
+            var newRecord = _mapper.MapToWorkOrderLine(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderLineRepository.Update(WorkOrderLine.ForUpdate(oldRecord, newRecord));
             
             _logger.Information("Work Order Line updated successfully, Work Order Line Id: {WorkOrderLineId}", dto.WorkOrderLineId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -316,11 +414,11 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            await _unitOfWork.WorkOrderLineRepository.Delete(id);
-            
-            _unitOfWork.Commit();
+            await _unitOfWork.ItemRequisitionRepository.Delete(id);
             
             _logger.Information("Work Order Line deleted successfully, Work Order Line Id: {WorkOrderLineId}", id);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -358,7 +456,7 @@ public class WorkOrderService : IWorkOrderService
             return new ServiceResponse<WorkOrderLineDto>
             {
                 Success = true,
-                Data = _mapper.Map<WorkOrderLineDto>(workOrderLine)
+                Data = _mapper.MapToWorkOrderLineDto(workOrderLine),
             };
         }
         catch (Exception ex)
@@ -388,7 +486,7 @@ public class WorkOrderService : IWorkOrderService
             
             return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
             {
-                Data = _mapper.Map<IEnumerable<WorkOrderLineDto>>(workOrderLines),
+                Data = _mapper.MapToListOfWorkOrderLineDto(workOrderLines),
                 Message = "Work Order Lines retrieved successfully",
                 Success = true,
             };
@@ -405,6 +503,267 @@ public class WorkOrderService : IWorkOrderService
             _logger.Error(ex, ex.Message);
 
             return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+    public async Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeaderByIdWithLines(int id)
+    {
+        try
+        {
+            var workOrderHeader = await _unitOfWork.WorkOrderHeaderRepository.GetByIdWithLines(id);
+            
+            return new ServiceResponse<WorkOrderHeaderDto>
+            {
+                Success = true,
+                Data = _mapper.MapToWorkOrderHeaderDto(workOrderHeader),
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<WorkOrderHeaderDto>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse> AddItemRequisition(ItemRequisitionDto dto)
+    {
+        try
+        {
+            var itemRequisitionAdd = _mapper.MapToItemRequisition(dto);
+            itemRequisitionAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            itemRequisitionAdd.CreatedDateTime = DateTime.Now;
+            itemRequisitionAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            itemRequisitionAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.ItemRequisitionRepository.Add(itemRequisitionAdd);
+            
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
+            
+            _logger.Information("Item Requisition added successfully, Item Requisition Id: {ItemRequisitionId}", lastInsertedId);
+            
+            _unitOfWork.Commit();
+            
+            return new ServiceResponse
+            {
+                Success = true,
+                Message = "Item Requisition added successfully",
+            };
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.Rollback();
+
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse> UpdateItemRequisition(ItemRequisitionDto dto)
+    {
+        try
+        {
+            var oldRecord = await _unitOfWork.ItemRequisitionRepository.GetById(dto.ItemRequisitionId, true);
+            
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Item Requisition has been modified by another user, please refresh and try again");
+            }
+            
+            var newRecord = _mapper.MapToItemRequisition(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.ItemRequisitionRepository.Update(ItemRequisition.ForUpdate(oldRecord, newRecord));
+            
+            _logger.Information("Item Requisition updated successfully, Item Requisition Id: {ItemRequisitionId}", dto.ItemRequisitionId);
+            
+            _unitOfWork.Commit();
+            
+            return new ServiceResponse
+            {
+                Success = true,
+                Message = "Item Requisition updated successfully",
+            };
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.Rollback();
+
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse> DeleteItemRequisition(int id)
+    {
+        try
+        {
+            await _unitOfWork.ItemRequisitionRepository.Delete(id);
+            
+            _logger.Information("Item Requisition deleted successfully, Item Requisition Id: {ItemRequisitionId}", id);
+            
+            _unitOfWork.Commit();
+            
+            return new ServiceResponse
+            {
+                Success = true,
+                Message = "Item Requisition deleted successfully",
+            };
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.Rollback();
+
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse<ItemRequisitionDto>> GetItemRequisitionById(int id)
+    {
+        try
+        {
+            var itemRequisition = await _unitOfWork.ItemRequisitionRepository.GetById(id);
+            
+            return new ServiceResponse<ItemRequisitionDto>
+            {
+                Success = true,
+                Data = _mapper.MapToItemRequisitionDto(itemRequisition),
+                Message = "Item Requisition retrieved successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<ItemRequisitionDto>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByParams(ItemRequisitionDto entity)
+    {
+        try
+        {
+            var itemRequisitions = await _unitOfWork.ItemRequisitionRepository.GetByParams(_mapper.MapToItemRequisition(entity));
+            
+            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
+            {
+                Success = true,
+                Data = _mapper.MapToListOfItemRequisitionDto(itemRequisitions),
+                Message = "Item Requisitions retrieved successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
+    public async Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByWorkOrderLineId(int id)
+    {
+        try
+        {
+            var itemRequisitions = await _unitOfWork.ItemRequisitionRepository.GetByWorkOrderLineId(id);
+            
+            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
+            {
+                Success = true,
+                Data = _mapper.MapToListOfItemRequisitionDto(itemRequisitions),
+                Message = "Item Requisitions retrieved successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

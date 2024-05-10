@@ -29,17 +29,17 @@ namespace SparepartManagementSystem.API
 
         private void OnStarted()
         {
-            _logger.Information("AXFinMobile.API has been started.");
+            _logger.Information("SparepartManagementSystem.API has been started.");
         }
 
         private void OnStopping()
         {
-            _logger.Information("AXFinMobile.API is stopping.");
+            _logger.Information("SparepartManagementSystem.API is stopping.");
         }
 
         private void OnStopped()
         {
-            _logger.Information("AXFinMobile.API has been stopped.");
+            _logger.Information("SparepartManagementSystem.API has been stopped.");
         }
     }
 }

@@ -23,7 +23,7 @@ public interface IUserRepository : IRepository<User>
     ///     be careful when using this method, it will return all users with roles without pagination, and potentially cause performance issue.
     /// </para>
     /// </summary>
-    /// <returns><see cref="IEnumerable{User}"/> where <typeparamref name="T"/> is <see cref="User"/></returns>
+    /// <returns><see cref="IEnumerable{User}"/></returns>
     Task<IEnumerable<User>> GetAllWithRoles();
 
     /// <summary>
@@ -46,4 +46,6 @@ public interface IUserRepository : IRepository<User>
     /// <param name="username">Username</param>
     /// <returns><see cref="User"/> with multiple <see cref="Role"/> inside</returns>
     Task<User> GetByUsernameWithRoles(string username);
+    
+    Task<User> GetByIdWithUserWarehouse(int id);
 }

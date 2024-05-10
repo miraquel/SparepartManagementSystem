@@ -6,7 +6,6 @@ using MySqlConnector;
 using SparepartManagementSystem.Repository.Factory;
 using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Repository.MySql;
-using SparepartManagementSystem.Repository.SQLite;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using PermissionRepositoryMySql = SparepartManagementSystem.Repository.MySql.PermissionRepositoryMySql;
 using RefreshTokenRepositoryMySql = SparepartManagementSystem.Repository.MySql.RefreshTokenRepositoryMySql;
@@ -23,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
         
         services.AddScoped<IUserRepository, UserRepositoryMySql>();
+        services.AddScoped<IUserWarehouseRepository, UserWarehouseRepositoryMySql>();
         services.AddScoped<IRoleRepository, RoleRepositoryMySql>();
         services.AddScoped<IPermissionRepository, PermissionRepositoryMySql>();
         services.AddScoped<INumberSequenceRepository, NumberSequenceRepositoryMySql>();
@@ -30,15 +30,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGoodsReceiptHeaderRepository, GoodsReceiptHeaderRepositoryMySql>();
         services.AddScoped<IGoodsReceiptLineRepository, GoodsReceiptLineRepositoryMySql>();
         services.AddScoped<IRowLevelAccessRepository, RowLevelAccessRepositoryMysql>();
-
-        services.AddScoped<IUserRepository, UserRepositorySqLite>();
-        services.AddScoped<IRoleRepository, RoleRepositorySqLite>();
-        services.AddScoped<IPermissionRepository, PermissionRepositorySqLite>();
-        services.AddScoped<INumberSequenceRepository, NumberSequenceRepositorySqLite>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepositorySqLite>();
-        services.AddScoped<IGoodsReceiptHeaderRepository, GoodsReceiptHeaderRepositorySqLite>();
-        services.AddScoped<IGoodsReceiptLineRepository, GoodsReceiptLineRepositorySqLite>();
-        services.AddScoped<IRowLevelAccessRepository, RowLevelAccessRepositorySqLite>();
+        services.AddScoped<IWorkOrderHeaderRepository, WorkOrderHeaderRepositoryMySql>();
+        services.AddScoped<IWorkOrderLineRepository, WorkOrderLineRepositoryMySql>();
+        services.AddScoped<IItemRequisitionRepository, ItemRequisitionRepositoryMySql>();
 
         services.AddScoped<IRepositoryFactory, RepositoryFactory>();
         

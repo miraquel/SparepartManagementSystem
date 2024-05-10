@@ -1,6 +1,6 @@
 namespace SparepartManagementSystem.Service.DTO;
 
-public class WorkOrderSearchDto
+public class WorkOrderAxSearchDto
 {
     public string AGSEAMWOID { get; init; } = "";
 }

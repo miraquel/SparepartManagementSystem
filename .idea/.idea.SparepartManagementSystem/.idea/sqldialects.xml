@@ -3,21 +3,15 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/GoodsReceiptHeaderRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/GoodsReceiptLineRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/ItemRequisitionRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/NumberSequenceRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/PermissionRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RefreshTokenRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RoleRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RowLevelAccessRepositoryMysql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/UserRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/UserWarehouseRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/WorkOrderHeaderRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/WorkOrderLineRepositoryMySql.cs" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/GoodsReceiptHeaderRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/GoodsReceiptLineRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/NumberSequenceRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/PermissionRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/RefreshTokenRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/RoleRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/RowLevelAccessRepositorySqLite.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/SQLite/UserRepositorySqLite.cs" dialect="SQLite" />
   </component>
 </project>

@@ -33,8 +33,9 @@ public interface IRepository<T>
     /// Get record by id from the database
     /// </summary>
     /// <param name="id">the id of the model</param>
+    /// <param name="forUpdate"></param>
     /// <returns>returns <typeparamref name="T"/> object</returns>
-    Task<T> GetById(int id);
+    Task<T> GetById(int id, bool forUpdate = false);
 
     /// <summary>
     /// Get record by parameters from the database
@@ -49,8 +50,6 @@ public interface IRepository<T>
     /// <param name="entity">the model represent as the parameters of the update</param>
     /// <returns>returns <typeparamref name="T"/> object</returns>
     Task Update(T entity);
-    
-    Task<int> GetLastInsertedId();
 
     DatabaseProvider DatabaseProvider { get; }
 }

@@ -1,4 +1,3 @@
-using System.Data;
 using SparepartManagementSystem.Domain;
 
 namespace SparepartManagementSystem.Repository.Interface;

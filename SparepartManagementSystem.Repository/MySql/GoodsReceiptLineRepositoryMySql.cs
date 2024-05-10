@@ -1,8 +1,6 @@
 using System.Data;
 using System.Data.SqlTypes;
-using System.Security.Claims;
 using Dapper;
-using Microsoft.AspNetCore.Http;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
@@ -15,28 +13,20 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
 {
     private readonly IDbTransaction _dbTransaction;
     private readonly IDbConnection _sqlConnection;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public GoodsReceiptLineRepositoryMySql(IDbTransaction dbTransaction, IDbConnection sqlConnection, IHttpContextAccessor httpContextAccessor)
+    public GoodsReceiptLineRepositoryMySql(IDbTransaction dbTransaction, IDbConnection sqlConnection)
     {
         _dbTransaction = dbTransaction;
         _sqlConnection = sqlConnection;
-        _httpContextAccessor = httpContextAccessor;
     }
     
     public async Task Add(GoodsReceiptLine entity)
     {
-        var currentDateTime = DateTime.Now;
-        entity.CreatedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.CreatedDateTime = currentDateTime;
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = currentDateTime;
-
         const string sql = """
                            INSERT INTO GoodsReceiptLines
-                           (GoodsReceiptHeaderId, ItemId, LineNumber, ItemName, ProductType, RemainPurchPhysical, ReceiveNow, PurchQty, PurchUnit, PurchPrice, LineAmount, InventLocationId, WMSLocationId, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
+                               (GoodsReceiptHeaderId, ItemId, LineNumber, ItemName, ProductType, RemainPurchPhysical, ReceiveNow, PurchQty, PurchUnit, PurchPrice, LineAmount, InventLocationId, WMSLocationId, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES
-                            (@GoodsReceiptHeaderId, @ItemId, @LineNumber, @ItemName, @ProductType, @RemainPurchPhysical, @ReceiveNow, @PurchQty, @PurchUnit, @PurchPrice, @LineAmount, @InventLocationId, @WMSLocationId, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
+                               (@GoodsReceiptHeaderId, @ItemId, @LineNumber, @ItemName, @ProductType, @RemainPurchPhysical, @ReceiveNow, @PurchQty, @PurchUnit, @PurchPrice, @LineAmount, @InventLocationId, @WMSLocationId, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
@@ -51,51 +41,105 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         const string sql = "SELECT * FROM GoodsReceiptLines";
         return _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, transaction: _dbTransaction);
     }
-    public Task<GoodsReceiptLine> GetById(int id)
+    public Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId";
-        return _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        const string sqlForUpdate = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId FOR UPDATE";
+        return _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptLineId = id }, _dbTransaction);
     }
     public Task<IEnumerable<GoodsReceiptLine>> GetByParams(GoodsReceiptLine entity)
     {
         var builder = new SqlBuilder();
-        
+
         if (entity.GoodsReceiptLineId > 0)
+        {
             builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
+        }
+
         if (entity.GoodsReceiptHeaderId > 0)
+        {
             builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
+        }
+
         if (!IsNullOrEmpty(entity.ItemId))
+        {
             builder.Where("ItemId LIKE @ItemId", new { ItemId = $"%{entity.ItemId}%" });
+        }
+
         if (entity.LineNumber > 0)
+        {
             builder.Where("LineNumber = @LineNumber", new { entity.LineNumber });
+        }
+
         if (!IsNullOrEmpty(entity.ItemName))
+        {
             builder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{entity.ItemName}%" });
+        }
+
         if (entity.ProductType != ProductType.None)
+        {
             builder.Where("ProductType = @ProductType", new { entity.ProductType });
+        }
+
         if (entity.RemainPurchPhysical > 0)
+        {
             builder.Where("RemainPurchPhysical = @RemainPurchPhysical", new { entity.RemainPurchPhysical });
+        }
+
         if (entity.ReceiveNow > 0)
+        {
             builder.Where("ReceiveNow = @ReceiveNow", new { entity.ReceiveNow });
+        }
+
         if (entity.PurchQty > 0)
+        {
             builder.Where("PurchQty = @PurchQty", new { entity.PurchQty });
+        }
+
         if (!IsNullOrEmpty(entity.PurchUnit))
+        {
             builder.Where("PurchUnit LIKE @PurchUnit", new { PurchUnit = $"%{entity.PurchUnit}%" });
+        }
+
         if (entity.PurchPrice > 0)
+        {
             builder.Where("PurchPrice = @PurchPrice", new { entity.PurchPrice });
+        }
+
         if (entity.LineAmount > 0)
+        {
             builder.Where("LineAmount = @LineAmount", new { entity.LineAmount });
+        }
+
         if (!IsNullOrEmpty(entity.InventLocationId))
+        {
             builder.Where("InventLocationId LIKE @InventLocationId", new { InventLocationId = $"%{entity.InventLocationId}%" });
+        }
+
         if (!IsNullOrEmpty(entity.WMSLocationId))
+        {
             builder.Where("WMSLocationId LIKE @WMSLocationId", new { WMSLocationId = $"%{entity.WMSLocationId}%" });
+        }
+
         if (!IsNullOrEmpty(entity.CreatedBy))
+        {
             builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
+        }
+
         if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
+        {
             builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+        }
+
         if (!IsNullOrEmpty(entity.ModifiedBy))
+        {
             builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
+        }
+
         if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        {
             builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+        }
         
         var template = builder.AddTemplate("SELECT * FROM GoodsReceiptLines /**where**/");
         
@@ -104,53 +148,87 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
     public async Task Update(GoodsReceiptLine entity)
     {
         var builder = new SqlBuilder();
-        
-        entity.ModifiedBy = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        entity.ModifiedDateTime = DateTime.Now;
-        
-        const string sqlBeforeUpdate = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId FOR UPDATE";
-        var beforeUpdate = await _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(sqlBeforeUpdate, new { entity.GoodsReceiptLineId }, _dbTransaction);
-        
-        if (entity.GoodsReceiptLineId > 0)
-            builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
-        if (entity.GoodsReceiptHeaderId != beforeUpdate.GoodsReceiptHeaderId)
+
+        if (entity.GoodsReceiptHeaderId != 0)
+        {
             builder.Set("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
-        if (entity.ItemId != beforeUpdate.ItemId)
+        }
+
+        if (!IsNullOrEmpty(entity.ItemId))
+        {
             builder.Set("ItemId = @ItemId", new { entity.ItemId });
-        if (entity.LineNumber != beforeUpdate.LineNumber)
+        }
+
+        if (entity.LineNumber != 0)
+        {
             builder.Set("LineNumber = @LineNumber", new { entity.LineNumber });
-        if (entity.ItemName != beforeUpdate.ItemName)
+        }
+
+        if (!IsNullOrEmpty(entity.ItemName))
+        {
             builder.Set("ItemName = @ItemName", new { entity.ItemName });
-        if (entity.ProductType != beforeUpdate.ProductType)
+        }
+
+        if (entity.ProductType != ProductType.None)
+        {
             builder.Set("ProductType = @ProductType", new { entity.ProductType });
-        if (entity.RemainPurchPhysical != beforeUpdate.RemainPurchPhysical)
+        }
+
+        if (entity.RemainPurchPhysical != 0)
+        {
             builder.Set("RemainPurchPhysical = @RemainPurchPhysical", new { entity.RemainPurchPhysical });
-        if (entity.ReceiveNow != beforeUpdate.ReceiveNow)
+        }
+
+        if (entity.ReceiveNow != 0)
+        {
             builder.Set("ReceiveNow = @ReceiveNow", new { entity.ReceiveNow });
-        if (entity.PurchQty != beforeUpdate.PurchQty)
+        }
+
+        if (entity.PurchQty != 0)
+        {
             builder.Set("PurchQty = @PurchQty", new { entity.PurchQty });
-        if (entity.PurchUnit != beforeUpdate.PurchUnit)
+        }
+
+        if (!IsNullOrEmpty(entity.PurchUnit))
+        {
             builder.Set("PurchUnit = @PurchUnit", new { entity.PurchUnit });
-        if (entity.PurchPrice != beforeUpdate.PurchPrice)
+        }
+
+        if (entity.PurchPrice != 0)
+        {
             builder.Set("PurchPrice = @PurchPrice", new { entity.PurchPrice });
-        if (entity.LineAmount != beforeUpdate.LineAmount)
+        }
+
+        if (entity.LineAmount != 0)
+        {
             builder.Set("LineAmount = @LineAmount", new { entity.LineAmount });
-        if (entity.InventLocationId != beforeUpdate.InventLocationId)
+        }
+
+        if (!IsNullOrEmpty(entity.InventLocationId))
+        {
             builder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
-        if (entity.WMSLocationId != beforeUpdate.WMSLocationId)
+        }
+
+        if (!IsNullOrEmpty(entity.WMSLocationId))
+        {
             builder.Set("WMSLocationId = @WMSLocationId", new { entity.WMSLocationId });
-        if (entity.CreatedBy != beforeUpdate.CreatedBy)
+        }
+
+        if (!IsNullOrEmpty(entity.ModifiedBy))
+        {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        if (entity.CreatedDateTime != beforeUpdate.CreatedDateTime)
+        }
+
+        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        }
         
-        const string sql = """
-                           UPDATE GoodsReceiptLines
-                           /**set**/
-                           /**where**/
-                           """;
+        builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
         
+        const string sql = "UPDATE GoodsReceiptLines /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
+        
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
     }
     public Task<int> GetLastInsertedId()
@@ -163,10 +241,8 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         return await _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, new { GoodsReceiptHeaderId = goodsReceiptHeaderId }, _dbTransaction);
     }
     
-    public async Task<int> BulkAdd(IEnumerable<GoodsReceiptLine> entities)
+    public async Task BulkAdd(IEnumerable<GoodsReceiptLine> entities)
     {
-        var currentUser = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        
         var dataTable = new DataTable();
         
         var goodsReceiptLineIdColumn = new DataColumn("GoodsReceiptLineId", typeof(int));
@@ -224,9 +300,9 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             row[lineAmountColumn] = entity.LineAmount;
             row[inventLocationIdColumn] = entity.InventLocationId;
             row[wmsLocationIdColumn] = entity.WMSLocationId;
-            row[createdByColumn] = currentUser;
+            row[createdByColumn] = entity.CreatedBy;
             row[createdDateTimeColumn] = DateTime.Now;
-            row[modifiedByColumn] = currentUser;
+            row[modifiedByColumn] = entity.ModifiedBy;
             row[modifiedDateTimeColumn] = DateTime.Now;
             dataTable.Rows.Add(row);
         }
@@ -246,8 +322,7 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             DestinationTableName = "GoodsReceiptLines"
         };
 
-        var result = await mySqlBulkCopy.WriteToServerAsync(dataTable);
-        return result.RowsInserted;
+        _ = await mySqlBulkCopy.WriteToServerAsync(dataTable);
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

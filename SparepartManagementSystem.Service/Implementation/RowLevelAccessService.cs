@@ -1,33 +1,43 @@
-using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
+using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
 public class RowLevelAccessService : IRowLevelAccessService
 {
-    private readonly IMapper _mapper;
+    private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger _logger = Log.ForContext<RoleService>();
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RowLevelAccessService(IUnitOfWork unitOfWork, IMapper mapper)
+    public RowLevelAccessService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ServiceResponse> Add(RowLevelAccessDto dto)
+    public async Task<ServiceResponse> AddRowLevelAccess(RowLevelAccessDto dto)
     {
         try
         {
-            await _unitOfWork.RowLevelAccessRepository.Add(_mapper.Map<RowLevelAccess>(dto));
+            var roleLevelAccessAdd = _mapper.MapToRowLevelAccess(dto);
+            roleLevelAccessAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            roleLevelAccessAdd.CreatedDateTime = DateTime.Now;
+            roleLevelAccessAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            roleLevelAccessAdd.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RowLevelAccessRepository.Add(roleLevelAccessAdd);
+            
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
+            
+            _logger.Information("Row Level Access with id {rowLevelAccessId} added successfully", lastInsertedId);
             
             _unitOfWork.Commit();
-            
-            _logger.Information("Row Level Access with id {rowLevelAccessId} added successfully", dto.RowLevelAccessId);
             
             return new ServiceResponse
             {
@@ -56,15 +66,15 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse> Delete(int id)
+    public async Task<ServiceResponse> DeleteRowLevelAccess(int id)
     {
         try
         {
             await _unitOfWork.RowLevelAccessRepository.Delete(id);
             
-            _unitOfWork.Commit();
-            
             _logger.Information("Row Level Access with id {rowLevelAccessId} deleted successfully", id);
+            
+            _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -93,7 +103,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetAll()
+    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetAllRowLevelAccess()
     {
         try
         {
@@ -101,7 +111,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             
             return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
             {
-                Data = _mapper.Map<IEnumerable<RowLevelAccessDto>>(rowLevelAccesses),
+                Data = _mapper.MapToListOfRowLevelAccessDto(rowLevelAccesses),
                 Success = true
             };
         }
@@ -124,7 +134,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<RowLevelAccessDto>> GetById(int id)
+    public async Task<ServiceResponse<RowLevelAccessDto>> GetRowLevelAccessById(int id)
     {
         try
         {
@@ -132,7 +142,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             
             return new ServiceResponse<RowLevelAccessDto>
             {
-                Data = _mapper.Map<RowLevelAccessDto>(rowLevelAccess),
+                Data = _mapper.MapToRowLevelAccessDto(rowLevelAccess),
                 Success = true
             };
         }
@@ -155,15 +165,15 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetByParams(RowLevelAccessDto dto)
+    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(RowLevelAccessDto dto)
     {
         try
         {
-            var rowLevelAccess = await _unitOfWork.RowLevelAccessRepository.GetByParams(_mapper.Map<RowLevelAccess>(dto));
+            var rowLevelAccess = await _unitOfWork.RowLevelAccessRepository.GetByParams(_mapper.MapToRowLevelAccess(dto));
             
             return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
             {
-                Data = _mapper.Map<IEnumerable<RowLevelAccessDto>>(rowLevelAccess),
+                Data = _mapper.MapToListOfRowLevelAccessDto(rowLevelAccess),
                 Success = true
             };
         }
@@ -186,15 +196,25 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse> Update(RowLevelAccessDto dto)
+    public async Task<ServiceResponse> UpdateRowLevelAccess(RowLevelAccessDto dto)
     {
         try
         {
-            await _unitOfWork.RowLevelAccessRepository.Update(_mapper.Map<RowLevelAccess>(dto));
+            var oldRecord = await _unitOfWork.RowLevelAccessRepository.GetById(dto.RowLevelAccessId, true);
 
-            _unitOfWork.Commit();
+            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            {
+                throw new Exception("Row Level Access has been modified by another user. Please refresh the page and try again.");
+            }
+            
+            var newRecord = _mapper.MapToRowLevelAccess(dto);
+            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            newRecord.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RowLevelAccessRepository.Update(RowLevelAccess.ForUpdate(oldRecord, newRecord));
 
             _logger.Information("Row Level Access with id {rowLevelAccessId} updated successfully", dto.RowLevelAccessId);
+            
+            _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -223,42 +243,8 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<int>> GetLastInsertedId()
-    {
-        try
-        {
-            var lastInsertedId = await _unitOfWork.RowLevelAccessRepository.GetLastInsertedId();
-            
-            _logger.Information("Row Level Access last inserted id retrieved successfully, id: {LastInsertedId}", lastInsertedId);
-            
-            return new ServiceResponse<int>
-            {
-                Data = lastInsertedId,
-                Message = "Row level access last inserted id retrieved successfully",
-                Success = true
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<int>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
-    }
-
-    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetByUserId(int userId)
+    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByUserId(int userId)
     {
         try
         {
@@ -268,7 +254,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             
             return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
             {
-                Data = _mapper.Map<IEnumerable<RowLevelAccessDto>>(rowLevelAccesses),
+                Data = _mapper.MapToListOfRowLevelAccessDto(rowLevelAccesses),
                 Success = true
             };
         }
@@ -291,7 +277,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> BulkDelete(IEnumerable<int> ids)
+    public async Task<ServiceResponse> BulkDeleteRowLevelAccess(IEnumerable<int> ids)
     {
         try
         {
@@ -301,11 +287,11 @@ public class RowLevelAccessService : IRowLevelAccessService
                 await _unitOfWork.RowLevelAccessRepository.Delete(id);
             }
             
-            _unitOfWork.Commit();
-            
             _logger.Information("Row Level Accesses with ids {ids} deleted successfully", string.Join(", ", idsArray));
             
-            return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
+            _unitOfWork.Commit();
+            
+            return new ServiceResponse
             {
                 Message = "Row Level Accesses deleted successfully",
                 Success = true
@@ -324,7 +310,7 @@ public class RowLevelAccessService : IRowLevelAccessService
 
             _logger.Error(ex, ex.Message);
 
-            return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

@@ -1,8 +1,7 @@
+using System.Data;
+using System.Data.SQLite;
 using System.Security.Claims;
-using FluentMigrator;
 using FluentMigrator.Runner;
-using FluentMigrator.Runner.Announcers;
-using FluentMigrator.Runner.Initialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,13 +23,6 @@ internal class ServiceCollectionHelper
     private static ServiceCollection Services()
     {
         var services = new ServiceCollection();
-
-        services.AddFluentMigratorCore()
-            .ConfigureRunner(rb => rb
-                .AddSQLite()
-                .WithGlobalConnectionString("Data Source=:memory:")
-                .ScanIn(typeof(InitialMigration).Assembly).For.Migrations())
-            .AddLogging(lb => lb.AddFluentMigratorConsole());
         
         services.AddSingleton<IConfiguration>(_ =>
         {
@@ -41,8 +33,23 @@ internal class ServiceCollectionHelper
                 .Build();
             return configuration;
         });
-        services.AddService();
         services.AddRepository();
+        services.AddService();
+        services.AddScoped<IDbConnection>(_ => new SQLiteConnection("Data Source=:memory:"));
+        services.AddScoped<IDbTransaction>(sp =>
+        {
+            var connection = sp.GetRequiredService<IDbConnection>();
+            connection.Open();
+            using var command = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection as SQLiteConnection);
+            command.ExecuteNonQuery();
+            return connection.BeginTransaction();
+        });
+        services.AddFluentMigratorCore()
+            .ConfigureRunner(rb => rb
+                .AddSQLite()
+                //.WithGlobalConnectionString(_ => "Data Source=:memory:")
+                .ScanIn(typeof(InitialMigration).Assembly).For.Migrations())
+            .AddLogging(lb => lb.AddFluentMigratorConsole());
         services.AddScoped(_ =>
         {
             var mock = new Mock<IHttpContextAccessor>();
