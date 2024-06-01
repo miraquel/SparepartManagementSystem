@@ -24,178 +24,172 @@ public class ItemRequisitionRepositoryMySql : IItemRequisitionRepository
                            """;
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM ItemRequisitions WHERE WorkOrderLineId = @WorkOrderLineId";
         _ = await _sqlConnection.ExecuteAsync(sql, new { WorkOrderLineId = id }, _dbTransaction);
     }
-    public Task<IEnumerable<ItemRequisition>> GetAll()
+    public async Task<IEnumerable<ItemRequisition>> GetAll()
     {
         const string sql = "SELECT * FROM ItemRequisitions";
-        return _sqlConnection.QueryAsync<ItemRequisition>(sql, transaction: _dbTransaction);
+        return await _sqlConnection.QueryAsync<ItemRequisition>(sql, transaction: _dbTransaction);
     }
-    public Task<ItemRequisition> GetById(int id, bool forUpdate = false)
+    public async Task<ItemRequisition> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM ItemRequisitions WHERE WorkOrderLineId = @WorkOrderLineId";
         const string sqlForUpdate = "SELECT * FROM ItemRequisitions WHERE WorkOrderLineId = @WorkOrderLineId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<ItemRequisition>(forUpdate ? sqlForUpdate : sql, new { WorkOrderLineId = id }, _dbTransaction);
+        var result = await _sqlConnection.QueryFirstAsync<ItemRequisition>(forUpdate ? sqlForUpdate : sql, new { WorkOrderLineId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
-    public Task<IEnumerable<ItemRequisition>> GetByParams(ItemRequisition entity)
+    public async Task<IEnumerable<ItemRequisition>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
 
-        if (entity.ItemRequisitionId > 0)
+        if (parameters.TryGetValue("itemRequisitionId", out var itemRequisitionIdString) && int.TryParse(itemRequisitionIdString, out var itemRequisitionId))
         {
-            sqlBuilder.Where("ItemRequisitionId = @ItemRequisitionId", new { entity.ItemRequisitionId });
+            sqlBuilder.Where("ItemRequisitionId = @ItemRequisitionId", new { ItemRequisitionId = itemRequisitionId });
         }
         
-        if (entity.WorkOrderLineId > 0)
+        if (parameters.TryGetValue("workOrderLineId", out var workOrderLineIdString) && int.TryParse(workOrderLineIdString, out var workOrderLineId))
         {
-            sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
+            sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { WorkOrderLineId = workOrderLineId });
         }
 
-        if (!string.IsNullOrEmpty(entity.ItemName))
+        if (parameters.TryGetValue("itemId", out var itemId) && !string.IsNullOrEmpty(itemId))
         {
-            sqlBuilder.Where("ItemId = @ItemId", new { ItemId = $"%{entity.ItemId}%" });
+            sqlBuilder.Where("ItemId LIKE @ItemId", new { ItemId = $"%{itemId}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.ItemName))
+        if (parameters.TryGetValue("itemName", out var itemName) && !string.IsNullOrEmpty(itemName))
         {
-            sqlBuilder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{entity.ItemName}%" });
+            sqlBuilder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{itemName}%" });
         }
 
-        if (entity.RequiredDate > DateTime.MinValue)
+        if (parameters.TryGetValue("requiredDate", out var requiredDateString) && DateTime.TryParse(requiredDateString, out var requiredDate))
         {
-            sqlBuilder.Where("RequiredDate = @RequiredDate", new { entity.RequiredDate });
+            sqlBuilder.Where("RequiredDate = @RequiredDate", new { RequiredDate = requiredDate });
         }
 
-        if (entity.Quantity > 0)
+        if (parameters.TryGetValue("quantity", out var quantityString) && int.TryParse(quantityString, out var quantity))
         {
-            sqlBuilder.Where("Quantity = @Quantity", new { entity.Quantity });
+            sqlBuilder.Where("Quantity = @Quantity", new { Quantity = quantity });
         }
 
-        if (entity.RequestQuantity > 0)
+        if (parameters.TryGetValue("requestQuantity", out var requestQuantityString) && int.TryParse(requestQuantityString, out var requestQuantity))
         {
-            sqlBuilder.Where("RequestQuantity = @RequestQuantity", new { entity.RequestQuantity });
+            sqlBuilder.Where("RequestQuantity = @RequestQuantity", new { RequestQuantity = requestQuantity });
         }
 
-        if (!string.IsNullOrEmpty(entity.InventLocationId))
+        if (parameters.TryGetValue("inventLocationId", out var inventLocationId) && !string.IsNullOrEmpty(inventLocationId))
         {
-            sqlBuilder.Where("InventLocationId = @InventLocationId", new { InventLocationId = $"%{entity.InventLocationId}%" });
+            sqlBuilder.Where("InventLocationId LIKE @InventLocationId", new { InventLocationId = $"%{inventLocationId}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.WMSLocationId))
+        if (parameters.TryGetValue("wmsLocationId", out var wmsLocationId) && !string.IsNullOrEmpty(wmsLocationId))
         {
-            sqlBuilder.Where("WMSLocationId = @WMSLocationId", new { WMSLocationId = $"%{entity.WMSLocationId}%" });
+            sqlBuilder.Where("WMSLocationId LIKE @WMSLocationId", new { WMSLocationId = $"%{wmsLocationId}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.CreatedBy))
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !string.IsNullOrEmpty(createdBy))
         {
-            sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
+            sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (entity.CreatedDateTime > DateTime.MinValue)
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            sqlBuilder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+            sqlBuilder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
         }
 
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
         {
-            sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
+            sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (entity.ModifiedDateTime > DateTime.MinValue)
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            sqlBuilder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+            sqlBuilder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
         }
         
         var template = sqlBuilder.AddTemplate("SELECT * FROM ItemRequisitions /**where**/");
         
-        return _sqlConnection.QueryAsync<ItemRequisition>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<ItemRequisition>(template.RawSql, template.Parameters, _dbTransaction);
     }
     public async Task Update(ItemRequisition entity)
     {
         var sqlBuilder = new SqlBuilder();
 
-        if (entity.ItemRequisitionId > 0)
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.WorkOrderLineId)), entity.WorkOrderLineId))
         {
-            sqlBuilder.Where("ItemRequisitionId = @ItemRequisitionId", new { entity.ItemRequisitionId });
+            sqlBuilder.Set("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
         }
 
-        if (entity.WorkOrderLineId > 0)
-        {
-            sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
-        }
-
-        if (!string.IsNullOrEmpty(entity.ItemName))
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ItemId)), entity.ItemId))
         {
             sqlBuilder.Set("ItemId = @ItemId", new { entity.ItemId });
         }
 
-        if (!string.IsNullOrEmpty(entity.ItemName))
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ItemName)), entity.ItemName))
         {
             sqlBuilder.Set("ItemName = @ItemName", new { entity.ItemName });
         }
 
-        if (entity.RequiredDate > DateTime.MinValue)
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.RequiredDate)), entity.RequiredDate))
         {
             sqlBuilder.Set("RequiredDate = @RequiredDate", new { entity.RequiredDate });
         }
 
-        if (entity.Quantity > 0)
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.Quantity)), entity.Quantity))
         {
             sqlBuilder.Set("Quantity = @Quantity", new { entity.Quantity });
         }
 
-        if (entity.RequestQuantity > 0)
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.RequestQuantity)), entity.RequestQuantity))
         {
             sqlBuilder.Set("RequestQuantity = @RequestQuantity", new { entity.RequestQuantity });
         }
 
-        if (!string.IsNullOrEmpty(entity.InventLocationId))
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.InventLocationId)), entity.InventLocationId))
         {
             sqlBuilder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
         }
 
-        if (!string.IsNullOrEmpty(entity.WMSLocationId))
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.WMSLocationId)), entity.WMSLocationId))
         {
             sqlBuilder.Set("WMSLocationId = @WMSLocationId", new { entity.WMSLocationId });
         }
-
-        if (!string.IsNullOrEmpty(entity.CreatedBy))
+        
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.JournalId)), entity.JournalId))
         {
-            sqlBuilder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
+            sqlBuilder.Set("JournalId = @JournalId", new { entity.JournalId });
+        }
+        
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.IsSubmitted)), entity.IsSubmitted))
+        {
+            sqlBuilder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
 
-        if (entity.CreatedDateTime > DateTime.MinValue)
-        {
-            sqlBuilder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
-        }
-
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedBy)), entity.ModifiedBy))
         {
             sqlBuilder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > DateTime.MinValue)
+        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             sqlBuilder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
         
+        sqlBuilder.Where("ItemRequisitionId = @ItemRequisitionId", new { entity.ItemRequisitionId });
         var template = sqlBuilder.AddTemplate("UPDATE ItemRequisition /**set**/ /**where**/");
-        
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        const string sql = "SELECT LAST_INSERT_ID()";
-        return _sqlConnection.ExecuteScalarAsync<int>(sql, transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
-    public Task<IEnumerable<ItemRequisition>> GetByWorkOrderLineId(int id)
+    public async Task<IEnumerable<ItemRequisition>> GetByWorkOrderLineId(int id)
     {
         const string sql = "SELECT * FROM ItemRequisitions WHERE WorkOrderLineId = @WorkOrderLineId";
-        return _sqlConnection.QueryAsync<ItemRequisition>(sql, new { WorkOrderLineId = id }, _dbTransaction);
+        return await _sqlConnection.QueryAsync<ItemRequisition>(sql, new { WorkOrderLineId = id }, _dbTransaction);
     }
 }

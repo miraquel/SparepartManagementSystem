@@ -40,9 +40,9 @@ public interface IRepository<T>
     /// <summary>
     /// Get record by parameters from the database
     /// </summary>
-    /// <param name="entity">the model represent as the parameters of the selection</param>
+    /// <param name="parameters"></param>
     /// <returns>returns <see cref="IEnumerable{T}"/> of <typeparamref name="T"/></returns>
-    Task<IEnumerable<T>> GetByParams(T entity);
+    Task<IEnumerable<T>> GetByParams(Dictionary<string, string> parameters);
 
     /// <summary>
     /// Update method to update record from the database

@@ -9,7 +9,7 @@ public interface IUserService
     Task<ServiceResponse> DeleteUser(int id);
     Task<ServiceResponse<UserDto>> GetUserById(int id);
     Task<ServiceResponse<IEnumerable<UserDto>>> GetAllUser();
-    Task<ServiceResponse<IEnumerable<UserDto>>> GetUserByParams(UserDto entity);
+    Task<ServiceResponse<IEnumerable<UserDto>>> GetUserByParams(Dictionary<string, string> parameters);
     Task<ServiceResponse<IEnumerable<UserDto>>> GetAllWithRoles();
     Task<ServiceResponse<UserDto>> GetUserByIdWithRoles(int id);
     Task<ServiceResponse> AddRoleToUser(UserRoleDto dto);

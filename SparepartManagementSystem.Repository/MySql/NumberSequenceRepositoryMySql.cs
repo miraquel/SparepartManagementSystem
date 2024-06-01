@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using Dapper;
 using SparepartManagementSystem.Domain;
@@ -48,6 +47,7 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                            VALUES(@Name, @Description, @Module, @Format, @LastNumber, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task Delete(int id)
@@ -64,69 +64,66 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
 
     public async Task<NumberSequence> GetById(int id, bool forUpdate = false)
     {
-        const string sql = """
-                           SELECT * FROM NumberSequences
-                           WHERE NumberSequenceId = @NumberSequenceId
-                           """;
-        
-        const string sqlForUpdate = """
-                                    SELECT * FROM NumberSequences
-                                    WHERE NumberSequenceId = @NumberSequenceId
-                                    FOR UPDATE
-                                    """;
-        return await _sqlConnection.QueryFirstAsync<NumberSequence>(forUpdate ? sqlForUpdate : sql, new { NumberSequenceId = id }, _dbTransaction);
+        const string sql = "SELECT * FROM NumberSequences WHERE NumberSequenceId = @NumberSequenceId";
+        const string sqlForUpdate = "SELECT * FROM NumberSequences WHERE NumberSequenceId = @NumberSequenceId FOR UPDATE";
+        var result = await _sqlConnection.QueryFirstAsync<NumberSequence>(forUpdate ? sqlForUpdate : sql, new { NumberSequenceId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
 
-    public async Task<IEnumerable<NumberSequence>> GetByParams(NumberSequence entity)
+    public async Task<IEnumerable<NumberSequence>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
-
-        if (!IsNullOrEmpty(entity.Name))
-        {
-            builder.Where("Name LIKE @Name", new { Name = $"%{entity.Name}%" });
-        }
-
-        if (!IsNullOrEmpty(entity.Description))
-        {
-            builder.Where("Description LIKE @Description", new { Description = $"%{entity.Description}%" });
-        }
-
-        if (!IsNullOrEmpty(entity.Format))
-        {
-            builder.Where("Format LIKE @Format", new { Format = $"%{entity.Format}%" });
-        }
-
-        if (entity.LastNumber > 0)
-        {
-            builder.Where("LastNumber = @LastNumber", new { entity.LastNumber });
-        }
-
-        if (!IsNullOrEmpty(entity.Module))
-        {
-            builder.Where("Module LIKE @Module", new { Module = $"%{entity.Module}%" });
-        }
-
-        if (!IsNullOrEmpty(entity.CreatedBy))
-        {
-            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
-        }
-
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
-        {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
-        }
-
-        if (!IsNullOrEmpty(entity.ModifiedBy))
-        {
-            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
-        }
-
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
-        {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
-        }
         
-        builder.Where("NumberSequenceId = @NumberSequenceId", new { entity.NumberSequenceId });
+        if (parameters.TryGetValue("numberSequenceId", out var numberSequenceIdString) && int.TryParse(numberSequenceIdString, out var numberSequenceId))
+        {
+            builder.Where("NumberSequenceId = @NumberSequenceId", new { NumberSequenceId = numberSequenceId });
+        }
+
+        if (parameters.TryGetValue("name", out var name) && !IsNullOrEmpty(name))
+        {
+            builder.Where("Name LIKE @Name", new { Name = $"%{name}%" });
+        }
+
+        if (parameters.TryGetValue("description", out var description) && !IsNullOrEmpty(description))
+        {
+            builder.Where("Description LIKE @Description", new { Description = $"%{description}%" });
+        }
+
+        if (parameters.TryGetValue("format", out var format) && !IsNullOrEmpty(format))
+        {
+            builder.Where("Format LIKE @Format", new { Format = $"%{format}%" });
+        }
+
+        if (parameters.TryGetValue("lastNumber", out var lastNumberString) && int.TryParse(lastNumberString, out var lastNumber))
+        {
+            builder.Where("LastNumber = @LastNumber", new { LastNumber = lastNumber });
+        }
+
+        if (parameters.TryGetValue("module", out var module) && !IsNullOrEmpty(module))
+        {
+            builder.Where("Module LIKE @Module", new { Module = $"%{module}%" });
+        }
+
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !IsNullOrEmpty(createdBy))
+        {
+            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        {
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+        }
+
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
+        {
+            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
+        }
+
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        {
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+        }
 
         var template = builder.AddTemplate("SELECT * FROM NumberSequences /**where**/");
         return await _sqlConnection.QueryAsync<NumberSequence>(template.RawSql, template.Parameters, _dbTransaction);
@@ -136,45 +133,42 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
     {
         var builder = new SqlBuilder();
 
-        if (!IsNullOrEmpty(entity.Name))
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Name)), entity.Name))
         {
             builder.Set("Name = @Name", new { entity.Name });
         }
-        if (!IsNullOrEmpty(entity.Description))
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
-        if (!IsNullOrEmpty(entity.Format))
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Format)), entity.Format))
         {
             builder.Set("Format = @Format", new { entity.Format });
         }
-        if (entity.LastNumber > 0)
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.LastNumber)), entity.LastNumber))
         {
             builder.Set("LastNumber = @LastNumber", new { entity.LastNumber });
         }
-        if (!IsNullOrEmpty(entity.Module))
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Module)), entity.Module))
         {
             builder.Set("Module = @Module", new { entity.Module });
         }
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.CreatedBy)), entity.CreatedBy))
         {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+            builder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
         }
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.CreatedDateTime)), entity.CreatedDateTime))
         {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+            builder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
         }
         
         builder.Where("NumberSequenceId = @NumberSequenceId", new { entity.NumberSequenceId });
 
         const string sql = "UPDATE NumberSequences /**set**/ /**where**/";
-
         var template = builder.AddTemplate(sql);
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 

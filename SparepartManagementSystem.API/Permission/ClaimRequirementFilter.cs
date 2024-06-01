@@ -25,19 +25,28 @@ public class ClaimRequirementFilter : IAsyncAuthorizationFilter
 
         var hasPermission = await HasPermission(userIdClaim);
 
-        if (!hasPermission) context.Result = new ForbidResult();
+        if (!hasPermission)
+        {
+            context.Result = new ForbidResult();
+        }
     }
 
     private async Task<bool> HasPermission(Claim? userIdClaim)
     {
         var hasPermission = false;
 
-        if (userIdClaim == null) return hasPermission;
-        
+        if (userIdClaim == null)
+        {
+            return hasPermission;
+        }
+
         var userDto = await _userService.GetUserByIdWithRoles(int.Parse(userIdClaim.Value));
 
-        if (userDto.Data == null) return hasPermission;
-        
+        if (userDto.Data == null)
+        {
+            return hasPermission;
+        }
+
         if (userDto.Data.IsAdministrator)
         {
             hasPermission = true;
@@ -52,7 +61,9 @@ public class ClaimRequirementFilter : IAsyncAuthorizationFilter
                 var permissionsDto = (await _permissionService.GetByRoleId(role.RoleId)).Data;
 
                 if (permissionsDto != null)
+                {
                     permissions.AddRange(permissionsDto);
+                }
             }
 
             hasPermission = permissions.Exists(x => _permissions.Contains(x.PermissionName));

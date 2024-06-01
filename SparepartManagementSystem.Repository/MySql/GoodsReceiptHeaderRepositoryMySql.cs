@@ -1,5 +1,4 @@
 using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
@@ -29,6 +28,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
                            """;
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task Delete(int id)
@@ -37,110 +37,175 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         _ = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
     }
 
-    public Task<IEnumerable<GoodsReceiptHeader>> GetAll()
+    public async Task<IEnumerable<GoodsReceiptHeader>> GetAll()
     {
         const string sql = "SELECT * FROM GoodsReceiptHeaders";
-        return _sqlConnection.QueryAsync<GoodsReceiptHeader>(sql, transaction: _dbTransaction);
+        return await _sqlConnection.QueryAsync<GoodsReceiptHeader>(sql, transaction: _dbTransaction);
     }
 
-    public Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false)
+    public async Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId";
         const string sqlForUpdate = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        var result = await _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
 
-    public Task<IEnumerable<GoodsReceiptHeader>> GetByParams(GoodsReceiptHeader entity)
+    public async Task<IEnumerable<GoodsReceiptHeader>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-        if (entity.GoodsReceiptHeaderId > 0) sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
-        if (!string.IsNullOrEmpty(entity.PackingSlipId)) sqlBuilder.Where("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
-        if (entity.TransDate > SqlDateTime.MinValue.Value) sqlBuilder.Where("TransDate = @TransDate", new { entity.TransDate });
-        if (!string.IsNullOrEmpty(entity.Description)) sqlBuilder.Where("Description = @Description", new { entity.Description });
-        if (!string.IsNullOrEmpty(entity.PurchId)) sqlBuilder.Where("PurchId = @PurchId", new { entity.PurchId });
-        if (!string.IsNullOrEmpty(entity.PurchName)) sqlBuilder.Where("PurchName LIKE @PurchName", new { PurchName = $"%{entity.PurchName}%" });
-        if (!string.IsNullOrEmpty(entity.OrderAccount)) sqlBuilder.Where("OrderAccount LIKE @OrderAccount", new { OrderAccount = $"%{entity.OrderAccount}%" });
-        if (!string.IsNullOrEmpty(entity.InvoiceAccount)) sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{entity.InvoiceAccount}%" });
-        if (!string.IsNullOrEmpty(entity.PurchStatus)) sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{entity.PurchStatus}%" });
-        if (entity.SubmittedDate > SqlDateTime.MinValue.Value) sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
-        if (entity.IsSubmitted is not null) sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
-        if (!string.IsNullOrEmpty(entity.SubmittedBy)) sqlBuilder.Where("SubmittedBy LIKE @SubmittedBy", new { SubmittedBy = $"%{entity.SubmittedBy}%" });
-        if (!string.IsNullOrEmpty(entity.CreatedBy)) sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value) sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
-        if (!string.IsNullOrEmpty(entity.ModifiedBy)) sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value) sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
+        {
+            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
+        }
+
+        if (parameters.TryGetValue("packingSlipId", out var packingSlipId) && !string.IsNullOrEmpty(packingSlipId))
+        {
+            sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
+        }
+
+        if (parameters.TryGetValue("transDate", out var transDateString) && DateTime.TryParse(transDateString, out var transDate))
+        {
+            sqlBuilder.Where("TransDate = @TransDate", new { TransDate = transDate });
+        }
+
+        if (parameters.TryGetValue("description", out var description) && !string.IsNullOrEmpty(description))
+        {
+            sqlBuilder.Where("Description LIKE @Description", new { Description = $"%{description}%" });
+        }
+
+        if (parameters.TryGetValue("purchId", out var purchId) && !string.IsNullOrEmpty(purchId))
+        {
+            sqlBuilder.Where("PurchId LIKE @PurchId", new { PurchId = $"%{purchId}%" });
+        }
+
+        if (parameters.TryGetValue("purchName", out var purchName) && !string.IsNullOrEmpty(purchName))
+        {
+            sqlBuilder.Where("PurchName LIKE @PurchName", new { PurchName = $"%{purchName}%" });
+        }
+
+        if (parameters.TryGetValue("orderAccount", out var orderAccount) && !string.IsNullOrEmpty(orderAccount))
+        {
+            sqlBuilder.Where("OrderAccount LIKE @OrderAccount", new { OrderAccount = $"%{orderAccount}%" });
+        }
+
+        if (parameters.TryGetValue("invoiceAccount", out var invoiceAccount) && !string.IsNullOrEmpty(invoiceAccount))
+        {
+            sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{invoiceAccount}%" });
+        }
+
+        if (parameters.TryGetValue("purchStatus", out var purchStatus) && !string.IsNullOrEmpty(purchStatus))
+        {
+            sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{purchStatus}%" });
+        }
+
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        {
+            sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { SubmittedDate = submittedDate });
+        }
+
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+        {
+            sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
+        }
+
+        if (parameters.TryGetValue("submittedBy", out var submittedBy) && !string.IsNullOrEmpty(submittedBy))
+        {
+            sqlBuilder.Where("SubmittedBy LIKE @SubmittedBy", new { SubmittedBy = $"%{submittedBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !string.IsNullOrEmpty(createdBy))
+        {
+            sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        {
+            sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { CreatedDateTime = createdDateTime });
+        }
+
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
+        {
+            sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
+        }
+
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        {
+            sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { ModifiedDateTime = modifiedDateTime });
+        }
+
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
-        
         var template = sqlBuilder.AddTemplate("SELECT * FROM GoodsReceiptHeaders /**where**/");
-        
-        return _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
+        return  await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
     public async Task Update(GoodsReceiptHeader entity)
     {
         var builder = new SqlBuilder();
 
-        if (!string.IsNullOrEmpty(entity.PackingSlipId))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PackingSlipId)), entity.PackingSlipId))
         {
             builder.Set("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
         }
 
-        if (entity.TransDate > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)), entity.TransDate))
         {
             builder.Set("TransDate = @TransDate", new { entity.TransDate });
         }
 
-        if (!string.IsNullOrEmpty(entity.Description))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
 
-        if (!string.IsNullOrEmpty(entity.PurchId))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchId)), entity.PurchId))
         {
             builder.Set("PurchId = @PurchId", new { entity.PurchId });
         }
 
-        if (!string.IsNullOrEmpty(entity.PurchName))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchName)), entity.PurchName))
         {
             builder.Set("PurchName = @PurchName", new { entity.PurchName });
         }
 
-        if (!string.IsNullOrEmpty(entity.OrderAccount))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.OrderAccount)), entity.OrderAccount))
         {
             builder.Set("OrderAccount = @OrderAccount", new { entity.OrderAccount });
         }
 
-        if (!string.IsNullOrEmpty(entity.InvoiceAccount))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.InvoiceAccount)), entity.InvoiceAccount))
         {
             builder.Set("InvoiceAccount = @InvoiceAccount", new { entity.InvoiceAccount });
         }
 
-        if (!string.IsNullOrEmpty(entity.PurchStatus))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchStatus)), entity.PurchStatus))
         {
             builder.Set("PurchStatus = @PurchStatus", new { entity.PurchStatus });
         }
 
-        if (entity.IsSubmitted is not null)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)), entity.IsSubmitted))
         {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
 
-        if (entity.SubmittedDate > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)), entity.SubmittedDate))
         {
             builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         }
 
-        if (!string.IsNullOrEmpty(entity.SubmittedBy))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedBy)), entity.SubmittedBy))
         {
             builder.Set("SubmittedBy = @SubmittedBy", new { entity.SubmittedBy });
         }
 
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
@@ -151,10 +216,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         var template = builder.AddTemplate(sql);
         
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task<PagedList<GoodsReceiptHeader>> GetAllPagedList(int pageNumber, int pageSize)
@@ -171,43 +233,90 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         return new PagedList<GoodsReceiptHeader>(result, resultCount, pageNumber, pageSize);
     }
 
-    public async Task<PagedList<GoodsReceiptHeader>> GetByParamsPagedList(int pageNumber, int pageSize, GoodsReceiptHeader entity)
+    public async Task<PagedList<GoodsReceiptHeader>> GetByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
         
-        if (entity.GoodsReceiptHeaderId > 0)
-            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
-        if (!string.IsNullOrEmpty(entity.PackingSlipId))
-            sqlBuilder.Where("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
-        if (entity.TransDate > SqlDateTime.MinValue.Value)
-            sqlBuilder.Where("TransDate = @TransDate", new { entity.TransDate });
-        if (!string.IsNullOrEmpty(entity.Description))
-            sqlBuilder.Where("Description = @Description", new { entity.Description });
-        if (!string.IsNullOrEmpty(entity.PurchId))
-            sqlBuilder.Where("PurchId = @PurchId", new { entity.PurchId });
-        if (!string.IsNullOrEmpty(entity.PurchName))
-            sqlBuilder.Where("PurchName LIKE @PurchName", new { PurchName = $"%{entity.PurchName}%" });
-        if (!string.IsNullOrEmpty(entity.OrderAccount))
-            sqlBuilder.Where("OrderAccount LIKE @OrderAccount", new { OrderAccount = $"%{entity.OrderAccount}%" });
-        if (!string.IsNullOrEmpty(entity.InvoiceAccount))
-            sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{entity.InvoiceAccount}%" });
-        if (!string.IsNullOrEmpty(entity.PurchStatus))
-            sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{entity.PurchStatus}%" });
-        if (entity.IsSubmitted is not null)
-            sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
-        if (entity.SubmittedDate > SqlDateTime.MinValue.Value)
-            sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
-        if (!string.IsNullOrEmpty(entity.SubmittedBy))
-            sqlBuilder.Where("SubmittedBy LIKE @SubmittedBy", new { SubmittedBy = $"%{entity.SubmittedBy}%" });
-        if (!string.IsNullOrEmpty(entity.CreatedBy))
-            sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
-            sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
-            sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
-            sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
+        {
+            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
+        }
+
+        if (parameters.TryGetValue("packingSlipId", out var packingSlipId) && !string.IsNullOrEmpty(packingSlipId))
+        {
+            sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
+        }
+
+        if (parameters.TryGetValue("transDate", out var transDateString) && DateTime.TryParse(transDateString, out var transDate))
+        {
+            sqlBuilder.Where("TransDate = @TransDate", new { TransDate = transDate });
+        }
+
+        if (parameters.TryGetValue("description", out var description) && !string.IsNullOrEmpty(description))
+        {
+            sqlBuilder.Where("Description LIKE @Description", new { Description = $"%{description}%" });
+        }
+
+        if (parameters.TryGetValue("purchId", out var purchId) && !string.IsNullOrEmpty(purchId))
+        {
+            sqlBuilder.Where("PurchId LIKE @PurchId", new { PurchId = $"%{purchId}%" });
+        }
+
+        if (parameters.TryGetValue("purchName", out var purchName) && !string.IsNullOrEmpty(purchName))
+        {
+            sqlBuilder.Where("PurchName LIKE @PurchName", new { PurchName = $"%{purchName}%" });
+        }
+
+        if (parameters.TryGetValue("orderAccount", out var orderAccount) && !string.IsNullOrEmpty(orderAccount))
+        {
+            sqlBuilder.Where("OrderAccount LIKE @OrderAccount", new { OrderAccount = $"%{orderAccount}%" });
+        }
+
+        if (parameters.TryGetValue("invoiceAccount", out var invoiceAccount) && !string.IsNullOrEmpty(invoiceAccount))
+        {
+            sqlBuilder.Where("InvoiceAccount LIKE @InvoiceAccount", new { InvoiceAccount = $"%{invoiceAccount}%" });
+        }
+
+        if (parameters.TryGetValue("purchStatus", out var purchStatus) && !string.IsNullOrEmpty(purchStatus))
+        {
+            sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{purchStatus}%" });
+        }
         
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+        {
+            sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
+        }
+
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        {
+            sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { SubmittedDate = submittedDate });
+        }
+
+        if (parameters.TryGetValue("submittedBy", out var submittedBy) && !string.IsNullOrEmpty(submittedBy))
+        {
+            sqlBuilder.Where("SubmittedBy LIKE @SubmittedBy", new { SubmittedBy = $"%{submittedBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !string.IsNullOrEmpty(createdBy))
+        {
+            sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        {
+            sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { CreatedDateTime = createdDateTime });
+        }
+
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
+        {
+            sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
+        }
+
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        {
+            sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { ModifiedDateTime = modifiedDateTime });
+        }
+
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
         sqlBuilder.AddParameters(new { PageSize = pageSize, Offset = (pageNumber - 1) * pageSize });
         
@@ -217,7 +326,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         
         const string sqlCount = "SELECT COUNT(*) FROM GoodsReceiptHeaders /**where**/";
         template = sqlBuilder.AddTemplate(sqlCount);
-        var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, transaction: _dbTransaction);
+        var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, template.Parameters, transaction: _dbTransaction);
         
         return new PagedList<GoodsReceiptHeader>(result, pageNumber, pageSize, resultCount);
     }
@@ -252,10 +361,15 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
                 result = header;
             }
 
-            if (line != null) result.GoodsReceiptLines.Add(line);
+            if (line != null)
+            {
+                result.GoodsReceiptLines.Add(line);
+            }
+
             return result;
         }, new { GoodsReceiptHeaderId = id }, splitOn: "GoodsReceiptLineId", transaction: _dbTransaction);
 
+        result.AcceptChanges();
         return result;
     }
 

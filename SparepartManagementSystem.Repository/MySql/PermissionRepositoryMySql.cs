@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
@@ -35,6 +34,7 @@ internal class PermissionRepositoryMySql : IPermissionRepository
                            VALUES (@RoleId, @Module, @Type, @PermissionName, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task Delete(int id)
@@ -51,63 +51,61 @@ internal class PermissionRepositoryMySql : IPermissionRepository
 
     public async Task<Permission> GetById(int id, bool forUpdate = false)
     {
-        const string sql = """
-                           SELECT * FROM Permissions
-                           WHERE PermissionId = @PermissionId
-                           """;
-        const string sqlForUpdate = """
-                                    SELECT * FROM Permissions
-                                    WHERE PermissionId = @PermissionId
-                                    FOR UPDATE
-                                    """;
-        return await _sqlConnection.QueryFirstAsync<Permission>(forUpdate ? sqlForUpdate : sql, new { PermissionId = id }, _dbTransaction);
+        const string sql = "SELECT * FROM Permissions WHERE PermissionId = @PermissionId";
+        const string sqlForUpdate = "SELECT * FROM Permissions WHERE PermissionId = @PermissionId FOR UPDATE";
+        var result = await _sqlConnection.QueryFirstAsync<Permission>(forUpdate ? sqlForUpdate : sql, new { PermissionId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
 
-    public async Task<IEnumerable<Permission>> GetByParams(Permission entity)
+    public async Task<IEnumerable<Permission>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
-
-        if (entity.RoleId > 0)
-        {
-            builder.Where("RoleId = @RoleId", new { entity.RoleId });
-        }
-
-        if (!string.IsNullOrEmpty(entity.Module))
-        {
-            builder.Where("Module LIKE @Module", new { Module = $"%{entity.Module}%" });
-        }
-
-        if (!string.IsNullOrEmpty(entity.Type))
-        {
-            builder.Where("Type LIKE @Type", new { Type = $"%{entity.Type}%" });
-        }
-
-        if (!string.IsNullOrEmpty(entity.PermissionName))
-        {
-            builder.Where("PermissionName LIKE @PermissionName", new { PermissionName = $"%{entity.PermissionName}%" });
-        }
-
-        if (!string.IsNullOrEmpty(entity.CreatedBy))
-        {
-            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
-        }
-
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
-        {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
-        }
-
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
-        {
-            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
-        }
-
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
-        {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
-        }
         
-        builder.Where("PermissionId = @PermissionId", new { entity.PermissionId });
+        if (parameters.TryGetValue("permissionId", out var permissionIdString) && int.TryParse(permissionIdString, out var permissionId))
+        {
+            builder.Where("PermissionId = @PermissionId", new { PermissionId = permissionId });
+        }
+
+        if (parameters.TryGetValue("roleId", out var roleIdString) && int.TryParse(roleIdString, out var roleId))
+        {
+            builder.Where("RoleId = @RoleId", new { RoleId = roleId });
+        }
+
+        if (parameters.TryGetValue("module", out var module) && !string.IsNullOrEmpty(module))
+        {
+            builder.Where("Module LIKE @Module", new { Module = $"%{module}%" });
+        }
+
+        if (parameters.TryGetValue("type", out var type) && !string.IsNullOrEmpty(type))
+        {
+            builder.Where("Type LIKE @Type", new { Type = $"%{type}%" });
+        }
+
+        if (parameters.TryGetValue("permissionName", out var permissionName) && !string.IsNullOrEmpty(permissionName))
+        {
+            builder.Where("PermissionName LIKE @PermissionName", new { PermissionName = $"%{permissionName}%" });
+        }
+
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !string.IsNullOrEmpty(createdBy))
+        {
+            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
+        }
+
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        {
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+        }
+
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
+        {
+            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
+        }
+
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        {
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+        }
 
         const string sql = "SELECT * FROM Permissions /**where**/";
         var template = builder.AddTemplate(sql);
@@ -118,32 +116,32 @@ internal class PermissionRepositoryMySql : IPermissionRepository
     {
         var builder = new SqlBuilder();
 
-        if (entity.RoleId > 0)
+        if (!Equals(entity.OriginalValue(nameof(Permission.RoleId)), entity.RoleId))
         {
             builder.Set("RoleId = @RoleId", new { entity.RoleId });
         }
 
-        if (!string.IsNullOrEmpty(entity.PermissionName))
+        if (!Equals(entity.OriginalValue(nameof(Permission.PermissionName)), entity.PermissionName))
         {
             builder.Set("PermissionName = @PermissionName", new { entity.PermissionName });
         }
 
-        if (!string.IsNullOrEmpty(entity.Module))
+        if (!Equals(entity.OriginalValue(nameof(Permission.Module)), entity.Module))
         {
             builder.Set("Module = @Module", new { entity.Module });
         }
 
-        if (!string.IsNullOrEmpty(entity.Type))
+        if (!Equals(entity.OriginalValue(nameof(Permission.Type)), entity.Type))
         {
             builder.Set("Type = @Type", new { entity.Type });
         }
 
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(Permission.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(Permission.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
@@ -151,13 +149,10 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         builder.Where("PermissionId = @PermissionId", new { entity.PermissionId });
 
         const string sql = "UPDATE Permissions /**set**/ /**where**/";
-
         var template = builder.AddTemplate(sql);
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        entity.AcceptChanges();
     }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-    }
+    
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

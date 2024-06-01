@@ -26,7 +26,9 @@ public static class EnumerableUserWarehouseExtensions
             }
         }
         else
+        {
             result = ["*"];
+        }
 
         return result;
     }

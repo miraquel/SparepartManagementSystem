@@ -9,7 +9,7 @@ namespace SparepartManagementSystem.Service.Interface
         Task<ServiceResponse> DeletePermission(int id);
         Task<ServiceResponse<PermissionDto>> GetPermissionById(int id);
         Task<ServiceResponse<IEnumerable<PermissionDto>>> GetAllPermission();
-        Task<ServiceResponse<IEnumerable<PermissionDto>>> GetPermissionByParams(PermissionDto entity);
+        Task<ServiceResponse<IEnumerable<PermissionDto>>> GetPermissionByParams(Dictionary<string, string> parameters);
         Task<ServiceResponse<IEnumerable<PermissionDto>>> GetByRoleId(int roleId);
         ServiceResponse<IEnumerable<PermissionDto>> GetAllPermissionTypes();
         ServiceResponse<IEnumerable<PermissionDto>> GetAllModules();

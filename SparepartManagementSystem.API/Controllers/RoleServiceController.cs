@@ -5,7 +5,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -48,9 +48,9 @@ public class RoleServiceController : ControllerBase
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.RoleActivity.Read }])]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoleByParams([FromQuery] RoleDto dto)
+    public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoleByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _roleService.GetRoleByParams(dto);
+        var result = await _roleService.GetRoleByParams(parameters);
         if (result.Success)
         {
             return Ok(result);
@@ -117,7 +117,10 @@ public class RoleServiceController : ControllerBase
     {
         var result = await _roleService.DeleteUserFromRole(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -128,7 +131,10 @@ public class RoleServiceController : ControllerBase
     {
         var result = await _roleService.GetAllRoleWithUsers();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -139,7 +145,10 @@ public class RoleServiceController : ControllerBase
     {
         var result = await _roleService.GetRoleByIdWithUsers(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 }

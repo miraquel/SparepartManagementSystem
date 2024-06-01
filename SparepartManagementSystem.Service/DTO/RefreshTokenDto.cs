@@ -6,11 +6,11 @@ public class RefreshTokenDto
 {
     public int RefreshTokenId { get; init; }
     public int UserId { get; init; }
-    public string Token { get; init; } = "";
+    public string Token { get; init; } = string.Empty;
     public DateTime Expires { get; init; }
     public DateTime Created { get; init; }
     public DateTime Revoked { get; init; } = SqlDateTime.MinValue.Value;
-    public string ReplacedByToken { get; init; } = "";
+    public string ReplacedByToken { get; init; } = string.Empty;
     public bool IsActive => Revoked == SqlDateTime.MinValue.Value && !IsExpired;
     public bool IsExpired => DateTime.UtcNow >= Expires;
 }

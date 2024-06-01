@@ -78,11 +78,10 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         await _sqlConnection.ExecuteAsync(sql, new { RefreshTokenId = id }, _dbTransaction);
     }
 
-    public Task<IEnumerable<RefreshToken>> GetAll()
+    public async Task<IEnumerable<RefreshToken>> GetAll()
     {
         const string sql = "SELECT * FROM RefreshTokens";
-
-        return _sqlConnection.QueryAsync<RefreshToken>(sql, null, _dbTransaction);
+        return await _sqlConnection.QueryAsync<RefreshToken>(sql, null, _dbTransaction);
     }
 
     public Task<RefreshToken> GetById(int id, bool forUpdate = false)
@@ -92,38 +91,43 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return _sqlConnection.QueryFirstAsync<RefreshToken>(forUpdate ? sqlForUpdate : sql, new { RefreshTokenId = id }, _dbTransaction);
     }
 
-    public Task<IEnumerable<RefreshToken>> GetByParams(RefreshToken entity)
+    public Task<IEnumerable<RefreshToken>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (entity.RefreshTokenId > 0)
+        if (parameters.TryGetValue("refreshTokenId", out var refreshTokenIdString) && int.TryParse(refreshTokenIdString, out var refreshTokenId))
         {
-            builder.Where("RefreshTokenId = @RefreshTokenId", new { entity.RefreshTokenId });
+            builder.Where("RefreshTokenId = @RefreshTokenId", new { RefreshTokenId = refreshTokenId });
         }
 
-        if (entity.UserId > 0)
+        if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId))
         {
-            builder.Where("UserId = @UserId", new { entity.UserId });
+            builder.Where("UserId = @UserId", new { UserId = userId });
         }
 
-        if (!string.IsNullOrEmpty(entity.Token))
+        if (parameters.TryGetValue("token", out var token) && !string.IsNullOrEmpty(token))
         {
-            builder.Where("Token LIKE @Token", new { Token = $"%{entity.Token}%" });
+            builder.Where("Token LIKE @Token", new { Token = $"%{token}%" });
+        }
+        
+        if (parameters.TryGetValue("created", out var createdString) && DateTime.TryParse(createdString, out var created))
+        {
+            builder.Where("Created = @Created", new { Created = created });
         }
 
-        if (entity.Expires != DateTime.MinValue)
+        if (parameters.TryGetValue("expires", out var expiresString) && DateTime.TryParse(expiresString, out var expires))
         {
-            builder.Where("Expires = @Expires", new { entity.Expires });
+            builder.Where("Expires = @Expires", new { Expires = expires });
         }
 
-        if (entity.Revoked != DateTime.MinValue)
+        if (parameters.TryGetValue("revoked", out var revokedString) && DateTime.TryParse(revokedString, out var revoked))
         {
-            builder.Where("Revoked = @Revoked", new { entity.Revoked });
+            builder.Where("Revoked = @Revoked", new { Revoked = revoked });
         }
 
-        if (!string.IsNullOrEmpty(entity.ReplacedByToken))
+        if (parameters.TryGetValue("replacedByToken", out var replacedByToken) && !string.IsNullOrEmpty(replacedByToken))
         {
-            builder.Where("ReplacedByToken LIKE @ReplacedByToken", new { ReplacedByToken = $"%{entity.ReplacedByToken}%" });
+            builder.Where("ReplacedByToken LIKE @ReplacedByToken", new { ReplacedByToken = $"%{replacedByToken}%" });
         }
 
         builder.OrderBy("UserId");

@@ -9,7 +9,7 @@ public interface IRoleService
     Task<ServiceResponse> DeleteRole(int id);
     Task<ServiceResponse<RoleDto>> GetRoleById(int id);
     Task<ServiceResponse<IEnumerable<RoleDto>>> GetAllRole();
-    Task<ServiceResponse<IEnumerable<RoleDto>>> GetRoleByParams(RoleDto entity);
+    Task<ServiceResponse<IEnumerable<RoleDto>>> GetRoleByParams(Dictionary<string, string> parameters);
     Task<ServiceResponse> AddUserToRole(UserRoleDto dto);
     Task<ServiceResponse> DeleteUserFromRole(UserRoleDto dto);
     Task<ServiceResponse<IEnumerable<RoleDto>>> GetAllRoleWithUsers();

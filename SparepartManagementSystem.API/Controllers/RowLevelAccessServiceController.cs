@@ -5,7 +5,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -26,7 +26,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.GetAllRowLevelAccess();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -37,7 +40,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.GetRowLevelAccessById(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -48,7 +54,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.AddRowLevelAccess(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -59,7 +68,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.UpdateRowLevelAccess(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -70,18 +82,24 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.DeleteRowLevelAccess(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.RowLevelAccessActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetRowLevelAccessByParams([FromQuery] RowLevelAccessDto dto)
+    public async Task<IActionResult> GetRowLevelAccessByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _rowLevelAccessService.GetRowLevelAccessByParams(dto);
+        var result = await _rowLevelAccessService.GetRowLevelAccessByParams(parameters);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
@@ -92,7 +110,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.GetRowLevelAccessByUserId(userId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
@@ -103,7 +124,10 @@ public class RowLevelAccessServiceController : ControllerBase
     {
         var result = await _rowLevelAccessService.BulkDeleteRowLevelAccess(ids);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 }

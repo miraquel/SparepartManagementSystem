@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
@@ -25,6 +24,7 @@ internal class UserRepositoryMySql : IUserRepository
                            VALUES (@Username, @FirstName, @LastName, @Email, @IsAdministrator, @IsEnabled, @LastLogin, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task Delete(int id)
@@ -41,80 +41,75 @@ internal class UserRepositoryMySql : IUserRepository
 
     public async Task<User> GetById(int id, bool forUpdate = false)
     {
-        const string sql = """
-                           SELECT * FROM Users
-                           WHERE UserId = @UserId
-                           """;
-        const string sqlForUpdate = """
-                                    SELECT * FROM Users
-                                    WHERE UserId = @UserId
-                                    FOR UPDATE
-                                    """;
-        return await _sqlConnection.QueryFirstAsync<User>(forUpdate ? sqlForUpdate : sql, new { UserId = id }, _dbTransaction);
+        const string sql = "SELECT * FROM Users WHERE UserId = @UserId";
+        const string sqlForUpdate = "SELECT * FROM Users WHERE UserId = @UserId FOR UPDATE";
+        var result = await _sqlConnection.QueryFirstAsync<User>(forUpdate ? sqlForUpdate : sql, new { UserId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
 
-    public Task<IEnumerable<User>> GetByParams(User entity)
+    public Task<IEnumerable<User>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (entity.UserId > 0)
+        if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId)) 
         {
-            builder.Where("UserId = @UserId", new { entity.UserId });
+            builder.Where("UserId = @UserId", new { UserId = userId });
         }
 
-        if (!IsNullOrEmpty(entity.Username))
+        if (parameters.TryGetValue("username", out var username) && !IsNullOrEmpty(username))
         {
-            builder.Where("Username = @Username", new { entity.Username });
+            builder.Where("Username LIKE @Username", new { Username = $"%{username}%" });
         }
 
-        if (!IsNullOrEmpty(entity.FirstName))
+        if (parameters.TryGetValue("firstName", out var firstName) && !IsNullOrEmpty(firstName))
         {
-            builder.Where("FirstName = @FirstName", new { entity.FirstName });
+            builder.Where("FirstName LIKE @FirstName", new { FirstName = $"%{firstName}%" });
         }
 
-        if (!IsNullOrEmpty(entity.LastName))
+        if (parameters.TryGetValue("lastName", out var lastName) && !IsNullOrEmpty(lastName))
         {
-            builder.Where("LastName = @LastName", new { entity.LastName });
+            builder.Where("LastName LIKE @LastName", new { LastName = $"%{lastName}%" });
         }
 
-        if (!IsNullOrEmpty(entity.Email))
+        if (parameters.TryGetValue("email", out var email) && !IsNullOrEmpty(email))
         {
-            builder.Where("Email = @Email", new { entity.Email });
+            builder.Where("Email LIKE @Email", new { Email = $"%{email}%" });
         }
 
-        if (entity.IsAdministrator is not null)
+        if (parameters.TryGetValue("isAdministrator", out var isAdministratorString) && bool.TryParse(isAdministratorString, out var isAdministrator))
         {
-            builder.Where("IsAdministrator = @IsAdministrator", new { entity.IsAdministrator });
+            builder.Where("IsAdministrator = @IsAdministrator", new { IsAdministrator = isAdministrator });
         }
 
-        if (entity.IsEnabled is not null)
+        if (parameters.TryGetValue("isEnabled", out var isEnabledString) && bool.TryParse(isEnabledString, out var isEnabled))
         {
-            builder.Where("IsEnabled = @IsEnabled", new { entity.IsEnabled });
+            builder.Where("IsEnabled = @IsEnabled", new { IsEnabled = isEnabled });
         }
 
-        if (entity.LastLogin > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("lastLogin", out var lastLoginString) && DateTime.TryParse(lastLoginString, out var lastLogin))
         {
-            builder.Where("CAST(LastLogin AS date) = CAST(@LastLogin AS date)", new { entity.LastLogin });
+            builder.Where("CAST(LastLogin AS date) = CAST(@LastLogin AS date)", new { LastLogin = lastLogin });
         }
 
-        if (!IsNullOrEmpty(entity.CreatedBy))
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !IsNullOrEmpty(createdBy))
         {
-            builder.Where("CreatedBy = @CreatedBy", new { entity.CreatedBy });
+            builder.Where("CreatedBy = @CreatedBy", new { CreatedBy = createdBy });
         }
 
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
         {
-            builder.Where("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+            builder.Where("ModifiedBy = @ModifiedBy", new { ModifiedBy = modifiedBy });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
         }
 
         const string sql = "SELECT * FROM Users /**where**/";
@@ -126,47 +121,47 @@ internal class UserRepositoryMySql : IUserRepository
     {
         var builder = new SqlBuilder();
 
-        if (!IsNullOrEmpty(entity.Username))
+        if (!Equals(entity.OriginalValue(nameof(entity.Username)), entity.Username))
         {
             builder.Set("Username = @Username", new { entity.Username });
         }
 
-        if (!IsNullOrEmpty(entity.FirstName))
+        if (!Equals(entity.OriginalValue(nameof(entity.FirstName)), entity.FirstName))
         {
             builder.Set("FirstName = @FirstName", new { entity.FirstName });
         }
 
-        if (!IsNullOrEmpty(entity.LastName))
+        if (!Equals(entity.OriginalValue(nameof(entity.LastName)), entity.LastName))
         {
             builder.Set("LastName = @LastName", new { entity.LastName });
         }
 
-        if (!IsNullOrEmpty(entity.Email))
+        if (!Equals(entity.OriginalValue(nameof(entity.Email)), entity.Email))
         {
             builder.Set("Email = @Email", new { entity.Email });
         }
 
-        if (entity.IsAdministrator is not null)
+        if (!Equals(entity.OriginalValue(nameof(entity.IsAdministrator)), entity.IsAdministrator))
         {
             builder.Set("IsAdministrator = @IsAdministrator", new { entity.IsAdministrator });
         }
 
-        if (entity.IsEnabled is not null)
+        if (!Equals(entity.OriginalValue(nameof(entity.IsEnabled)), entity.IsEnabled))
         {
             builder.Set("IsEnabled = @IsEnabled", new { entity.IsEnabled });
         }
 
-        if (entity.LastLogin > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(entity.LastLogin)), entity.LastLogin))
         {
             builder.Set("LastLogin = @LastLogin", new { entity.LastLogin });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
@@ -175,12 +170,8 @@ internal class UserRepositoryMySql : IUserRepository
 
         const string sql = "UPDATE Users /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
@@ -188,8 +179,8 @@ internal class UserRepositoryMySql : IUserRepository
     {
         const string sql = """
                            SELECT
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.IsAdministrator, u.IsEnabled, u.LastLogin, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime,
-                           r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime
+                           u.*,
+                           r.*
                            FROM Users u
                            LEFT OUTER JOIN UserRoles ur ON ur.UserId = u.UserId
                            LEFT OUTER JOIN Roles r ON r.RoleId = ur.RoleId
@@ -205,7 +196,11 @@ internal class UserRepositoryMySql : IUserRepository
                 result[^1].Roles = new List<Role>();
             }
 
-            if (role != null) result[^1].Roles.Add(role);
+            if (role != null)
+            {
+                result[^1].Roles.Add(role);
+            }
+
             return user;
         }, splitOn: "RoleId", transaction: _dbTransaction);
 
@@ -216,8 +211,8 @@ internal class UserRepositoryMySql : IUserRepository
     {
         const string sql = """
                            SELECT
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.IsAdministrator, u.IsEnabled, u.LastLogin, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime,
-                           r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime
+                           u.*,
+                           r.*
                            FROM Users u
                            LEFT OUTER JOIN UserRoles ur ON ur.UserId = u.UserId
                            LEFT OUTER JOIN Roles r ON r.RoleId = ur.RoleId
@@ -233,7 +228,11 @@ internal class UserRepositoryMySql : IUserRepository
                 result = user;
             }
 
-            if (role != null) result.Roles.Add(role);
+            if (role != null)
+            {
+                result.Roles.Add(role);
+            }
+
             return user;
         }, new { UserId = id }, splitOn: "RoleId", transaction: _dbTransaction);
 
@@ -254,8 +253,8 @@ internal class UserRepositoryMySql : IUserRepository
     {
         const string sql = """
                            SELECT
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.IsAdministrator, u.IsEnabled, u.LastLogin, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime,
-                           r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime
+                           u.*,
+                           r.*
                            FROM Users u
                            LEFT OUTER JOIN UserRoles ur ON ur.UserId = u.UserId
                            LEFT OUTER JOIN Roles r ON r.RoleId = ur.RoleId
@@ -271,7 +270,11 @@ internal class UserRepositoryMySql : IUserRepository
                 result = user;
             }
 
-            if (role != null) result.Roles.Add(role);
+            if (role != null)
+            {
+                result.Roles.Add(role);
+            }
+
             return user;
         }, new { Username = username }, splitOn: "RoleId", transaction: _dbTransaction);
 
@@ -282,8 +285,8 @@ internal class UserRepositoryMySql : IUserRepository
     {
         const string sql = """
                            SELECT
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.IsAdministrator, u.IsEnabled, u.LastLogin, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime,
-                           uw.UserWarehouseId, uw.UserId, uw.InventLocationId, uw.Name, uw.IsDefault, uw.CreatedBy, uw.CreatedDateTime, uw.ModifiedBy, uw.ModifiedDateTime
+                           u.*,
+                           uw.*
                            FROM Users u
                            LEFT OUTER JOIN UserWarehouses uw ON uw.UserId = u.UserId
                            WHERE u.UserId = @UserId
@@ -298,7 +301,11 @@ internal class UserRepositoryMySql : IUserRepository
                 result = user;
             }
 
-            if (userWarehouse != null) result.UserWarehouses.Add(userWarehouse);
+            if (userWarehouse != null)
+            {
+                result.UserWarehouses.Add(userWarehouse);
+            }
+
             return user;
         }, new { UserId = id }, splitOn: "UserWarehouseId", transaction: _dbTransaction);
 

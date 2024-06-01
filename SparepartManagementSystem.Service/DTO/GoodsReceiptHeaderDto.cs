@@ -14,7 +14,7 @@ public class GoodsReceiptHeaderDto
     public DateTime TransDate { get; init; } = SqlDateTime.MinValue.Value;
 
     [DefaultValue("")]
-    public string Description { get; init; } = "";
+    public string Description { get; init; } = string.Empty;
 
     [DefaultValue("")]
     public string PurchId { get; init; } = string.Empty;
@@ -31,7 +31,7 @@ public class GoodsReceiptHeaderDto
     [DefaultValue("")]
     public string PurchStatus { get; init; } = string.Empty;
     
-    public bool? IsSubmitted { get; init; }
+    public bool IsSubmitted { get; init; }
 
     [DefaultValue("")]
     public string SubmittedBy { get; init; } = string.Empty;
@@ -42,13 +42,13 @@ public class GoodsReceiptHeaderDto
     public ICollection<GoodsReceiptLineDto> GoodsReceiptLines { get; init; } = new List<GoodsReceiptLineDto>();
 
     [DefaultValue("")]
-    public string CreatedBy { get; init; } = "";
+    public string CreatedBy { get; init; } = string.Empty;
 
     [DefaultValue(typeof (DateTime), "1753-01-01T00:00:00")]
     public DateTime CreatedDateTime { get; init; } = SqlDateTime.MinValue.Value;
 
     [DefaultValue("")]
-    public string ModifiedBy { get; init; } = "";
+    public string ModifiedBy { get; init; } = string.Empty;
 
     [DefaultValue(typeof (DateTime), "1753-01-01T00:00:00")]
     public DateTime ModifiedDateTime { get; init; } = SqlDateTime.MinValue.Value;

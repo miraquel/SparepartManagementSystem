@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -54,7 +53,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -92,7 +94,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -127,7 +132,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -162,7 +170,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -175,14 +186,11 @@ public class NumberSequenceService : INumberSequenceService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(NumberSequenceDto dto)
+    public async Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var result = (await _unitOfWork.NumberSequenceRepository.GetByParams(_mapper.MapToNumberSequence(dto))).ToList();
-
-            _logger.Information("Number Sequence get by params successfully with total {TotalRecord} rows", result.Count);
-
+            var result = await _unitOfWork.NumberSequenceRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<NumberSequenceDto>>
             {
                 Data = _mapper.MapToListOfNumberSequenceDto(result),
@@ -197,7 +205,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -214,17 +225,27 @@ public class NumberSequenceService : INumberSequenceService
     {
         try
         {
-            var oldRecord = await _unitOfWork.NumberSequenceRepository.GetById(dto.NumberSequenceId, true);
+            var record = await _unitOfWork.NumberSequenceRepository.GetById(dto.NumberSequenceId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Number Sequence has been modified by another user. Please refresh and try again.");
             }
+
+            record.UpdateProperties(_mapper.MapToNumberSequence(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Number Sequence"
+                }; 
+            }
             
-            var newRecord = _mapper.MapToNumberSequence(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.NumberSequenceRepository.Update(NumberSequence.ForUpdate(oldRecord, newRecord));
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.NumberSequenceRepository.Update(record);
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence updated successfully", dto.NumberSequenceId);
             
@@ -245,7 +266,10 @@ public class NumberSequenceService : INumberSequenceService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

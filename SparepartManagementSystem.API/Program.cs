@@ -46,9 +46,11 @@ public static class Program
 
         serilogConfiguration.ReadFrom.Configuration(config);
 
-        if (!Enum.TryParse<DatabaseProvider>(config["DatabaseProvider"], out var databaseProvider)) 
+        if (!Enum.TryParse<DatabaseProvider>(config["DatabaseProvider"], out var databaseProvider))
+        {
             throw new InvalidEnumArgumentException(nameof(databaseProvider), (int)databaseProvider, typeof(DatabaseProvider));
-        
+        }
+
         switch (databaseProvider)
         {
             case DatabaseProvider.MySql:
@@ -63,7 +65,10 @@ public static class Program
                 throw new InvalidOperationException("Database provider not supported");
         }
 
-        if (builder.Environment.IsDevelopment()) serilogConfiguration.WriteTo.Console();
+        if (builder.Environment.IsDevelopment())
+        {
+            serilogConfiguration.WriteTo.Console();
+        }
 
         var serilog = serilogConfiguration.CreateLogger();
 

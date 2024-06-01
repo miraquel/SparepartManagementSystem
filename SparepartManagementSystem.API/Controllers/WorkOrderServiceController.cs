@@ -5,7 +5,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -25,7 +25,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.AddWorkOrderHeader(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -36,7 +39,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.AddWorkOrderHeaderWithLines(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -47,7 +53,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.UpdateWorkOrderHeader(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -58,7 +67,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.DeleteWorkOrderHeader(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -69,7 +81,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetWorkOrderHeaderById(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -80,18 +95,24 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetAllWorkOrderHeaderPagedList(pageNumber, pageSize);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.WorkOrderActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetWorkOrderHeaderByParamsPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WorkOrderHeaderDto entity)
+    public async Task<IActionResult> GetWorkOrderHeaderByParamsPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] Dictionary<string, string> parameters)
     {
-        var response = await _workOrderService.GetWorkOrderHeaderByParamsPagedList(pageNumber, pageSize, entity);
+        var response = await _workOrderService.GetWorkOrderHeaderByParamsPagedList(pageNumber, pageSize, parameters);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -102,7 +123,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.AddWorkOrderLine(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -113,7 +137,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.UpdateWorkOrderLine(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -124,7 +151,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.DeleteWorkOrderLine(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -135,7 +165,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetWorkOrderLineById(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -146,7 +179,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetWorkOrderLineByWorkOrderHeaderId(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -157,7 +193,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetWorkOrderHeaderByIdWithLines(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -168,7 +207,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.AddItemRequisition(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -179,7 +221,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.UpdateItemRequisition(dto);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -190,7 +235,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.DeleteItemRequisition(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -201,18 +249,24 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetItemRequisitionById(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.WorkOrderActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetItemRequisitionByParams([FromQuery] ItemRequisitionDto entity)
+    public async Task<IActionResult> GetItemRequisitionByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var response = await _workOrderService.GetItemRequisitionByParams(entity);
+        var response = await _workOrderService.GetItemRequisitionByParams(parameters);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
     
@@ -223,7 +277,10 @@ public class WorkOrderServiceController : ControllerBase
     {
         var response = await _workOrderService.GetItemRequisitionByWorkOrderLineId(id);
         if (response.Success)
+        {
             return Ok(response);
+        }
+
         return BadRequest(response);
     }
 }

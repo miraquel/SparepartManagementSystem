@@ -8,7 +8,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -55,12 +55,22 @@ public class GMKSMSServiceGroupController : ControllerBase
     {
         try
         {
-            if (!Uri.TryCreate(networkUri, UriKind.Absolute, out var result) || result.Scheme != "file") 
+            if (!Uri.TryCreate(networkUri, UriKind.Absolute, out var result) || result.Scheme != "file")
+            {
                 throw new InvalidOperationException("Invalid file URI format");
+            }
+
             var filePath = result.LocalPath;
-            if (!System.IO.File.Exists(filePath)) throw new InvalidOperationException("File does not exist");
+            if (!System.IO.File.Exists(filePath))
+            {
+                throw new InvalidOperationException("File does not exist");
+            }
+
             if (!MimeTypes.TryGetMimeType(filePath, out var contentType) || !contentType.StartsWith("image"))
+            {
                 throw new InvalidOperationException("File is not an image");
+            }
+
             var fileContents = await System.IO.File.ReadAllBytesAsync(filePath);
             return File(fileContents, contentType, Path.GetFileName(filePath));
         }
@@ -78,12 +88,21 @@ public class GMKSMSServiceGroupController : ControllerBase
         try
         {
             if (!Uri.TryCreate(networkUri, UriKind.Absolute, out var result) || result.Scheme != "file")
+            {
                 throw new InvalidOperationException("Invalid file URI format");
+            }
+
             var filePath = result.LocalPath;
             if (!System.IO.File.Exists(filePath))
+            {
                 throw new InvalidOperationException("File does not exist");
+            }
+
             if (!MimeTypes.TryGetMimeType(filePath, out var mimeType) || !mimeType.StartsWith("image"))
+            {
                 throw new InvalidOperationException("File is not an image");
+            }
+
             using var inStream = new MemoryStream(await System.IO.File.ReadAllBytesAsync(filePath));
             using var outStream = new MemoryStream();
             using var image = await Image.LoadAsync(inStream);
@@ -193,9 +212,9 @@ public class GMKSMSServiceGroupController : ControllerBase
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroupActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetWorkOrderPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WorkOrderAxSearchDto dto)
+    public async Task<IActionResult> GetWorkOrderPagedList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] WorkOrderHeaderDto dto)
     {
-        var response = await _gmkSmsServiceGroup.GetWorkOrderPagedList(pageNumber, pageSize, dto);
+        var response = await _gmkSmsServiceGroup.GetWorkOrderPagedListV2(pageNumber, pageSize, dto);
         if (response.Success)
         {
             return Ok(response);
@@ -208,7 +227,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetWorkOrderLineList([FromQuery] string workOrderHeaderId)
     {
-        var response = await _gmkSmsServiceGroup.GetWorkOrderLineList(workOrderHeaderId);
+        var response = await _gmkSmsServiceGroup.GetWorkOrderLineListV2(workOrderHeaderId);
         if (response.Success)
         {
             return Ok(response);

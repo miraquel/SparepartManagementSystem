@@ -19,8 +19,11 @@ public static class EnumerableRowLevelAccessExtensions
                     .Select(x => $"{x}*")
                     .ToList();
 
-                if (result.Count != 0) return result;
-                
+                if (result.Count != 0)
+                {
+                    return result;
+                }
+
                 var leftmostCommonCharacters = filters
                     .Select(item => item.CalculateLeftmostCommonCharacters(parmTrimmed))
                     .FirstOrDefault();
@@ -40,7 +43,9 @@ public static class EnumerableRowLevelAccessExtensions
             }
         }
         else
+        {
             result = ["*"];
+        }
 
         return result;
     }

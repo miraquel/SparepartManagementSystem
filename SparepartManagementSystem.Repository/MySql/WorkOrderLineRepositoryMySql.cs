@@ -1,5 +1,4 @@
 using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
@@ -37,148 +36,193 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
         _ = await _sqlConnection.ExecuteAsync(sql, new { WorkOrderLineId = id }, _dbTransaction);
     }
 
-    public Task<IEnumerable<WorkOrderLine>> GetAll()
+    public async Task<IEnumerable<WorkOrderLine>> GetAll()
     {
         const string sql = "SELECT * FROM WorkOrderLines";
-        return _sqlConnection.QueryAsync<WorkOrderLine>(sql, transaction: _dbTransaction);
+        return await _sqlConnection.QueryAsync<WorkOrderLine>(sql, transaction: _dbTransaction);
     }
 
-    public Task<WorkOrderLine> GetById(int id, bool forUpdate = false)
+    public async Task<WorkOrderLine> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM WorkOrderLines WHERE WorkOrderLineId = @WorkOrderLineId";
         const string sqlForUpdate = "SELECT * FROM WorkOrderLines WHERE WorkOrderLineId = @WorkOrderLineId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<WorkOrderLine>(forUpdate ? sqlForUpdate : sql, new { WorkOrderLineId = id }, _dbTransaction);
+        return await _sqlConnection.QueryFirstAsync<WorkOrderLine>(forUpdate ? sqlForUpdate : sql, new { WorkOrderLineId = id }, _dbTransaction);
     }
 
-    public Task<IEnumerable<WorkOrderLine>> GetByParams(WorkOrderLine entity)
+    public async Task<IEnumerable<WorkOrderLine>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-
-        if (entity.WorkOrderHeaderId != 0)
+        
+        if (parameters.TryGetValue("workOrderLineId", out var workOrderLineIdString) && int.TryParse(workOrderLineIdString, out var workOrderLineId))
         {
-            sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
+            sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { WorkOrderLineId = workOrderLineId });
         }
 
-        if (entity.Line != 0)
+        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) && int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
         {
-            sqlBuilder.Where("Line = @Line", new { entity.Line });
+            sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { WorkOrderHeaderId = workOrderHeaderId });
         }
 
-        if (!string.IsNullOrEmpty(entity.LineTitle))
+        if (parameters.TryGetValue("line", out var lineString) && int.TryParse(lineString, out var line))
         {
-            sqlBuilder.Where("LineTitle LIKE @LineTitle", new { LineTitle = $"%{entity.LineTitle}%" });
+            sqlBuilder.Where("Line = @Line", new { Line = line });
         }
 
-        if (!string.IsNullOrEmpty(entity.EntityId))
+        if (parameters.TryGetValue(";ineTitle", out var lineTitle) && !string.IsNullOrEmpty(lineTitle))
         {
-            sqlBuilder.Where("EntityId LIKE @EntityId", new { EntityId = $"%{entity.EntityId}%" });
+            sqlBuilder.Where("LineTitle LIKE @LineTitle", new { LineTitle = $"%{lineTitle}%" });
         }
 
-        if (entity.EntityShutdown is not NoYes.None)
+        if (parameters.TryGetValue("entityId", out var entityId) && !string.IsNullOrEmpty(entityId))
         {
-            sqlBuilder.Where("EntityShutdown = @EntityShutdown", new { entity.EntityShutdown });
+            sqlBuilder.Where("EntityId LIKE @EntityId", new { EntityId = $"%{entityId}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.WorkOrderType))
+        if (parameters.TryGetValue("entityShutdown", out var entityShutdownString) && Enum.TryParse<NoYes>(entityShutdownString, out var entityShutdown))
         {
-            sqlBuilder.Where("WorkOrderType LIKE @WorkOrderType", new { WorkOrderType = $"%{entity.WorkOrderType}%" });
+            sqlBuilder.Where("EntityShutdown = @EntityShutdown", new { EntityShutdown = entityShutdown });
         }
 
-        if (!string.IsNullOrEmpty(entity.TaskId))
+        if (parameters.TryGetValue("workOrderType", out var workOrderType) && !string.IsNullOrEmpty(workOrderType))
         {
-            sqlBuilder.Where("TaskId LIKE @TaskId", new { TaskId = $"%{entity.TaskId}%" });
+            sqlBuilder.Where("WorkOrderType LIKE @WorkOrderType", new { WorkOrderType = $"%{workOrderType}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.Condition))
+        if (parameters.TryGetValue("taskId", out var taskId) && !string.IsNullOrEmpty(taskId))
         {
-            sqlBuilder.Where("Condition LIKE @Condition", new { Condition = $"%{entity.Condition}%" });
+            sqlBuilder.Where("TaskId LIKE @TaskId", new { TaskId = $"%{taskId}%" });
         }
 
-        if (entity.PlanningStartDate > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("condition", out var condition) && !string.IsNullOrEmpty(condition))
         {
-            sqlBuilder.Where("PlanningStartDate = @PlanningStartDate", new { entity.PlanningStartDate });
+            sqlBuilder.Where("Condition LIKE @Condition", new { Condition = $"%{condition}%" });
         }
 
-        if (entity.PlanningEndDate > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("planningStartDate", out var planningStartDateString) && DateTime.TryParse(planningStartDateString, out var planningStartDate))
         {
-            sqlBuilder.Where("PlanningEndDate = @PlanningEndDate", new { entity.PlanningEndDate });
+            sqlBuilder.Where("PlanningStartDate = @PlanningStartDate", new { PlanningStartDate = planningStartDate });
         }
 
-        if (!string.IsNullOrEmpty(entity.Supervisor))
+        if (parameters.TryGetValue("planningEndDate", out var planningEndDateString) && DateTime.TryParse(planningEndDateString, out var planningEndDate))
         {
-            sqlBuilder.Where("Supervisor LIKE @Supervisor", new { Supervisor = $"%{entity.Supervisor}%" });
+            sqlBuilder.Where("PlanningEndDate = @PlanningEndDate", new { PlanningEndDate = planningEndDate });
         }
 
-        if (!string.IsNullOrEmpty(entity.CalendarId))
+        if (parameters.TryGetValue("supervisor", out var supervisor) && !string.IsNullOrEmpty(supervisor))
         {
-            sqlBuilder.Where("CalendarId LIKE @CalendarId", new { CalendarId = $"%{entity.CalendarId}%" });
+            sqlBuilder.Where("Supervisor LIKE @Supervisor", new { Supervisor = $"%{supervisor}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.WorkOrderStatus))
+        if (parameters.TryGetValue("calendarId", out var calendarId) && !string.IsNullOrEmpty(calendarId))
         {
-            sqlBuilder.Where("WorkOrderStatus LIKE @WorkOrderStatus", new { WorkOrderStatus = $"%{entity.WorkOrderStatus}%" });
+            sqlBuilder.Where("CalendarId LIKE @CalendarId", new { CalendarId = $"%{calendarId}%" });
         }
 
-        if (entity.Suspend is not NoYes.None)
+        if (parameters.TryGetValue("workOrderStatus", out var workOrderStatus) && !string.IsNullOrEmpty(workOrderStatus))
         {
-            sqlBuilder.Where("Suspend = @Suspend", new { entity.Suspend });
+            sqlBuilder.Where("WorkOrderStatus LIKE @WorkOrderStatus", new { WorkOrderStatus = $"%{workOrderStatus}%" });
+        }
+
+        if (parameters.TryGetValue("suspend", out var suspendString) && Enum.TryParse<NoYes>(suspendString, out var suspend))
+        {
+            sqlBuilder.Where("Suspend = @Suspend", new { Suspend = suspend });
         }
 
         const string sql = "SELECT * FROM WorkOrderLines /**where**/";
         var template = sqlBuilder.AddTemplate(sql);
-        
-        return _sqlConnection.QueryAsync<WorkOrderLine>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<WorkOrderLine>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
     public async Task Update(WorkOrderLine entity)
     {
         var sqlBuilder = new SqlBuilder();
         
-        if (entity.WorkOrderHeaderId != 0)
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderHeaderId)), entity.WorkOrderHeaderId))
+        {
             sqlBuilder.Set("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
-        if (entity.Line != 0)
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Line)), entity.Line))
+        {
             sqlBuilder.Set("Line = @Line", new { entity.Line });
-        if (!string.IsNullOrEmpty(entity.LineTitle))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.LineTitle)), entity.LineTitle))
+        {
             sqlBuilder.Set("LineTitle = @LineTitle", new { entity.LineTitle });
-        if (!string.IsNullOrEmpty(entity.EntityId))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.EntityId)), entity.EntityId))
+        {
             sqlBuilder.Set("EntityId = @EntityId", new { entity.EntityId });
-        if (entity.EntityShutdown != NoYes.None)
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.EntityShutdown)), entity.EntityShutdown))
+        {
             sqlBuilder.Set("EntityShutdown = @EntityShutdown", new { entity.EntityShutdown });
-        if (!string.IsNullOrEmpty(entity.WorkOrderType))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderType)), entity.WorkOrderType))
+        {
             sqlBuilder.Set("WorkOrderType = @WorkOrderType", new { entity.WorkOrderType });
-        if (!string.IsNullOrEmpty(entity.TaskId))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.TaskId)), entity.TaskId))
+        {
             sqlBuilder.Set("TaskId = @TaskId", new { entity.TaskId });
-        if (!string.IsNullOrEmpty(entity.Condition))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Condition)), entity.Condition))
+        {
             sqlBuilder.Set("Condition = @Condition", new { entity.Condition });
-        if (entity.PlanningStartDate != SqlDateTime.MinValue.Value)
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.PlanningStartDate)), entity.PlanningStartDate))
+        {
             sqlBuilder.Set("PlanningStartDate = @PlanningStartDate", new { entity.PlanningStartDate });
-        if (entity.PlanningEndDate != SqlDateTime.MinValue.Value)
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.PlanningEndDate)), entity.PlanningEndDate))
+        {
             sqlBuilder.Set("PlanningEndDate = @PlanningEndDate", new { entity.PlanningEndDate });
-        if (!string.IsNullOrEmpty(entity.Supervisor))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Supervisor)), entity.Supervisor))
+        {
             sqlBuilder.Set("Supervisor = @Supervisor", new { entity.Supervisor });
-        if (!string.IsNullOrEmpty(entity.CalendarId))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CalendarId)), entity.CalendarId))
+        {
             sqlBuilder.Set("CalendarId = @CalendarId", new { entity.CalendarId });
-        if (!string.IsNullOrEmpty(entity.WorkOrderStatus))
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderStatus)), entity.WorkOrderStatus))
+        {
             sqlBuilder.Set("WorkOrderStatus = @WorkOrderStatus", new { entity.WorkOrderStatus });
-        if (entity.Suspend != NoYes.None)
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Suspend)), entity.Suspend))
+        {
             sqlBuilder.Set("Suspend = @Suspend", new { entity.Suspend });
-        if (!string.IsNullOrEmpty(entity.ModifiedBy))
-            sqlBuilder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        if (entity.ModifiedDateTime != DateTime.MinValue)
-            sqlBuilder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CreatedBy)), entity.CreatedBy))
+        {
+            sqlBuilder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CreatedDateTime)), entity.CreatedDateTime))
+        {
+            sqlBuilder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
+        }
+
         sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
 
         const string sql = "UPDATE WorkOrderLines /**set**/ /**where**/";
         var template = sqlBuilder.AddTemplate(sql);
-        
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-
-    public Task<int> GetLastInsertedId()
-    {
-        const string sql = "SELECT LAST_INSERT_ID()";
-        return _sqlConnection.QueryFirstAsync<int>(sql, transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

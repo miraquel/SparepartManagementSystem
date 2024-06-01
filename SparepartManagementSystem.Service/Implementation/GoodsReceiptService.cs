@@ -60,7 +60,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -98,7 +101,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -131,7 +137,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -166,7 +175,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -179,11 +191,11 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<GoodsReceiptHeaderDto>>> GetGoodsReceiptHeaderByParams(GoodsReceiptHeaderDto dto)
+    public async Task<ServiceResponse<IEnumerable<GoodsReceiptHeaderDto>>> GetGoodsReceiptHeaderByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetByParams(_mapper.MapToGoodsReceiptHeader(dto));
+            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetByParams(parameters);
 
             return new ServiceResponse<IEnumerable<GoodsReceiptHeaderDto>>
             {
@@ -199,7 +211,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -216,17 +231,27 @@ public class GoodsReceiptService : IGoodsReceiptService
     {
         try
         {
-            var oldRecord = await _unitOfWork.GoodsReceiptHeaderRepository.GetById(dto.GoodsReceiptHeaderId, true);
+            var record = await _unitOfWork.GoodsReceiptHeaderRepository.GetById(dto.GoodsReceiptHeaderId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Goods Receipt Header has been modified by another user, please refresh the page and try again");
             }
+
+            record.UpdateProperties(_mapper.MapToGoodsReceiptHeader(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Goods Receipt Header"
+                };
+            }
             
-            var newRecord = _mapper.MapToGoodsReceiptHeader(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Update(GoodsReceiptHeader.ForUpdate(oldRecord, newRecord));
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record);
 
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully", dto.GoodsReceiptHeaderId);
             
@@ -247,7 +272,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -284,7 +312,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -297,11 +328,11 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
     }
 
-    public async Task<ServiceResponse<PagedListDto<GoodsReceiptHeaderDto>>> GetByParamsPagedList(int pageNumber, int pageSize, GoodsReceiptHeaderDto entity)
+    public async Task<ServiceResponse<PagedListDto<GoodsReceiptHeaderDto>>> GetByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
     {
         try
         {
-            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, _mapper.MapToGoodsReceiptHeader(entity));
+            var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, parameters);
 
             return new ServiceResponse<PagedListDto<GoodsReceiptHeaderDto>>
             {
@@ -321,7 +352,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -399,7 +433,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -418,23 +455,30 @@ public class GoodsReceiptService : IGoodsReceiptService
             var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
             var currentDateTime = DateTime.Now;
             
-            var oldHeaderRecord = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId, true);
+            var headerRecord = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId, true);
 
-            if (oldHeaderRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (headerRecord.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Goods Receipt Header has been modified by another user, please refresh the page and try again");
             }
             
-            var newHeaderRecord = _mapper.MapToGoodsReceiptHeader(dto);
-            newHeaderRecord.ModifiedBy = currentUser;
-            newHeaderRecord.ModifiedDateTime = currentDateTime;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Update(GoodsReceiptHeader.ForUpdate(oldHeaderRecord, newHeaderRecord));
+            if (headerRecord.IsSubmitted)
+            {
+                throw new Exception("Goods Receipt Header has been posted to AX, cannot be modified");
+            }
+
+            headerRecord.UpdateProperties(_mapper.MapToGoodsReceiptHeader(dto));
             
-            var goodsReceiptLines = await _unitOfWork.GoodsReceiptLineRepository.GetByGoodsReceiptHeaderId(dto.GoodsReceiptHeaderId);
+            if (headerRecord.IsChanged)
+            {
+                headerRecord.ModifiedBy = currentUser;
+                headerRecord.ModifiedDateTime = currentDateTime;
+                await _unitOfWork.GoodsReceiptHeaderRepository.Update(headerRecord);
+            }
                 
             // if the line is exists in the database, but not exists in the dto, then delete the line
-            var receiptLines = goodsReceiptLines as GoodsReceiptLine[] ?? goodsReceiptLines.ToArray();
-            foreach (var goodsReceiptLine in receiptLines)
+            var goodsReceiptLines = headerRecord.GoodsReceiptLines as GoodsReceiptLine[] ?? headerRecord.GoodsReceiptLines.ToArray();
+            foreach (var goodsReceiptLine in goodsReceiptLines)
             {
                 if (dto.GoodsReceiptLines.All(x => x.GoodsReceiptLineId != goodsReceiptLine.GoodsReceiptLineId))
                 {
@@ -445,10 +489,10 @@ public class GoodsReceiptService : IGoodsReceiptService
             var goodsReceiptLinesDto = dto.GoodsReceiptLines as GoodsReceiptLineDto[] ?? dto.GoodsReceiptLines.ToArray();
             foreach (var goodsReceiptLineDto in goodsReceiptLinesDto)
             {
-                var oldRecord = receiptLines.FirstOrDefault(x => x.GoodsReceiptLineId == goodsReceiptLineDto.GoodsReceiptLineId);
+                var lineRecord = goodsReceiptLines.FirstOrDefault(x => x.GoodsReceiptLineId == goodsReceiptLineDto.GoodsReceiptLineId);
                 
                 // if the line is exists in the database, then update the line, otherwise add the line
-                if (oldRecord is null)
+                if (lineRecord is null)
                 {
                     var goodsReceiptLineAdd = _mapper.MapToGoodsReceiptLine(goodsReceiptLineDto);
                     goodsReceiptLineAdd.CreatedBy = currentUser;
@@ -459,16 +503,21 @@ public class GoodsReceiptService : IGoodsReceiptService
                 }
                 else
                 {
-                    if (oldRecord.ModifiedDateTime > goodsReceiptLineDto.ModifiedDateTime)
+                    if (lineRecord.ModifiedDateTime > goodsReceiptLineDto.ModifiedDateTime)
                     {
                         throw new Exception("Goods Receipt Line has been modified by another user, please refresh the page and try again");
                     }
                     
-                    var newRecord = _mapper.MapToGoodsReceiptLine(goodsReceiptLineDto);
-                    if (GoodsReceiptLine.Compare(oldRecord, newRecord)) continue;
-                    newRecord.ModifiedBy = currentUser;
-                    newRecord.ModifiedDateTime = currentDateTime;
-                    await _unitOfWork.GoodsReceiptLineRepository.Update(GoodsReceiptLine.ForUpdate(oldRecord, newRecord));
+                    lineRecord.UpdateProperties(_mapper.MapToGoodsReceiptLine(goodsReceiptLineDto));
+                    
+                    if (!lineRecord.IsChanged)
+                    {
+                        continue;
+                    }
+                    
+                    lineRecord.ModifiedBy = currentUser;
+                    lineRecord.ModifiedDateTime = currentDateTime;
+                    await _unitOfWork.GoodsReceiptLineRepository.Update(lineRecord);
                 }
             }
             
@@ -491,7 +540,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -507,60 +559,61 @@ public class GoodsReceiptService : IGoodsReceiptService
     {
         try
         {
-            var oldRecord = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId, true);
+            var record = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Goods Receipt Header has been modified by another user, please refresh the page and try again");
             }
 
-            if (oldRecord.IsSubmitted is true)
+            if (record.IsSubmitted)
             {
                 throw new Exception("Goods Receipt Header has been posted to AX");
             }
 
-            if (oldRecord.GoodsReceiptLines.Count == 0)
+            if (record.GoodsReceiptLines.Count == 0)
             {
                 throw new Exception("Goods Receipt Line is not exists, at least must be 1 line exists to post the Goods Receipt Header to AX");
             }
 
-            if (string.IsNullOrEmpty(oldRecord.PackingSlipId))
+            if (string.IsNullOrEmpty(record.PackingSlipId))
             {
                 throw new Exception("Packing Slip Id is required to post the Goods Receipt Header to AX");
             }
 
-            if (oldRecord.TransDate.Equals(SqlDateTime.MinValue.Value))
+            if (record.TransDate.Equals(SqlDateTime.MinValue.Value))
             {
                 throw new Exception("Receipt Date is required to post the Goods Receipt Header to AX");
             }
 
-            if (oldRecord.GoodsReceiptLines.Any(x => x.ReceiveNow == 0))
+            if (record.GoodsReceiptLines.Any(x => x.ReceiveNow <= 0))
             {
                 throw new Exception("Receive Now must be greater than 0 to post the Goods Receipt Header to AX");
             }
             
             // check if all goods receipt line with type item has an inventLocationId, if not then throw an exception
-            if (oldRecord.GoodsReceiptLines.Where(x => x.ProductType == ProductType.Item).Any(x => string.IsNullOrEmpty(x.InventLocationId)))
+            if (record.GoodsReceiptLines.Where(x => x.ProductType == ProductType.Item).Any(x => string.IsNullOrEmpty(x.InventLocationId)))
             {
                 throw new Exception("All goods receipt line with type item must have an InventLocationId to post the Goods Receipt Header to AX");
             }
             
             // check if all goods receipt line with type item has the same InventLocationId, if not then throw an exception
-            if (oldRecord.GoodsReceiptLines.Where(x => x.ProductType == ProductType.Item).Select(x => x.InventLocationId).Distinct().Count() > 1)
+            if (record.GoodsReceiptLines.Where(x => x.ProductType == ProductType.Item).Select(x => x.InventLocationId).Distinct().Count() > 1)
             {
                 throw new Exception("All goods receipt line with type item must have the same InventLocationId to post the Goods Receipt Header to AX");
             }
-
-            var newRecord = oldRecord.Clone();
-            newRecord.IsSubmitted = true;
-            newRecord.SubmittedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.SubmittedDate = DateTime.Now;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Update(GoodsReceiptHeader.ForUpdate(oldRecord, newRecord));
+            
+            record.IsSubmitted = true;
+            record.SubmittedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.SubmittedDate = DateTime.Now;
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record);
             
             var result = await _gmkSmsServiceGroup.PostPurchPackingSlip(dto);
             
             if (!result.Success)
+            {
                 throw new Exception(result.ErrorMessages?.FirstOrDefault() ?? "Error when posting to AX");
+            }
 
             _logger.Information("Goods Receipt Header posted to Ax successfully, Message: {Message}", result.Message);
             
@@ -581,7 +634,10 @@ public class GoodsReceiptService : IGoodsReceiptService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

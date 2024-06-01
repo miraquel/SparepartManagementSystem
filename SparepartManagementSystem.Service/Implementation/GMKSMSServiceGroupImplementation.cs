@@ -83,7 +83,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PagedListDto<InventTableDto>>
             {
@@ -156,7 +159,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PagedListDto<InventTableDto>>
             {
@@ -234,7 +240,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PagedListDto<PurchTableDto>>
             {
@@ -289,7 +298,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<IEnumerable<PurchLineDto>>
             {
@@ -363,7 +375,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PagedListDto<WMSLocationDto>>
             {
@@ -419,7 +434,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<WMSLocationDto>
             {
@@ -495,7 +513,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<GMKServiceResponseDto>
             {
@@ -550,7 +571,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PurchTableDto>
             {
@@ -607,7 +631,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<IEnumerable<InventSumDto>>
             {
@@ -631,6 +658,134 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             }
         }
     }
+
+    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderPagedListV2(int pageNumber, int pageSize, WorkOrderHeaderDto dto)
+    {
+        try
+        {
+            var request = new GMKSMSServiceGetWorkOrderPagedListRequest()
+            {
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                agsEAMWOID = dto.AGSEAMWOID
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.getWorkOrderPagedListAsync(request);
+
+            var workOrderPagedList = new PagedListDto<WorkOrderHeaderDto>(
+                _mapper.MapToListOfWorkOrderHeaderDto(response.response.Items),
+                response.response.PageNumber,
+                response.response.PageSize,
+                response.response.TotalCount);
+
+            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
+            {
+                Data = workOrderPagedList,
+                Message = "Work Order Paged List retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
+    public async Task<ServiceResponse<IEnumerable<WorkOrderLineDto>>> GetWorkOrderLineListV2(string workOrderHeaderId)
+    {
+        try
+        {
+            var request = new GMKSMSServiceGetWorkOrderLineListRequest()
+            {
+                agsEAMWOID = workOrderHeaderId
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.getWorkOrderLineListAsync(request);
+
+            return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
+            {
+                Data = _mapper.MapToListOfWorkOrderLineDto(response.response),
+                Message = "Work Order Line List retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
+    [Obsolete("Use GetWorkOrderPagedListV2 instead", true)]
     public async Task<ServiceResponse<PagedListDto<WorkOrderAxDto>>> GetWorkOrderPagedList(int pageNumber, int pageSize, WorkOrderAxSearchDto dto)
     {
         try
@@ -670,7 +825,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<PagedListDto<WorkOrderAxDto>>
             {
@@ -695,11 +853,12 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
         }
     }
 
+    [Obsolete("Use GetWorkOrderLineListV2 instead", true)]
     public async Task<ServiceResponse<IEnumerable<WorkOrderLineAxDto>>> GetWorkOrderLineList(string workOrderHeaderId)
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderLineRequest()
+            var request = new GMKSMSServiceGetWorkOrderLineListRequest()
             {
                 agsEAMWOID = workOrderHeaderId
             };
@@ -710,7 +869,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 client.Open();
             }
 
-            var response = await _client.getWorkOrderLineAsync(request);
+            var response = await _client.getWorkOrderLineListAsync(request);
 
             return new ServiceResponse<IEnumerable<WorkOrderLineAxDto>>
             {
@@ -726,7 +885,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<IEnumerable<WorkOrderLineAxDto>>
             {

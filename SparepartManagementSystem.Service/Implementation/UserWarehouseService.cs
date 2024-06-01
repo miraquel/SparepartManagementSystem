@@ -41,7 +41,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -73,7 +76,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -86,17 +92,15 @@ public class UserWarehouseService : IUserWarehouseService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<UserWarehouseDto>>> GetUserWarehouseByParams(UserWarehouseDto userWarehouseDto)
+    public async Task<ServiceResponse<IEnumerable<UserWarehouseDto>>> GetUserWarehouseByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var userWarehouse = _mapper.MapToUserWarehouse(userWarehouseDto);
-            var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByParams(userWarehouse);
-
+            var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<UserWarehouseDto>>
             {
-                Success = true,
-                Data = _mapper.MapToListOfUserWarehouseDto(userWarehouses)
+                Data = _mapper.MapToListOfUserWarehouseDto(userWarehouses),
+                Success = true
             };
         }
         catch (Exception ex)
@@ -106,7 +110,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -139,7 +146,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -160,7 +170,7 @@ public class UserWarehouseService : IUserWarehouseService
             if (userWarehouseDto.IsDefault)
             {
                 var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByUserId(userWarehouseDto.UserId);
-                if (userWarehouses.Any(uw => uw.IsDefault is true))
+                if (userWarehouses.Any(uw => uw.IsDefault))
                 {
                     throw new InvalidOperationException("Cannot add default warehouse, user already has one");
                 }
@@ -192,7 +202,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -210,25 +223,35 @@ public class UserWarehouseService : IUserWarehouseService
         try
         {
             // prevent update if the user has a default warehouse
-            var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByUserId(userWarehouseDto.UserWarehouseId, true);
-            var oldRecords = userWarehouses as UserWarehouse[] ?? userWarehouses.ToArray();
-            if (oldRecords.Any(uw => uw.IsDefault is true))
+            var records = await _unitOfWork.UserWarehouseRepository.GetByUserId(userWarehouseDto.UserWarehouseId, true);
+            var userWarehouses = records as UserWarehouse[] ?? records.ToArray();
+            if (userWarehouses.Any(uw => uw.IsDefault))
             {
                 throw new InvalidOperationException("Cannot update warehouse, user already has a default warehouse");
             }
             
-            var oldRecord = oldRecords.FirstOrDefault(uw => uw.UserWarehouseId == userWarehouseDto.UserWarehouseId) ?? throw new InvalidOperationException("User Warehouse not found");
-            if (oldRecord.ModifiedDateTime > userWarehouseDto.ModifiedDateTime)
+            var userWarehouse = userWarehouses.FirstOrDefault(uw => uw.UserWarehouseId == userWarehouseDto.UserWarehouseId) ?? throw new InvalidOperationException("User Warehouse not found");
+            if (userWarehouse.ModifiedDateTime > userWarehouseDto.ModifiedDateTime)
             {
                 throw new InvalidOperationException("User Warehouse has been modified by another user, please refresh and try again");
             }
+
+            userWarehouse.UpdateProperties(_mapper.MapToUserWarehouse(userWarehouseDto));
+
+            if (!userWarehouse.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in User Warehouse"
+                };
+            }
             
-            var newRecord = _mapper.MapToUserWarehouse(userWarehouseDto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserWarehouseRepository.Update(UserWarehouse.ForUpdate(oldRecord, newRecord));
+            userWarehouse.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            userWarehouse.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.UserWarehouseRepository.Update(userWarehouse);
             
-            _logger.Information("UserWarehouse updated successfully, UserWarehouseId: {UserWarehouseId}", newRecord.UserWarehouseId);
+            _logger.Information("UserWarehouse updated successfully, UserWarehouseId: {UserWarehouseId}", userWarehouseDto.UserWarehouseId);
             
             _unitOfWork.Commit();
 
@@ -245,7 +268,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -264,7 +290,7 @@ public class UserWarehouseService : IUserWarehouseService
         {
             var userWarehouse = await _unitOfWork.UserWarehouseRepository.GetById(userWarehouseId);
             // if user warehouse is default, throw an error
-            if (userWarehouse.IsDefault is true)
+            if (userWarehouse.IsDefault)
             {
                 throw new InvalidOperationException("Cannot delete default warehouse");
             }
@@ -287,7 +313,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -320,7 +349,10 @@ public class UserWarehouseService : IUserWarehouseService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

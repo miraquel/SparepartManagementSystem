@@ -5,7 +5,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -26,7 +26,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.AddUserWarehouse(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -37,7 +40,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.DeleteUserWarehouse(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -49,7 +55,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.UpdateUserWarehouse(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -61,7 +70,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.GetAllUserWarehouse();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -73,7 +85,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.GetUserWarehouseById(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -81,11 +96,14 @@ public class UserWarehouseServiceController : ControllerBase
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.UserWarehouseActivity.Read }])]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserWarehouseDto>>> GetByParams([FromBody] UserWarehouseDto dto)
+    public async Task<ActionResult<IEnumerable<UserWarehouseDto>>> GetByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _userWarehouseService.GetUserWarehouseByParams(dto);
+        var result = await _userWarehouseService.GetUserWarehouseByParams(parameters);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
         
@@ -97,7 +115,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.GetUserWarehouseByUserId(userId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
@@ -108,7 +129,10 @@ public class UserWarehouseServiceController : ControllerBase
     {
         var result = await _userWarehouseService.GetDefaultUserWarehouseByUserId(userId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 }

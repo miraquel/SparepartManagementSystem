@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.Interface;
@@ -26,6 +25,7 @@ internal class RoleRepositoryMySql : IRoleRepository
                            VALUES (@RoleName, @Description, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public async Task Delete(int id)
@@ -36,67 +36,56 @@ internal class RoleRepositoryMySql : IRoleRepository
 
     public async Task<IEnumerable<Role>> GetAll()
     {
-        const string sql = """
-                           SELECT
-                           RoleId, RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
-                           FROM Roles
-                           """;
+        const string sql = "SELECT * FROM Roles";
         return await _sqlConnection.QueryAsync<Role>(sql, transaction: _dbTransaction);
     }
 
     public async Task<Role> GetById(int id, bool forUpdate = false)
     {
-        const string sql = """
-                           SELECT RoleId, RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
-                           FROM Roles
-                           WHERE RoleId = @RoleId
-                           """;
-        const string sqlForUpdate = """
-                                    SELECT RoleId, RoleName, Description, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime
-                                    FROM Roles
-                                    WHERE RoleId = @RoleId
-                                    FOR UPDATE
-                                    """;
-        return await _sqlConnection.QueryFirstAsync<Role>(forUpdate ? sqlForUpdate : sql, new { RoleId = id }, _dbTransaction);
+        const string sql = "SELECT * FROM Roles WHERE RoleId = @RoleId";
+        const string sqlForUpdate = "SELECT * FROM Roles WHERE RoleId = @RoleId FOR UPDATE";
+        var result = await _sqlConnection.QueryFirstAsync<Role>(forUpdate ? sqlForUpdate : sql, new { RoleId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
 
-    public async Task<IEnumerable<Role>> GetByParams(Role entity)
+    public async Task<IEnumerable<Role>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (entity.RoleId > 0)
+        if (parameters.TryGetValue("roleId", out var roleIdString) && int.TryParse(roleIdString, out var roleId))
         {
-            builder.Where("RoleId = @RoleId", new { entity.RoleId });
+            builder.Where("RoleId = @RoleId", new { RoleId = roleId });
         }
 
-        if (!IsNullOrEmpty(entity.RoleName))
+        if (parameters.TryGetValue("roleName", out var roleName) && !IsNullOrEmpty(roleName))
         {
-            builder.Where("RoleName LIKE @RoleName", new { RoleName = $"%{entity.RoleName}%" });
+            builder.Where("RoleName LIKE @RoleName", new { RoleName = $"%{roleName}%" });
         }
 
-        if (!IsNullOrEmpty(entity.Description))
+        if (parameters.TryGetValue("description", out var description) && !IsNullOrEmpty(description))
         {
-            builder.Where("Description LIKE @Description", new { Description = $"%{entity.Description}%" });
+            builder.Where("Description LIKE @Description", new { Description = $"%{description}%" });
         }
 
-        if (!IsNullOrEmpty(entity.CreatedBy))
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !IsNullOrEmpty(createdBy))
         {
-            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
+            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
         {
-            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
+            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { modifiedDateTime });
         }
 
         const string sql = "SELECT * FROM Roles /**where**/";
@@ -108,22 +97,22 @@ internal class RoleRepositoryMySql : IRoleRepository
     {
         var builder = new SqlBuilder();
 
-        if (!IsNullOrEmpty(entity.RoleName))
+        if (!Equals(entity.OriginalValue(nameof(Role.RoleName)), entity.RoleName))
         {
             builder.Set("RoleName = @RoleName", new { entity.RoleName });
         }
 
-        if (!IsNullOrEmpty(entity.Description))
+        if (!Equals(entity.OriginalValue(nameof(Role.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(Role.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > DateTime.MinValue)
+        if (!Equals(entity.OriginalValue(nameof(Role.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
@@ -134,10 +123,7 @@ internal class RoleRepositoryMySql : IRoleRepository
 
         var template = builder.AddTemplate(sql);
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
@@ -165,8 +151,8 @@ internal class RoleRepositoryMySql : IRoleRepository
     {
         const string sql = """
                            SELECT
-                           r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime,
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime
+                           r.*,
+                           u.*
                            FROM Roles r
                            LEFT OUTER JOIN UserRoles ur ON ur.RoleId = r.RoleId
                            LEFT OUTER JOIN Users u ON u.UserId = ur.UserId
@@ -182,7 +168,11 @@ internal class RoleRepositoryMySql : IRoleRepository
                 result[^1].Users = new List<User>();
             }
 
-            if (user != null) result[^1].Users.Add(user);
+            if (user != null)
+            {
+                result[^1].Users.Add(user);
+            }
+
             return role;
         }, transaction: _dbTransaction, splitOn: "UserId");
 
@@ -192,8 +182,9 @@ internal class RoleRepositoryMySql : IRoleRepository
     public async Task<Role> GetByIdWithUsers(int id)
     {
         const string sql = """
-                           SELECT r.RoleId, r.RoleName, r.Description, r.CreatedBy, r.CreatedDateTime, r.ModifiedBy, r.ModifiedDateTime,
-                           u.UserId, u.Username, u.FirstName, u.LastName, u.Email, u.CreatedBy, u.CreatedDateTime, u.ModifiedBy, u.ModifiedDateTime
+                           SELECT 
+                           r.*,
+                           u.*
                            FROM Roles r
                            LEFT OUTER JOIN UserRoles ur ON ur.RoleId = r.RoleId
                            LEFT OUTER JOIN Users u ON u.UserId = ur.UserId
@@ -209,7 +200,11 @@ internal class RoleRepositoryMySql : IRoleRepository
                 result = role;
             }
 
-            if (user != null) result.Users.Add(user);
+            if (user != null)
+            {
+                result.Users.Add(user);
+            }
+
             return role;
         }, new { RoleId = id }, _dbTransaction, splitOn: "UserId");
 

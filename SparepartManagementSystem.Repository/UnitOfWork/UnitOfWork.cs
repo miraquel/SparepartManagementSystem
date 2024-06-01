@@ -54,18 +54,20 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (!disposing) return;
+        if (!disposing)
+        {
+            return;
+        }
 
         //Close the SQL Connection and dispose the objects
-        _dbTransaction.Connection?.Close();
-        _dbTransaction.Connection?.Dispose();
+        _dbConnection.Close();
+        _dbConnection.Dispose();
         _dbTransaction.Dispose();
     }
 
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     public async Task<int> GetLastInsertedId()

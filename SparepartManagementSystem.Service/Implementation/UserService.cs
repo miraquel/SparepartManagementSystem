@@ -79,7 +79,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -117,7 +120,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -152,7 +158,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -187,7 +196,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -200,16 +212,11 @@ internal class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetUserByParams(UserDto dto)
+    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetUserByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var user = _mapper.MapToUser(dto);
-
-            var users = (await _unitOfWork.UserRepository.GetByParams(user)).ToList();
-
-            _logger.Information("Users retrieved successfully with total {TotalRecord} rows", users.Count);
-
+            var users = await _unitOfWork.UserRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<UserDto>>
             {
                 Data = _mapper.MapToListOfUserDto(users),
@@ -224,7 +231,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -241,26 +251,36 @@ internal class UserService : IUserService
     {
         try
         {
-            var oldRecord = await _unitOfWork.UserRepository.GetById(dto.UserId, true);
+            var record = await _unitOfWork.UserRepository.GetById(dto.UserId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("User has been modified by another user, please refresh and try again.");
             }
-            
-            var newRecord = _mapper.MapToUser(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserRepository.Update(User.ForUpdate(oldRecord, newRecord));
 
-            _logger.Information("User {UserId} updated successfully", newRecord.UserId);
+            record.UpdateProperties(_mapper.MapToUser(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in User"
+                };
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.UserRepository.Update(record);
+
+            _logger.Information("User {UserId} updated successfully", dto.UserId);
             
             _unitOfWork.Commit();
 
             return new ServiceResponse
             {
-                Message = "User updated successfully",
-                Success = true
+                Success = true,
+                Message = "User updated successfully"
             };
         }
         catch (Exception ex)
@@ -272,7 +292,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -308,7 +331,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse
             {
@@ -342,7 +368,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse
             {
@@ -375,7 +404,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -410,7 +442,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -445,7 +480,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -480,7 +518,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -503,7 +544,9 @@ internal class UserService : IUserService
             var ldapPassword = _configuration.GetSection("ActiveDirectory:Password").Value;
 
             if (ldapConnectionString == null)
+            {
                 throw new InvalidOperationException("LDAP Connection String is not found in configuration");
+            }
 
             using var ldapConnection = new LdapConnection(ldapConnectionString);
 
@@ -511,7 +554,9 @@ internal class UserService : IUserService
             ldapConnection.Credential = new NetworkCredential(ldapUsername, ldapPassword);
 
             if (ldapNames == null)
+            {
                 throw new InvalidOperationException("LDAP Names is not found in configuration");
+            }
 
             string[] attributes = ["givenName", "sn", "sAMAccountName", "userPrincipalName"];
 
@@ -552,7 +597,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<IEnumerable<ActiveDirectoryDto>>
             {
@@ -571,7 +619,9 @@ internal class UserService : IUserService
                 $"User {usernamePassword.Username} not found");
 
             if (!_loginService.LoginWithUsernameAndPassword(usernamePassword.Username, usernamePassword.Password))
+            {
                 throw new InvalidOperationException("Login failed");
+            }
 
             var refreshTokenResult = _loginService.GenerateToken(user, true);
 
@@ -611,7 +661,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             return new ServiceResponse<TokenDto>
             {
@@ -634,7 +687,10 @@ internal class UserService : IUserService
             var user = await _unitOfWork.UserRepository.GetByIdWithRoles(int.Parse(userId)) ?? throw new InvalidOperationException($"UserId {userId} not found");
             var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByUserIdAndToken(user.UserId, token, true) ?? throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
 
-            if (!refreshToken.IsActive) throw new InvalidOperationException("Invalid token");
+            if (!refreshToken.IsActive)
+            {
+                throw new InvalidOperationException("Invalid token");
+            }
 
             if (refreshToken is { IsActive: true, IsExpired: true })
             {
@@ -685,7 +741,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace != null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace != null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -726,7 +785,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace != null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace != null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -749,7 +811,10 @@ internal class UserService : IUserService
 
             var isUserIdValid = int.TryParse(userIdClaim, out var userId);
 
-            if (!isUserIdValid) throw new InvalidOperationException("Invalid token");
+            if (!isUserIdValid)
+            {
+                throw new InvalidOperationException("Invalid token");
+            }
 
             var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByUserIdAndToken(userId, token) ??
                                throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
@@ -775,7 +840,10 @@ internal class UserService : IUserService
                 ex.Message
             };
 
-            if (ex.StackTrace != null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace != null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

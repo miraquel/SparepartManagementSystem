@@ -9,7 +9,7 @@ public interface IRowLevelAccessService
     Task<ServiceResponse> DeleteRowLevelAccess(int id);
     Task<ServiceResponse<RowLevelAccessDto>> GetRowLevelAccessById(int id);
     Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetAllRowLevelAccess();
-    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(RowLevelAccessDto entity);
+    Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(Dictionary<string, string> parameters);
     Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByUserId(int userId);
     Task<ServiceResponse> BulkDeleteRowLevelAccess(IEnumerable<int> ids);
 }

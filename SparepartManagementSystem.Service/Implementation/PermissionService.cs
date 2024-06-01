@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -46,7 +45,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -81,7 +83,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -116,7 +121,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -161,7 +169,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -199,7 +210,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -234,7 +248,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -271,7 +288,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -284,16 +304,11 @@ internal class PermissionService : IPermissionService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetPermissionByParams(PermissionDto dto)
+    public async Task<ServiceResponse<IEnumerable<PermissionDto>>> GetPermissionByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var permission = _mapper.MapToPermission(dto);
-
-            var result = (await _unitOfWork.PermissionRepository.GetByParams(permission)).ToList();
-
-            _logger.Information("Permission retrieved successfully with total {TotalRecord} rows", result.Count);
-
+            var result = await _unitOfWork.PermissionRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<PermissionDto>>
             {
                 Data = _mapper.MapToListOfPermissionDto(result),
@@ -308,7 +323,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -325,19 +343,27 @@ internal class PermissionService : IPermissionService
     {
         try
         {
-            var oldRecord = await _unitOfWork.PermissionRepository.GetById(dto.PermissionId, true);
+            var record = await _unitOfWork.PermissionRepository.GetById(dto.PermissionId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Record has been modified by another user. Please refresh and try again.");
             }
-            
-            var newRecord = _mapper.MapToPermission(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.PermissionRepository.Update(Permission.ForUpdate(oldRecord, newRecord));
 
-            _logger.Information("id: {PermissionId}, Permission updated successfully", dto.PermissionId);
+            record.UpdateProperties(_mapper.MapToPermission(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Permission"
+                };
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.PermissionRepository.Update(record);
             
             _unitOfWork.Commit();
 
@@ -354,7 +380,10 @@ internal class PermissionService : IPermissionService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

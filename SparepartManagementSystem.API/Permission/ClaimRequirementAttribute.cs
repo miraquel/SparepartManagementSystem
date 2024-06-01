@@ -6,7 +6,7 @@ namespace SparepartManagementSystem.API.Permission
     {
         public ClaimRequirementAttribute(List<string> permissions) : base(typeof(ClaimRequirementFilter))
         {
-            Arguments = new object[] { permissions };
+            Arguments = [permissions];
         }
     }
 }

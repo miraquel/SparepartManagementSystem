@@ -9,6 +9,7 @@ namespace SparepartManagementSystem.Service.Interface
         Task<ServiceResponse> DeleteNumberSequence(int id);
         Task<ServiceResponse<NumberSequenceDto>> GetNumberSequenceById(int id);
         Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetAllNumberSequence();
-        Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(NumberSequenceDto entity);
+        Task<ServiceResponse<IEnumerable<NumberSequenceDto>>> GetNumberSequenceByParams(
+            Dictionary<string, string> parameters);
     }
 }

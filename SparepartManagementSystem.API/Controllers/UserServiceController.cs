@@ -6,7 +6,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -28,7 +28,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.AddUser(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
@@ -39,7 +42,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.DeleteUser(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -50,7 +56,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetAllUser();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -61,7 +70,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetAllWithRoles();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -72,7 +84,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetUserById(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -83,18 +98,24 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetUserByIdWithRoles(userId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.UserActivity.Read }])]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUserByParams([FromQuery] UserDto dto)
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUserByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _userService.GetUserByParams(dto);
+        var result = await _userService.GetUserByParams(parameters);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -105,7 +126,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.UpdateUser(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -116,7 +140,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.LoginWithActiveDirectory(usernamePassword);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -127,7 +154,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.RefreshToken(dto.RefreshToken);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return Unauthorized(result);
     }
 
@@ -138,7 +168,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.RevokeToken(dto.Token);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return Unauthorized(result);
     }
 
@@ -149,7 +182,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.RevokeAllTokens(dto.UserId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return Unauthorized(result);
     }
 
@@ -160,7 +196,10 @@ public class UserServiceController : ControllerBase
     {
         var result = _userService.GetUsersFromActiveDirectory(searchText);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -171,7 +210,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetUserByUsernameWithRoles(username);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -182,7 +224,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.AddRoleToUser(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -193,7 +238,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.DeleteRoleFromUser(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
     
@@ -204,7 +252,10 @@ public class UserServiceController : ControllerBase
     {
         var result = await _userService.GetUserByIdWithUserWarehouse(userId);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 }

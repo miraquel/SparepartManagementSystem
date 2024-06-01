@@ -5,7 +5,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -127,9 +127,9 @@ public class PermissionServiceController : ControllerBase
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.PermissionActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetPermissionByParams([FromQuery] PermissionDto dto)
+    public async Task<IActionResult> GetPermissionByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _permissionService.GetPermissionByParams(dto);
+        var result = await _permissionService.GetPermissionByParams(parameters);
 
         if (result.Success)
         {

@@ -1,5 +1,4 @@
 using System.Data;
-using System.Data.SqlTypes;
 using Dapper;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
@@ -30,196 +29,199 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
                            """;
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId";
         _ = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptLineId = id }, _dbTransaction);
     }
-    public Task<IEnumerable<GoodsReceiptLine>> GetAll()
+    public async Task<IEnumerable<GoodsReceiptLine>> GetAll()
     {
         const string sql = "SELECT * FROM GoodsReceiptLines";
-        return _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, transaction: _dbTransaction);
+        return await _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, transaction: _dbTransaction);
     }
-    public Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false)
+    public async Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId";
         const string sqlForUpdate = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        var result = await _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
-    public Task<IEnumerable<GoodsReceiptLine>> GetByParams(GoodsReceiptLine entity)
+    public async Task<IEnumerable<GoodsReceiptLine>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (entity.GoodsReceiptLineId > 0)
+        if (parameters.TryGetValue("goodsReceiptLineId", out var goodsReceiptLineIdString) && int.TryParse(goodsReceiptLineIdString, out var goodsReceiptLineId))
         {
-            builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
+            builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { GoodsReceiptLineId = goodsReceiptLineId });
         }
 
-        if (entity.GoodsReceiptHeaderId > 0)
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
         {
-            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
+            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
         }
 
-        if (!IsNullOrEmpty(entity.ItemId))
+        if (parameters.TryGetValue("itemId", out var itemId) && !IsNullOrEmpty(itemId))
         {
-            builder.Where("ItemId LIKE @ItemId", new { ItemId = $"%{entity.ItemId}%" });
+            builder.Where("ItemId LIKE @ItemId", new { ItemId = $"%{itemId}%" });
         }
 
-        if (entity.LineNumber > 0)
+        if (parameters.TryGetValue("lineNumber", out var lineNumberString) && int.TryParse(lineNumberString, out var lineNumber))
         {
-            builder.Where("LineNumber = @LineNumber", new { entity.LineNumber });
+            builder.Where("LineNumber = @LineNumber", new { LineNumber = lineNumber });
         }
 
-        if (!IsNullOrEmpty(entity.ItemName))
+        if (parameters.TryGetValue("itemName", out var itemName) && !IsNullOrEmpty(itemName))
         {
-            builder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{entity.ItemName}%" });
+            builder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{itemName}%" });
         }
 
-        if (entity.ProductType != ProductType.None)
+        if (parameters.TryGetValue("productType", out var productTypeString) && Enum.TryParse<ProductType>(productTypeString, out var productType))
         {
-            builder.Where("ProductType = @ProductType", new { entity.ProductType });
+            builder.Where("ProductType = @ProductType", new { ProductType = productType });
         }
 
-        if (entity.RemainPurchPhysical > 0)
+        if (parameters.TryGetValue("remainPurchPhysical", out var remainPurchPhysicalString) && decimal.TryParse(remainPurchPhysicalString, out var remainPurchPhysical))
         {
-            builder.Where("RemainPurchPhysical = @RemainPurchPhysical", new { entity.RemainPurchPhysical });
+            builder.Where("RemainPurchPhysical = @RemainPurchPhysical", new { RemainPurchPhysical = remainPurchPhysical });
         }
 
-        if (entity.ReceiveNow > 0)
+        if (parameters.TryGetValue("receiveNow", out var receiveNowString) && decimal.TryParse(receiveNowString, out var receiveNow))
         {
-            builder.Where("ReceiveNow = @ReceiveNow", new { entity.ReceiveNow });
+            builder.Where("ReceiveNow = @ReceiveNow", new { ReceiveNow = receiveNow });
         }
 
-        if (entity.PurchQty > 0)
+        if (parameters.TryGetValue("purchQty", out var purchQtyString) && decimal.TryParse(purchQtyString, out var purchQty))
         {
-            builder.Where("PurchQty = @PurchQty", new { entity.PurchQty });
+            builder.Where("PurchQty = @PurchQty", new { PurchQty = purchQty });
         }
 
-        if (!IsNullOrEmpty(entity.PurchUnit))
+        if (parameters.TryGetValue("purchUnit", out var purchUnit) && !IsNullOrEmpty(purchUnit))
         {
-            builder.Where("PurchUnit LIKE @PurchUnit", new { PurchUnit = $"%{entity.PurchUnit}%" });
+            builder.Where("PurchUnit LIKE @PurchUnit", new { PurchUnit = $"%{purchUnit}%" });
         }
 
-        if (entity.PurchPrice > 0)
+        if (parameters.TryGetValue("purchPrice", out var purchPriceString) && decimal.TryParse(purchPriceString, out var purchPrice))
         {
-            builder.Where("PurchPrice = @PurchPrice", new { entity.PurchPrice });
+            builder.Where("PurchPrice = @PurchPrice", new { PurchPrice = purchPrice });
         }
 
-        if (entity.LineAmount > 0)
+        if (parameters.TryGetValue("lineAmount", out var lineAmountString) && decimal.TryParse(lineAmountString, out var lineAmount))
         {
-            builder.Where("LineAmount = @LineAmount", new { entity.LineAmount });
+            builder.Where("LineAmount = @LineAmount", new { LineAmount = lineAmount });
         }
 
-        if (!IsNullOrEmpty(entity.InventLocationId))
+        if (parameters.TryGetValue("inventLocationId", out var inventLocationId) && !IsNullOrEmpty(inventLocationId))
         {
-            builder.Where("InventLocationId LIKE @InventLocationId", new { InventLocationId = $"%{entity.InventLocationId}%" });
+            builder.Where("InventLocationId LIKE @InventLocationId", new { InventLocationId = $"%{inventLocationId}%" });
         }
 
-        if (!IsNullOrEmpty(entity.WMSLocationId))
+        if (parameters.TryGetValue("wmsLocationId", out var wmsLocationId) && !IsNullOrEmpty(wmsLocationId))
         {
-            builder.Where("WMSLocationId LIKE @WMSLocationId", new { WMSLocationId = $"%{entity.WMSLocationId}%" });
+            builder.Where("WMSLocationId LIKE @WMSLocationId", new { WMSLocationId = $"%{wmsLocationId}%" });
         }
 
-        if (!IsNullOrEmpty(entity.CreatedBy))
+        if (parameters.TryGetValue("createdBy", out var createdBy) && !IsNullOrEmpty(createdBy))
         {
-            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{entity.CreatedBy}%" });
+            builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (entity.CreatedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { entity.CreatedDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
         {
-            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{entity.ModifiedBy}%" });
+            builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { entity.ModifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
         }
         
         var template = builder.AddTemplate("SELECT * FROM GoodsReceiptLines /**where**/");
         
-        return _sqlConnection.QueryAsync<GoodsReceiptLine>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<GoodsReceiptLine>(template.RawSql, template.Parameters, _dbTransaction);
     }
     public async Task Update(GoodsReceiptLine entity)
     {
         var builder = new SqlBuilder();
 
-        if (entity.GoodsReceiptHeaderId != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.GoodsReceiptHeaderId)), entity.GoodsReceiptHeaderId))
         {
             builder.Set("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
         }
 
-        if (!IsNullOrEmpty(entity.ItemId))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemId)), entity.ItemId))
         {
             builder.Set("ItemId = @ItemId", new { entity.ItemId });
         }
 
-        if (entity.LineNumber != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineNumber)), entity.LineNumber))
         {
             builder.Set("LineNumber = @LineNumber", new { entity.LineNumber });
         }
 
-        if (!IsNullOrEmpty(entity.ItemName))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemName)), entity.ItemName))
         {
             builder.Set("ItemName = @ItemName", new { entity.ItemName });
         }
 
-        if (entity.ProductType != ProductType.None)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ProductType)), entity.ProductType))
         {
             builder.Set("ProductType = @ProductType", new { entity.ProductType });
         }
 
-        if (entity.RemainPurchPhysical != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.RemainPurchPhysical)), entity.RemainPurchPhysical))
         {
             builder.Set("RemainPurchPhysical = @RemainPurchPhysical", new { entity.RemainPurchPhysical });
         }
 
-        if (entity.ReceiveNow != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ReceiveNow)), entity.ReceiveNow))
         {
             builder.Set("ReceiveNow = @ReceiveNow", new { entity.ReceiveNow });
         }
 
-        if (entity.PurchQty != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchQty)), entity.PurchQty))
         {
             builder.Set("PurchQty = @PurchQty", new { entity.PurchQty });
         }
 
-        if (!IsNullOrEmpty(entity.PurchUnit))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchUnit)), entity.PurchUnit))
         {
             builder.Set("PurchUnit = @PurchUnit", new { entity.PurchUnit });
         }
 
-        if (entity.PurchPrice != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchPrice)), entity.PurchPrice))
         {
             builder.Set("PurchPrice = @PurchPrice", new { entity.PurchPrice });
         }
 
-        if (entity.LineAmount != 0)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineAmount)), entity.LineAmount))
         {
             builder.Set("LineAmount = @LineAmount", new { entity.LineAmount });
         }
 
-        if (!IsNullOrEmpty(entity.InventLocationId))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.InventLocationId)), entity.InventLocationId))
         {
             builder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
         }
 
-        if (!IsNullOrEmpty(entity.WMSLocationId))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.WMSLocationId)), entity.WMSLocationId))
         {
             builder.Set("WMSLocationId = @WMSLocationId", new { entity.WMSLocationId });
         }
 
-        if (!IsNullOrEmpty(entity.ModifiedBy))
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (entity.ModifiedDateTime > SqlDateTime.MinValue.Value)
+        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
@@ -230,10 +232,7 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         var template = builder.AddTemplate(sql);
         
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
     public async Task<IEnumerable<GoodsReceiptLine>> GetByGoodsReceiptHeaderId(int goodsReceiptHeaderId)
     {

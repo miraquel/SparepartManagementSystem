@@ -25,46 +25,48 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
                            VALUES (@UserId, @AxTable, @Query, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
     }
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM RowLevelAccesses WHERE RowLevelAccessId = @RowLevelAccessId";
         _ = await _sqlConnection.ExecuteAsync(sql, new { RowLevelAccessId = id }, _dbTransaction);
     }
-    public Task<IEnumerable<RowLevelAccess>> GetAll()
+    public async Task<IEnumerable<RowLevelAccess>> GetAll()
     {
         const string sql = "SELECT * FROM RowLevelAccesses";
-        return _sqlConnection.QueryAsync<RowLevelAccess>(sql, transaction: _dbTransaction);
+        return await _sqlConnection.QueryAsync<RowLevelAccess>(sql, transaction: _dbTransaction);
     }
-    public Task<RowLevelAccess> GetById(int id, bool forUpdate = false)
+    public async Task<RowLevelAccess> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM RowLevelAccesses WHERE RowLevelAccessId = @RowLevelAccessId";
         const string sqlForUpdate = "SELECT * FROM RowLevelAccesses WHERE RowLevelAccessId = @RowLevelAccessId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<RowLevelAccess>(forUpdate ? sqlForUpdate: sql, new { RowLevelAccessId = id }, _dbTransaction);
+        var result = await _sqlConnection.QueryFirstAsync<RowLevelAccess>(forUpdate ? sqlForUpdate: sql, new { RowLevelAccessId = id }, _dbTransaction);
+        result.AcceptChanges();
+        return result;
     }
-    public Task<IEnumerable<RowLevelAccess>> GetByParams(RowLevelAccess entity)
+    public async Task<IEnumerable<RowLevelAccess>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
 
-        if (entity.UserId != 0)
+        if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId))
         {
-            sqlBuilder.Where("UserId = @UserId", new { entity.UserId });
+            sqlBuilder.Where("UserId = @UserId", new { UserId = userId });
         }
 
-        if (entity.AxTable != 0)
+        if (parameters.TryGetValue("axTable", out var axTable) && !string.IsNullOrEmpty(axTable))
         {
-            sqlBuilder.Where("AxTable LIKE @AxTable", new { AxTable = $"%{entity.AxTable}%" });
+            sqlBuilder.Where("AxTable LIKE @AxTable", new { AxTable = $"%{axTable}%" });
         }
 
-        if (!string.IsNullOrEmpty(entity.Query))
+        if (parameters.TryGetValue("query", out var query) && !string.IsNullOrEmpty(query))
         {
-            sqlBuilder.Where("Query LIKE @Query", new { Query = $"%{entity.Query}%" });
+            sqlBuilder.Where("Query LIKE @Query", new { Query = $"%{query}%" });
         }
 
         const string sql = "SELECT * FROM RowLevelAccesses /**where**/";
         var template = sqlBuilder.AddTemplate(sql);
-        
-        return _sqlConnection.QueryAsync<RowLevelAccess>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<RowLevelAccess>(template.RawSql, template.Parameters, _dbTransaction);
     }
     public async Task Update(RowLevelAccess entity)
     {
@@ -99,19 +101,14 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
 
         const string sql = "UPDATE RowLevelAccesses /**set**/ /**where**/";
         var template = sqlBuilder.AddTemplate(sql);
-        
         _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
-        
-    }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
+        entity.AcceptChanges();
     }
     
-    public Task<IEnumerable<RowLevelAccess>> GetByUserId(int userId)
+    public async Task<IEnumerable<RowLevelAccess>> GetByUserId(int userId)
     {
         const string sql = "SELECT * FROM RowLevelAccesses WHERE UserId = @UserId";
-        return _sqlConnection.QueryAsync<RowLevelAccess>(sql, new { UserId = userId }, _dbTransaction);
+        return await _sqlConnection.QueryAsync<RowLevelAccess>(sql, new { UserId = userId }, _dbTransaction);
     }
     
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

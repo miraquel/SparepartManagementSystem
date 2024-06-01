@@ -6,7 +6,7 @@ using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Implementation;
 using SparepartManagementSystem.Service.Interface;
 
-namespace SparepartManagementSystem.API.Controllers.v1_0;
+namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
@@ -28,7 +28,10 @@ public class NumberSequenceServiceController : ControllerBase
     {
         var result = await _numberSequenceService.AddNumberSequence(dto);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -39,7 +42,10 @@ public class NumberSequenceServiceController : ControllerBase
     {
         var result = await _numberSequenceService.DeleteNumberSequence(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -50,7 +56,10 @@ public class NumberSequenceServiceController : ControllerBase
     {
         var result = await _numberSequenceService.GetAllNumberSequence();
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
@@ -61,18 +70,24 @@ public class NumberSequenceServiceController : ControllerBase
     {
         var result = await _numberSequenceService.GetNumberSequenceById(id);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 
     [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.NumberSequenceActivity.Read }])]
     [HttpGet]
-    public async Task<IActionResult> GetNumberSequenceByParams([FromQuery] NumberSequenceDto dto)
+    public async Task<IActionResult> GetNumberSequenceByParams([FromQuery] Dictionary<string, string> parameters)
     {
-        var result = await _numberSequenceService.GetNumberSequenceByParams(dto);
+        var result = await _numberSequenceService.GetNumberSequenceByParams(parameters);
         if (result.Success)
+        {
             return Ok(result);
+        }
+
         return BadRequest(result);
     }
 }

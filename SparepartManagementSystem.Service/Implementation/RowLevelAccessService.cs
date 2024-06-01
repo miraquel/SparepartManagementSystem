@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -54,7 +53,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -91,7 +93,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -122,7 +127,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -153,7 +161,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -165,12 +176,11 @@ public class RowLevelAccessService : IRowLevelAccessService
             };
         }
     }
-    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(RowLevelAccessDto dto)
+    public async Task<ServiceResponse<IEnumerable<RowLevelAccessDto>>> GetRowLevelAccessByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var rowLevelAccess = await _unitOfWork.RowLevelAccessRepository.GetByParams(_mapper.MapToRowLevelAccess(dto));
-            
+            var rowLevelAccess = await _unitOfWork.RowLevelAccessRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<RowLevelAccessDto>>
             {
                 Data = _mapper.MapToListOfRowLevelAccessDto(rowLevelAccess),
@@ -184,7 +194,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -200,17 +213,27 @@ public class RowLevelAccessService : IRowLevelAccessService
     {
         try
         {
-            var oldRecord = await _unitOfWork.RowLevelAccessRepository.GetById(dto.RowLevelAccessId, true);
+            var record = await _unitOfWork.RowLevelAccessRepository.GetById(dto.RowLevelAccessId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Row Level Access has been modified by another user. Please refresh the page and try again.");
             }
+
+            record.UpdateProperties(_mapper.MapToRowLevelAccess(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Row Level Access"
+                };
+            }
             
-            var newRecord = _mapper.MapToRowLevelAccess(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RowLevelAccessRepository.Update(RowLevelAccess.ForUpdate(oldRecord, newRecord));
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RowLevelAccessRepository.Update(record);
 
             _logger.Information("Row Level Access with id {rowLevelAccessId} updated successfully", dto.RowLevelAccessId);
             
@@ -231,7 +254,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -265,7 +291,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -306,7 +335,10 @@ public class RowLevelAccessService : IRowLevelAccessService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

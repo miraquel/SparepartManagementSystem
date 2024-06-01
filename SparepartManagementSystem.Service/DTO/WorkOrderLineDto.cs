@@ -7,20 +7,21 @@ public class WorkOrderLineDto
     public int WorkOrderLineId { get; init; }
     public int WorkOrderHeaderId { get; init; }
     public int Line { get; init; }
-    public string LineTitle { get; init; } = "";
-    public string EntityId { get; init; } = "";
+    public string LineTitle { get; init; } = string.Empty;
+    public string EntityId { get; init; } = string.Empty;
     public NoYes EntityShutdown { get; init; }
-    public string WorkOrderType { get; init; } = "";
-    public string TaskId { get; init; } = "";
-    public string Condition { get; init; } = "";
+    public string WorkOrderType { get; init; } = string.Empty;
+    public string TaskId { get; init; } = string.Empty;
+    public string Condition { get; init; } = string.Empty;
     public DateTime PlanningStartDate { get; init; }
     public DateTime PlanningEndDate { get; init; }
-    public string Supervisor { get; init; } = "";
-    public string CalendarId { get; init; } = "";
-    public string WorkOrderStatus { get; init; } = "";
+    public string Supervisor { get; init; } = string.Empty;
+    public string CalendarId { get; init; } = string.Empty;
+    public string WorkOrderStatus { get; init; } = string.Empty;
     public NoYes Suspend { get; init; }
-    public string CreatedBy { get; init; } = "";
+    public string CreatedBy { get; init; } = string.Empty;
     public DateTime CreatedDateTime { get; init; }
-    public string ModifiedBy { get; init; } = "";
+    public string ModifiedBy { get; init; } = string.Empty;
     public DateTime ModifiedDateTime { get; init; }
+    public long RecId { get; init; }
 }

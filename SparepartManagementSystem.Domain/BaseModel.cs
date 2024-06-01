@@ -1,11 +1,17 @@
-using System.Data.SqlTypes;
+using System.ComponentModel;
 
 namespace SparepartManagementSystem.Domain;
 
-public abstract class BaseModel
+public abstract class BaseModel : IRevertibleChangeTracking
 {
-    public DateTime CreatedDateTime { get; set; } = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime { get; set; } = SqlDateTime.MinValue.Value;
-    public string? CreatedBy { get; set; } = string.Empty;
-    public string ModifiedBy { get; set; } = string.Empty;
+    protected Dictionary<string, object> OriginalValues { get; } = new();
+    public abstract void AcceptChanges();
+    public abstract void RejectChanges();
+    public bool IsChanged { get; protected set; }
+    public abstract void UpdateProperties<T>(T source);
+
+    public object OriginalValue(string name)
+    {
+        return OriginalValues[name];
+    }
 }

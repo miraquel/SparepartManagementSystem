@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -47,7 +46,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -85,7 +87,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -120,7 +125,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -155,7 +163,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -199,7 +210,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -237,7 +251,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -272,7 +289,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -307,7 +327,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -320,16 +343,11 @@ internal class RoleService : IRoleService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetRoleByParams(RoleDto dto)
+    public async Task<ServiceResponse<IEnumerable<RoleDto>>> GetRoleByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var role = _mapper.MapToRole(dto);
-
-            var roles = (await _unitOfWork.RoleRepository.GetByParams(role)).ToList();
-
-            _logger.Information("Roles retrieved successfully with total {TotalRecord} rows", roles.Count);
-
+            var roles = await _unitOfWork.RoleRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<RoleDto>>
             {
                 Data = _mapper.MapToListOfRoleDto(roles),
@@ -344,7 +362,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -361,19 +382,29 @@ internal class RoleService : IRoleService
     {
         try
         {
-            var oldRecord = await _unitOfWork.RoleRepository.GetById(dto.RoleId, true);
+            var record = await _unitOfWork.RoleRepository.GetById(dto.RoleId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Role has been modified by another user. Please refresh the page and try again.");
             }
-            
-            var newRecord = _mapper.MapToRole(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RoleRepository.Update(Role.ForUpdate(oldRecord, newRecord));
 
-            _logger.Information("Role {RoleId} updated successfully", newRecord.RoleId);
+            record.UpdateProperties(_mapper.MapToRole(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Role"
+                };
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.RoleRepository.Update(record);
+
+            _logger.Information("Role {RoleId} updated successfully", dto.RoleId);
             
             _unitOfWork.Commit();
 
@@ -392,7 +423,10 @@ internal class RoleService : IRoleService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

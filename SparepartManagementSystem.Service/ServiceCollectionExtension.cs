@@ -26,6 +26,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IGoodsReceiptService, GoodsReceiptService>();
         services.AddScoped<IRowLevelAccessService, RowLevelAccessService>();
         services.AddScoped<IWorkOrderService, WorkOrderService>();
+        services.AddScoped<IWorkOrderServiceDirect, WorkOrderServiceDirect>();
         services.AddScoped<IGMKSMSServiceGroup, GMKSMSServiceGroupImplementation>();
         services.AddScoped<GMKSMSService, GMKSMSServiceClient>(serviceProvider =>
         {
@@ -42,7 +43,7 @@ public static class ServiceCollectionExtension
                     {
                         ClientCredentialType = TcpClientCredentialType.Windows
                     }
-                } // Just to test, change if needed larger
+                }
             };
 
             var endpointIdentity = new UpnEndpointIdentity(endpointIdentityConfig);

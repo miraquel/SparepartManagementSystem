@@ -120,20 +120,47 @@ public partial class MapperlyMapper
     public partial IEnumerable<GMKInventSumDataContract> MapToListOfGMKInventSumDataContract(IEnumerable<InventSumDto> source);
     
     // Work Order Header AX
+    [Obsolete("Use WorkOrderHeaderDto instead", true)]
     public partial WorkOrderAxDto MapToWorkOrderAxDto(GMKWorkOrderDataContract gmkWorkOrderDataContract);
+    [Obsolete("Use WorkOrderHeaderDto instead", true)]
     public partial GMKWorkOrderDataContract MapToGMKWorkOrderDataContract(WorkOrderAxDto workOrderAxDto);
+    [Obsolete("Use WorkOrderHeaderDto instead", true)]
     public partial IEnumerable<WorkOrderAxDto> MapToListOfWorkOrderAxDto(IEnumerable<GMKWorkOrderDataContract> source);
+    [Obsolete("Use WorkOrderHeaderDto instead", true)]
     public partial IEnumerable<GMKWorkOrderDataContract> MapToListOfGMKWorkOrderDataContract(IEnumerable<WorkOrderAxDto> source);
     
     // Work Order Line AX
+    [Obsolete("Use WorkOrderLineDto instead", true)]
     public partial WorkOrderLineAxDto MapToWorkOrderLineAxDto(GMKWorkOrderLineDataContract gmkWorkOrderLineDataContract);
+    [Obsolete("Use WorkOrderLineDto instead", true)]
     public partial GMKWorkOrderLineDataContract MapToGMKWorkOrderLineDataContract(WorkOrderLineAxDto workOrderLineAxDto);
+    [Obsolete("Use WorkOrderLineDto instead", true)]
     public partial IEnumerable<WorkOrderLineAxDto> MapToListOfWorkOrderLineAxDto(IEnumerable<GMKWorkOrderLineDataContract> source);
+    [Obsolete("Use WorkOrderLineDto instead", true)]
     public partial IEnumerable<GMKWorkOrderLineDataContract> MapToListOfGMKWorkOrderLineDataContract(IEnumerable<WorkOrderLineAxDto> source);
+    
+    // Work Order Header Direct
+    public partial WorkOrderHeaderDto MapToWorkOrderHeaderDto(GMKWorkOrderDataContract gmkWorkOrderDataContract);
+    public partial GMKWorkOrderDataContract MapToGMKWorkOrderDataContract(WorkOrderHeaderDto workOrderHeaderDto);
+    public partial IEnumerable<WorkOrderHeaderDto> MapToListOfWorkOrderHeaderDto(IEnumerable<GMKWorkOrderDataContract> source);
+    public partial IEnumerable<GMKWorkOrderDataContract> MapToListOfGMKWorkOrderDataContract(IEnumerable<WorkOrderHeaderDto> source);
+    
+    // Work Order Line Direct
+    public partial WorkOrderLineDto MapToWorkOrderLineDto(GMKWorkOrderLineDataContract gmkWorkOrderLineDataContract);
+    public partial GMKWorkOrderLineDataContract MapToGMKWorkOrderLineDataContract(WorkOrderLineDto workOrderLineDto);
+    public partial IEnumerable<WorkOrderLineDto> MapToListOfWorkOrderLineDto(IEnumerable<GMKWorkOrderLineDataContract> source);
+    public partial IEnumerable<GMKWorkOrderLineDataContract> MapToListOfGMKWorkOrderLineDataContract(IEnumerable<WorkOrderLineDto> source);
     
     // Invent Location
     public partial InventLocationDto MapToInventLocationDto(GMKInventLocationDataContract gmkInventLocationDataContract);
     public partial GMKInventLocationDataContract MapToGMKInventLocationDataContract(InventLocationDto inventLocationDto);
     public partial IEnumerable<InventLocationDto> MapToListOfInventLocationDto(IEnumerable<GMKInventLocationDataContract> source);
     public partial IEnumerable<GMKInventLocationDataContract> MapToListOfGMKInventLocationDataContract(IEnumerable<InventLocationDto> source);
+    
+    // Invent Req
+    public partial InventReqDto MapToInventReqDto(GMKInventReqDataContract gmkInventReqDataContract);
+    
+    public partial GMKInventReqDataContract MapToGMKInventReqDataContract(InventReqDto inventReqDto);
+    public partial IEnumerable<InventReqDto> MapToListOfInventReqDto(IEnumerable<GMKInventReqDataContract> source);
+    public partial IEnumerable<GMKInventReqDataContract> MapToListOfGMKInventReqDataContract(IEnumerable<InventReqDto> source);
 }

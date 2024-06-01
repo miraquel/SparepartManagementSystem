@@ -1,48 +1,398 @@
+using System.Data.SqlTypes;
 using SparepartManagementSystem.Domain.Enums;
 
 namespace SparepartManagementSystem.Domain;
 
 public class WorkOrderLine : BaseModel
 {
-    public static WorkOrderLine ForUpdate(WorkOrderLine oldRecord, WorkOrderLine newRecord)
+    private int _workOrderLineId;
+    public int WorkOrderLineId
     {
-        return new WorkOrderLine
+        get => _workOrderLineId;
+        set
         {
-            WorkOrderLineId = oldRecord.WorkOrderLineId,
-            WorkOrderHeaderId = oldRecord.WorkOrderHeaderId,
-            Line = oldRecord.Line != newRecord.Line ? newRecord.Line : 0,
-            LineTitle = oldRecord.LineTitle != newRecord.LineTitle ? newRecord.LineTitle : "",
-            EntityId = oldRecord.EntityId != newRecord.EntityId ? newRecord.EntityId : "",
-            EntityShutdown = oldRecord.EntityShutdown != newRecord.EntityShutdown ? newRecord.EntityShutdown : NoYes.No,
-            WorkOrderType = oldRecord.WorkOrderType != newRecord.WorkOrderType ? newRecord.WorkOrderType : "",
-            TaskId = oldRecord.TaskId != newRecord.TaskId ? newRecord.TaskId : "",
-            Condition = oldRecord.Condition != newRecord.Condition ? newRecord.Condition : "",
-            PlanningStartDate = oldRecord.PlanningStartDate != newRecord.PlanningStartDate ? newRecord.PlanningStartDate : DateTime.MinValue,
-            PlanningEndDate = oldRecord.PlanningEndDate != newRecord.PlanningEndDate ? newRecord.PlanningEndDate : DateTime.MinValue,
-            Supervisor = oldRecord.Supervisor != newRecord.Supervisor ? newRecord.Supervisor : "",
-            CalendarId = oldRecord.CalendarId != newRecord.CalendarId ? newRecord.CalendarId : "",
-            WorkOrderStatus = oldRecord.WorkOrderStatus != newRecord.WorkOrderStatus ? newRecord.WorkOrderStatus : "",
-            Suspend = oldRecord.Suspend != newRecord.Suspend ? newRecord.Suspend : NoYes.No,
-            CreatedBy = oldRecord.CreatedBy != newRecord.CreatedBy ? newRecord.CreatedBy : "",
-            CreatedDateTime = oldRecord.CreatedDateTime != newRecord.CreatedDateTime ? newRecord.CreatedDateTime : DateTime.MinValue,
-            ModifiedBy = oldRecord.ModifiedBy != newRecord.ModifiedBy ? newRecord.ModifiedBy : "",
-            ModifiedDateTime = oldRecord.ModifiedDateTime != newRecord.ModifiedDateTime ? newRecord.ModifiedDateTime : DateTime.MinValue
-        };
+            if (_workOrderLineId == value)
+            {
+                return;
+            }
+
+            _workOrderLineId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private int _workOrderHeaderId;
+    public int WorkOrderHeaderId
+    {
+        get => _workOrderHeaderId;
+        set
+        {
+            if (_workOrderHeaderId == value)
+            {
+                return;
+            }
+
+            _workOrderHeaderId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private int _line;
+    public int Line
+    {
+        get => _line;
+        set
+        {
+            if (_line == value)
+            {
+                return;
+            }
+
+            _line = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _lineTitle = string.Empty;
+    public string LineTitle
+    {
+        get => _lineTitle;
+        set
+        {
+            if (_lineTitle == value)
+            {
+                return;
+            }
+
+            _lineTitle = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _entityId = string.Empty;
+    public string EntityId
+    {
+        get => _entityId;
+        set
+        {
+            if (_entityId == value)
+            {
+                return;
+            }
+
+            _entityId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private NoYes _entityShutdown = NoYes.None;
+    public NoYes EntityShutdown
+    {
+        get => _entityShutdown;
+        set
+        {
+            if (_entityShutdown == value)
+            {
+                return;
+            }
+
+            _entityShutdown = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _workOrderType = string.Empty;
+    public string WorkOrderType
+    {
+        get => _workOrderType;
+        set
+        {
+            if (_workOrderType == value)
+            {
+                return;
+            }
+
+            _workOrderType = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _taskId = string.Empty;
+    public string TaskId
+    {
+        get => _taskId;
+        set
+        {
+            if (_taskId == value)
+            {
+                return;
+            }
+
+            _taskId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _condition = string.Empty;
+    public string Condition
+    {
+        get => _condition;
+        set
+        {
+            if (_condition == value)
+            {
+                return;
+            }
+
+            _condition = value;
+            IsChanged = true;
+        }
+    }
+    
+    private DateTime _planningStartDate = SqlDateTime.MinValue.Value;
+    public DateTime PlanningStartDate
+    {
+        get => _planningStartDate;
+        set
+        {
+            if (_planningStartDate == value)
+            {
+                return;
+            }
+
+            _planningStartDate = value;
+            IsChanged = true;
+        }
+    }
+    
+    private DateTime _planningEndDate = SqlDateTime.MinValue.Value;
+    public DateTime PlanningEndDate
+    {
+        get => _planningEndDate;
+        set
+        {
+            if (_planningEndDate == value)
+            {
+                return;
+            }
+
+            _planningEndDate = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _supervisor = string.Empty;
+    public string Supervisor
+    {
+        get => _supervisor;
+        set
+        {
+            if (_supervisor == value)
+            {
+                return;
+            }
+
+            _supervisor = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _calendarId = string.Empty;
+    public string CalendarId
+    {
+        get => _calendarId;
+        set
+        {
+            if (_calendarId == value)
+            {
+                return;
+            }
+
+            _calendarId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _workOrderStatus = string.Empty;
+    public string WorkOrderStatus
+    {
+        get => _workOrderStatus;
+        set
+        {
+            if (_workOrderStatus == value)
+            {
+                return;
+            }
+
+            _workOrderStatus = value;
+            IsChanged = true;
+        }
+    }
+    
+    private NoYes _suspend = NoYes.None;
+    public NoYes Suspend
+    {
+        get => _suspend;
+        set
+        {
+            if (_suspend == value)
+            {
+                return;
+            }
+
+            _suspend = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _createdBy = string.Empty;
+    public string CreatedBy
+    {
+        get => _createdBy;
+        set
+        {
+            if (_createdBy == value)
+            {
+                return;
+            }
+
+            _createdBy = value;
+            IsChanged = true;
+        }
+    }
+    
+    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
+    public DateTime CreatedDateTime
+    {
+        get => _createdDateTime;
+        set
+        {
+            if (_createdDateTime == value)
+            {
+                return;
+            }
+
+            _createdDateTime = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _modifiedBy = string.Empty;
+    public string ModifiedBy
+    {
+        get => _modifiedBy;
+        set
+        {
+            if (_modifiedBy == value)
+            {
+                return;
+            }
+
+            _modifiedBy = value;
+            IsChanged = true;
+        }
+    }
+    
+    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
+    public DateTime ModifiedDateTime
+    {
+        get => _modifiedDateTime;
+        set
+        {
+            if (_modifiedDateTime == value)
+            {
+                return;
+            }
+
+            _modifiedDateTime = value;
+            IsChanged = true;
+        }
+    }
+    public override void AcceptChanges()
+    {
+        if (IsChanged)
+        {
+            IsChanged = false;
+        }
+        
+        OriginalValues[nameof(WorkOrderLineId)] = _workOrderLineId;
+        OriginalValues[nameof(WorkOrderHeaderId)] = _workOrderHeaderId;
+        OriginalValues[nameof(Line)] = _line;
+        OriginalValues[nameof(LineTitle)] = _lineTitle;
+        OriginalValues[nameof(EntityId)] = _entityId;
+        OriginalValues[nameof(EntityShutdown)] = _entityShutdown;
+        OriginalValues[nameof(WorkOrderType)] = _workOrderType;
+        OriginalValues[nameof(TaskId)] = _taskId;
+        OriginalValues[nameof(Condition)] = _condition;
+        OriginalValues[nameof(PlanningStartDate)] = _planningStartDate;
+        OriginalValues[nameof(PlanningEndDate)] = _planningEndDate;
+        OriginalValues[nameof(Supervisor)] = _supervisor;
+        OriginalValues[nameof(CalendarId)] = _calendarId;
+        OriginalValues[nameof(WorkOrderStatus)] = _workOrderStatus;
+        OriginalValues[nameof(Suspend)] = _suspend;
+        OriginalValues[nameof(CreatedBy)] = _createdBy;
+        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
+        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
+        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        
+        IsChanged = false;
     }
 
-    public int WorkOrderLineId { get; set; }
-    public int WorkOrderHeaderId { get; set; }
-    public int Line { get; set; }
-    public string LineTitle { get; set; } = "";
-    public string EntityId { get; set; } = "";
-    public NoYes EntityShutdown { get; set; }
-    public string WorkOrderType { get; set; } = "";
-    public string TaskId { get; set; } = "";
-    public string Condition { get; set; } = "";
-    public DateTime PlanningStartDate { get; set; }
-    public DateTime PlanningEndDate { get; set; }
-    public string Supervisor { get; set; } = "";
-    public string CalendarId { get; set; } = "";
-    public string WorkOrderStatus { get; set; } = "";
-    public NoYes Suspend { get; set; }
+    public override void RejectChanges()
+    {
+        if (!IsChanged)
+        {
+            return;
+        }
+        
+        _workOrderLineId = OriginalValues[nameof(WorkOrderLineId)] as int? ?? 0;
+        _workOrderHeaderId = OriginalValues[nameof(WorkOrderHeaderId)] as int? ?? 0;
+        _line = OriginalValues[nameof(Line)] as int? ?? 0;
+        _lineTitle = OriginalValues[nameof(LineTitle)] as string ?? string.Empty;
+        _entityId = OriginalValues[nameof(EntityId)] as string ?? string.Empty;
+        _entityShutdown = OriginalValues[nameof(EntityShutdown)] as NoYes? ?? NoYes.None;
+        _workOrderType = OriginalValues[nameof(WorkOrderType)] as string ?? string.Empty;
+        _taskId = OriginalValues[nameof(TaskId)] as string ?? string.Empty;
+        _condition = OriginalValues[nameof(Condition)] as string ?? string.Empty;
+        _planningStartDate = OriginalValues[nameof(PlanningStartDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        _planningEndDate = OriginalValues[nameof(PlanningEndDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        _supervisor = OriginalValues[nameof(Supervisor)] as string ?? string.Empty;
+        _calendarId = OriginalValues[nameof(CalendarId)] as string ?? string.Empty;
+        _workOrderStatus = OriginalValues[nameof(WorkOrderStatus)] as string ?? string.Empty;
+        _suspend = OriginalValues[nameof(Suspend)] as NoYes? ?? NoYes.None;
+        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
+        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
+        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        
+        IsChanged = false;
+    }
+
+    public override void UpdateProperties<T>(T source)
+    {
+        if (source is not WorkOrderLine workOrderLine)
+        {
+            return;
+        }
+
+        WorkOrderLineId = workOrderLine.WorkOrderLineId;
+        WorkOrderHeaderId = workOrderLine.WorkOrderHeaderId;
+        Line = workOrderLine.Line;
+        LineTitle = workOrderLine.LineTitle;
+        EntityId = workOrderLine.EntityId;
+        EntityShutdown = workOrderLine.EntityShutdown;
+        WorkOrderType = workOrderLine.WorkOrderType;
+        TaskId = workOrderLine.TaskId;
+        Condition = workOrderLine.Condition;
+        PlanningStartDate = workOrderLine.PlanningStartDate;
+        PlanningEndDate = workOrderLine.PlanningEndDate;
+        Supervisor = workOrderLine.Supervisor;
+        CalendarId = workOrderLine.CalendarId;
+        WorkOrderStatus = workOrderLine.WorkOrderStatus;
+        Suspend = workOrderLine.Suspend;
+        CreatedBy = workOrderLine.CreatedBy;
+        CreatedDateTime = workOrderLine.CreatedDateTime;
+        ModifiedBy = workOrderLine.ModifiedBy;
+        ModifiedDateTime = workOrderLine.ModifiedDateTime;
+    }
 }

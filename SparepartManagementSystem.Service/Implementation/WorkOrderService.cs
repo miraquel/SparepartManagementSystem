@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.Interface;
@@ -54,7 +53,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -115,7 +117,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -132,17 +137,27 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var oldRecord = await _unitOfWork.WorkOrderHeaderRepository.GetById(dto.WorkOrderHeaderId, true);
+            var record = await _unitOfWork.WorkOrderHeaderRepository.GetById(dto.WorkOrderHeaderId, true);
 
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Work Order Header has been modified by another user, please refresh and try again");
             }
+
+            record.UpdateProperties(_mapper.MapToWorkOrderHeader(dto));
             
-            var newRecord = _mapper.MapToWorkOrderHeader(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderHeaderRepository.Update(WorkOrderHeader.ForUpdate(oldRecord, newRecord));
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Work Order Header"
+                }; 
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderHeaderRepository.Update(record);
             
             _logger.Information("Work Order Header updated successfully, Work Order Header Id: {WorkOrderHeaderId}", dto.WorkOrderHeaderId);
             
@@ -163,7 +178,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -200,7 +218,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -231,7 +252,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -269,7 +293,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -281,14 +308,11 @@ public class WorkOrderService : IWorkOrderService
             };
         }
     }
-    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderByParamsPagedList(int pageNumber, int pageSize, WorkOrderHeaderDto entity)
+    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
     {
         try
         {
-            var result = await _unitOfWork.WorkOrderHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, _mapper.MapToWorkOrderHeader(entity));
-            
-            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", result.TotalCount);
-            
+            var result = await _unitOfWork.WorkOrderHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, parameters);
             return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
             {
                 Data = new PagedListDto<WorkOrderHeaderDto>(
@@ -307,7 +331,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -351,7 +378,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -367,17 +397,27 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var oldRecord = await _unitOfWork.WorkOrderLineRepository.GetById(dto.WorkOrderLineId, true);
+            var record = await _unitOfWork.WorkOrderLineRepository.GetById(dto.WorkOrderLineId, true);
             
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Work Order Line has been modified by another user, please refresh and try again");
             }
             
-            var newRecord = _mapper.MapToWorkOrderLine(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderLineRepository.Update(WorkOrderLine.ForUpdate(oldRecord, newRecord));
+            record.UpdateProperties(_mapper.MapToWorkOrderLine(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Work Order Line"
+                };
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.WorkOrderLineRepository.Update(record);
             
             _logger.Information("Work Order Line updated successfully, Work Order Line Id: {WorkOrderLineId}", dto.WorkOrderLineId);
             
@@ -398,7 +438,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -435,7 +478,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -466,7 +512,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -498,7 +547,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -529,7 +581,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -574,7 +629,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -591,17 +649,27 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var oldRecord = await _unitOfWork.ItemRequisitionRepository.GetById(dto.ItemRequisitionId, true);
+            var record = await _unitOfWork.ItemRequisitionRepository.GetById(dto.ItemRequisitionId, true);
             
-            if (oldRecord.ModifiedDateTime > dto.ModifiedDateTime)
+            if (record.ModifiedDateTime > dto.ModifiedDateTime)
             {
                 throw new Exception("Item Requisition has been modified by another user, please refresh and try again");
             }
             
-            var newRecord = _mapper.MapToItemRequisition(dto);
-            newRecord.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            newRecord.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.ItemRequisitionRepository.Update(ItemRequisition.ForUpdate(oldRecord, newRecord));
+            record.UpdateProperties(_mapper.MapToItemRequisition(dto));
+
+            if (!record.IsChanged)
+            {
+                return new ServiceResponse
+                {
+                    Success = true,
+                    Message = "No changes detected in Item Requisition"
+                };
+            }
+            
+            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
+            record.ModifiedDateTime = DateTime.Now;
+            await _unitOfWork.ItemRequisitionRepository.Update(record);
             
             _logger.Information("Item Requisition updated successfully, Item Requisition Id: {ItemRequisitionId}", dto.ItemRequisitionId);
             
@@ -622,7 +690,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -660,7 +731,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -693,7 +767,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -706,12 +783,11 @@ public class WorkOrderService : IWorkOrderService
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByParams(ItemRequisitionDto entity)
+    public async Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByParams(Dictionary<string, string> parameters)
     {
         try
         {
-            var itemRequisitions = await _unitOfWork.ItemRequisitionRepository.GetByParams(_mapper.MapToItemRequisition(entity));
-            
+            var itemRequisitions = await _unitOfWork.ItemRequisitionRepository.GetByParams(parameters);
             return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
             {
                 Success = true,
@@ -726,7 +802,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 
@@ -759,7 +838,10 @@ public class WorkOrderService : IWorkOrderService
                 ex.Message
             };
 
-            if (ex.StackTrace is not null) errorMessages.Add(ex.StackTrace);
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
 
             _logger.Error(ex, ex.Message);
 

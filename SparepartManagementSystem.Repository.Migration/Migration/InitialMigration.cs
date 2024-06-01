@@ -50,6 +50,7 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("UserWarehouseId").AsInt32().PrimaryKey().Identity()
             .WithColumn("UserId").AsInt32().NotNullable().ForeignKey("FK_UserWarehouses_Users", "Users", "UserId").OnDeleteOrUpdate(System.Data.Rule.Cascade)
             .WithColumn("InventLocationId").AsString(50).NotNullable()
+            .WithColumn("InventSiteId").AsString(50).NotNullable()
             .WithColumn("Name").AsString(50).NotNullable()
             .WithColumn("IsDefault").AsBoolean().NotNullable()
             .WithColumn("CreatedBy").AsString(50).NotNullable()
