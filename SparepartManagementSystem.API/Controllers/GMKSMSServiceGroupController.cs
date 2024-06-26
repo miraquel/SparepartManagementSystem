@@ -18,8 +18,22 @@ public class GMKSMSServiceGroupController : ControllerBase
     private readonly IGMKSMSServiceGroup _gmkSmsServiceGroup;
     
     public GMKSMSServiceGroupController(IGMKSMSServiceGroup gmkSmsServiceGroup)
-    { 
+    {
         _gmkSmsServiceGroup = gmkSmsServiceGroup;
+    }
+    
+    // GetInventTable
+    [MapToApiVersion(1.0)]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroupActivity.Read }])]
+    [HttpGet("{itemId}")]
+    public async Task<IActionResult> GetInventTable(string itemId)
+    {
+        var response = await _gmkSmsServiceGroup.GetInventTable(itemId);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
     }
 
     [MapToApiVersion(1.0)]
@@ -110,7 +124,7 @@ public class GMKSMSServiceGroupController : ControllerBase
             var height = image.Height;
             if (width > maxLength || height > maxLength)
             {
-                var options = new ResizeOptions()
+                var options = new ResizeOptions
                 {
                     Mode = ResizeMode.Max,
                     Size = new Size(maxLength)
@@ -118,7 +132,7 @@ public class GMKSMSServiceGroupController : ControllerBase
         
                 image.Mutate(x => x.Resize(options));
             }
-            await image.SaveAsync(outStream, new JpegEncoder()
+            await image.SaveAsync(outStream, new JpegEncoder
             {
                 Quality = 50
             });
@@ -241,6 +255,19 @@ public class GMKSMSServiceGroupController : ControllerBase
     public async Task<IActionResult> GetInventLocationList([FromQuery] InventLocationDto dto)
     {
         var response = await _gmkSmsServiceGroup.GetInventLocationList(dto);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    [MapToApiVersion(1.0)]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroupActivity.Read }])]
+    [HttpGet]
+    public async Task<IActionResult> GetDimensionList([FromQuery] string dimensionName)
+    {
+        var response = await _gmkSmsServiceGroup.GetDimensionList(dimensionName);
         if (response.Success)
         {
             return Ok(response);

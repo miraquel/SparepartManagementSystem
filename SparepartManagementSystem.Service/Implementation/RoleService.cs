@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Serilog;
+﻿using Serilog;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -11,14 +11,14 @@ internal class RoleService : IRoleService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<RoleService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RoleService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
+    public RoleService(IUnitOfWork unitOfWork, MapperlyMapper mapper, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
 
     public async Task<ServiceResponse> AddUserToRole(UserRoleDto dto)
@@ -29,7 +29,7 @@ internal class RoleService : IRoleService
 
             _logger.Information("User {UserId} added to role {RoleId} successfully", dto.UserId, dto.RoleId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -39,7 +39,7 @@ internal class RoleService : IRoleService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -70,7 +70,7 @@ internal class RoleService : IRoleService
 
             _logger.Information("User {UserId} deleted from role {RoleId} successfully", dto.UserId, dto.RoleId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -80,7 +80,7 @@ internal class RoleService : IRoleService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -184,16 +184,12 @@ internal class RoleService : IRoleService
         try
         {
             var roleAdd = _mapper.MapToRole(dto);
-            roleAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            roleAdd.CreatedDateTime = DateTime.Now;
-            roleAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            roleAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RoleRepository.Add(roleAdd);
+            await _unitOfWork.RoleRepository.Add(roleAdd, _repositoryEvents.OnBeforeAdd);
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("Role {RoleId} added successfully", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -203,7 +199,7 @@ internal class RoleService : IRoleService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -234,7 +230,7 @@ internal class RoleService : IRoleService
 
             _logger.Information("Role {RoleId} deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -244,7 +240,7 @@ internal class RoleService : IRoleService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -399,14 +395,12 @@ internal class RoleService : IRoleService
                     Message = "No changes detected in Role"
                 };
             }
-            
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RoleRepository.Update(record);
+
+            await _unitOfWork.RoleRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("Role {RoleId} updated successfully", dto.RoleId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -416,7 +410,7 @@ internal class RoleService : IRoleService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

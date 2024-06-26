@@ -245,69 +245,6 @@ public class WorkOrderLine : BaseModel
         }
     }
     
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
     public override void AcceptChanges()
     {
         if (IsChanged)
@@ -330,10 +267,7 @@ public class WorkOrderLine : BaseModel
         OriginalValues[nameof(CalendarId)] = _calendarId;
         OriginalValues[nameof(WorkOrderStatus)] = _workOrderStatus;
         OriginalValues[nameof(Suspend)] = _suspend;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -360,22 +294,18 @@ public class WorkOrderLine : BaseModel
         _calendarId = OriginalValues[nameof(CalendarId)] as string ?? string.Empty;
         _workOrderStatus = OriginalValues[nameof(WorkOrderStatus)] as string ?? string.Empty;
         _suspend = OriginalValues[nameof(Suspend)] as NoYes? ?? NoYes.None;
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not WorkOrderLine workOrderLine)
         {
             return;
         }
-
-        WorkOrderLineId = workOrderLine.WorkOrderLineId;
+        
         WorkOrderHeaderId = workOrderLine.WorkOrderHeaderId;
         Line = workOrderLine.Line;
         LineTitle = workOrderLine.LineTitle;
@@ -390,9 +320,5 @@ public class WorkOrderLine : BaseModel
         CalendarId = workOrderLine.CalendarId;
         WorkOrderStatus = workOrderLine.WorkOrderStatus;
         Suspend = workOrderLine.Suspend;
-        CreatedBy = workOrderLine.CreatedBy;
-        CreatedDateTime = workOrderLine.CreatedDateTime;
-        ModifiedBy = workOrderLine.ModifiedBy;
-        ModifiedDateTime = workOrderLine.ModifiedDateTime;
     }
 }

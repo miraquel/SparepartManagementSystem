@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -12,14 +12,14 @@ public class UserWarehouseService : IUserWarehouseService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserWarehouseService(MapperlyMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+    public UserWarehouseService(MapperlyMapper mapper, IUnitOfWork unitOfWork, RepositoryEvents repositoryEvents)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
 
     public async Task<ServiceResponse<UserWarehouseDto>> GetUserWarehouseById(int userWarehouseId)
@@ -177,17 +177,13 @@ public class UserWarehouseService : IUserWarehouseService
             }
             
             var userWarehouseAdd = _mapper.MapToUserWarehouse(userWarehouseDto);
-            userWarehouseAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            userWarehouseAdd.CreatedDateTime = DateTime.Now;
-            userWarehouseAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            userWarehouseAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserWarehouseRepository.Add(userWarehouseAdd);
+            await _unitOfWork.UserWarehouseRepository.Add(userWarehouseAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
             
             _logger.Information("UserWarehouse added successfully, UserWarehouseId: {UserWarehouseId}", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -247,13 +243,11 @@ public class UserWarehouseService : IUserWarehouseService
                 };
             }
             
-            userWarehouse.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            userWarehouse.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserWarehouseRepository.Update(userWarehouse);
+            await _unitOfWork.UserWarehouseRepository.Update(userWarehouse, _repositoryEvents.OnBeforeUpdate);
             
             _logger.Information("UserWarehouse updated successfully, UserWarehouseId: {UserWarehouseId}", userWarehouseDto.UserWarehouseId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -298,7 +292,7 @@ public class UserWarehouseService : IUserWarehouseService
             
             _logger.Information("UserWarehouse deleted successfully, UserWarehouseId: {UserWarehouseId}", userWarehouseId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {

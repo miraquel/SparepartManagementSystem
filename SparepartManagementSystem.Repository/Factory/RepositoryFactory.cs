@@ -16,7 +16,8 @@ public class RepositoryFactory : IRepositoryFactory
     private readonly IEnumerable<IWorkOrderHeaderRepository> _workOrderHeaderRepositories;
     private readonly IEnumerable<IWorkOrderLineRepository> _workOrderLineRepositories;
     private readonly IEnumerable<IItemRequisitionRepository> _itemRequisitionRepositories;
-    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories, IEnumerable<IGoodsReceiptLineRepository> goodsReceiptLineRepositories, IEnumerable<IRowLevelAccessRepository> rowLevelAccessRepositories, IEnumerable<IWorkOrderHeaderRepository> workOrderHeaderRepositories, IEnumerable<IItemRequisitionRepository> itemRequisitionRepositories, IEnumerable<IWorkOrderLineRepository> workOrderLineRepositories, IEnumerable<IUserWarehouseRepository> userWarehouseRepositories)
+    private readonly IEnumerable<IVersionTrackerRepository> _versionTrackerRepositories;
+    public RepositoryFactory(IEnumerable<IUserRepository> userRepositories, IEnumerable<IRoleRepository> roleRepositories, IEnumerable<INumberSequenceRepository> numberSequenceRepositories, IEnumerable<IPermissionRepository> permissionRepositories, IEnumerable<IRefreshTokenRepository> refreshTokenRepositories, IEnumerable<IGoodsReceiptHeaderRepository> goodsReceiptHeaderRepositories, IEnumerable<IGoodsReceiptLineRepository> goodsReceiptLineRepositories, IEnumerable<IRowLevelAccessRepository> rowLevelAccessRepositories, IEnumerable<IWorkOrderHeaderRepository> workOrderHeaderRepositories, IEnumerable<IItemRequisitionRepository> itemRequisitionRepositories, IEnumerable<IWorkOrderLineRepository> workOrderLineRepositories, IEnumerable<IUserWarehouseRepository> userWarehouseRepositories, IEnumerable<IVersionTrackerRepository> versionTrackerRepositories)
     {
         _userRepositories = userRepositories;
         _roleRepositories = roleRepositories;
@@ -29,6 +30,7 @@ public class RepositoryFactory : IRepositoryFactory
         _workOrderHeaderRepositories = workOrderHeaderRepositories;
         _workOrderLineRepositories = workOrderLineRepositories;
         _userWarehouseRepositories = userWarehouseRepositories;
+        _versionTrackerRepositories = versionTrackerRepositories;
         _itemRequisitionRepositories = itemRequisitionRepositories;
     }
 
@@ -48,6 +50,7 @@ public class RepositoryFactory : IRepositoryFactory
             var type when type == typeof(IWorkOrderHeaderRepository) => _workOrderHeaderRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IWorkOrderLineRepository) => _workOrderLineRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             var type when type == typeof(IItemRequisitionRepository) => _itemRequisitionRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
+            var type when type == typeof(IVersionTrackerRepository) => _versionTrackerRepositories.FirstOrDefault(x => x.DatabaseProvider == databaseProvider) as T,
             _ => throw new ArgumentOutOfRangeException(nameof(T), typeof(T), null)
         } ?? throw new NullReferenceException();
     }

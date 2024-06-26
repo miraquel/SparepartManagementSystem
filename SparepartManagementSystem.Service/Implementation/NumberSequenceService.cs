@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Serilog;
+﻿using Serilog;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -11,14 +11,14 @@ public class NumberSequenceService : INumberSequenceService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<NumberSequenceService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public NumberSequenceService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
+    public NumberSequenceService(IUnitOfWork unitOfWork, MapperlyMapper mapper, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
 
     public async Task<ServiceResponse> AddNumberSequence(NumberSequenceDto dto)
@@ -26,17 +26,13 @@ public class NumberSequenceService : INumberSequenceService
         try
         {
             var numberSequenceAdd = _mapper.MapToNumberSequence(dto);
-            numberSequenceAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            numberSequenceAdd.CreatedDateTime = DateTime.Now;
-            numberSequenceAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            numberSequenceAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.NumberSequenceRepository.Add(numberSequenceAdd);
+            await _unitOfWork.NumberSequenceRepository.Add(numberSequenceAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence added successfully", lastInsertedId);
 
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -46,7 +42,7 @@ public class NumberSequenceService : INumberSequenceService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -77,7 +73,7 @@ public class NumberSequenceService : INumberSequenceService
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -87,7 +83,7 @@ public class NumberSequenceService : INumberSequenceService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -243,13 +239,11 @@ public class NumberSequenceService : INumberSequenceService
                 }; 
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.NumberSequenceRepository.Update(record);
+            await _unitOfWork.NumberSequenceRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("id: {NumberSequenceId}, Number Sequence updated successfully", dto.NumberSequenceId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -259,7 +253,7 @@ public class NumberSequenceService : INumberSequenceService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

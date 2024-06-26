@@ -195,70 +195,6 @@ public class GoodsReceiptHeader : BaseModel
             IsChanged = true;
         }
     }
-    
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-        
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-        
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-        
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-        
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
 
     public ICollection<GoodsReceiptLine> GoodsReceiptLines { get; set; } = new List<GoodsReceiptLine>();
 
@@ -281,10 +217,7 @@ public class GoodsReceiptHeader : BaseModel
         OriginalValues[nameof(IsSubmitted)] = _isSubmitted;
         OriginalValues[nameof(SubmittedDate)] = _submittedDate;
         OriginalValues[nameof(SubmittedBy)] = _submittedBy;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -308,22 +241,18 @@ public class GoodsReceiptHeader : BaseModel
         _isSubmitted = OriginalValues[nameof(IsSubmitted)] as bool? ?? false;
         _submittedDate = OriginalValues[nameof(SubmittedDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
         _submittedBy = OriginalValues[nameof(SubmittedBy)] as string ?? "";
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? "";
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? "";
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not GoodsReceiptHeader value)
         {
             return;
         }
-
-        GoodsReceiptHeaderId = value.GoodsReceiptHeaderId;
+        
         PackingSlipId = value.PackingSlipId;
         TransDate = value.TransDate;
         Description = value.Description;
@@ -335,9 +264,5 @@ public class GoodsReceiptHeader : BaseModel
         IsSubmitted = value.IsSubmitted;
         SubmittedDate = value.SubmittedDate;
         SubmittedBy = value.SubmittedBy;
-        CreatedBy = value.CreatedBy;
-        CreatedDateTime = value.CreatedDateTime;
-        ModifiedBy = value.ModifiedBy;
-        ModifiedDateTime = value.ModifiedDateTime;
     }
 }

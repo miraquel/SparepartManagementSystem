@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWorkOrderHeaderRepository, WorkOrderHeaderRepositoryMySql>();
         services.AddScoped<IWorkOrderLineRepository, WorkOrderLineRepositoryMySql>();
         services.AddScoped<IItemRequisitionRepository, ItemRequisitionRepositoryMySql>();
+        services.AddScoped<IVersionTrackerRepository, VersionTrackerRepositoryMySql>();
 
         services.AddScoped<IRepositoryFactory, RepositoryFactory>();
         

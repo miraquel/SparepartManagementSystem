@@ -1,13 +1,15 @@
 using System.Net;
 using System.ServiceModel;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
+using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
+using SparepartManagementSystem.Domain.Extensions;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
-using SparepartManagementSystem.Shared.Helper;
+using SparepartManagementSystem.Shared.Extensions;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
@@ -17,15 +19,102 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     private readonly CallContext _context;
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly UserClaimDto _userClaim;
+    private readonly IDistributedCache _distributedCache;
+    private readonly DistributedCacheEntryOptions _cacheEntryOptions;
 
-    public GMKSMSServiceGroupImplementation(GMKSMSService client, CallContext context, MapperlyMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+    public GMKSMSServiceGroupImplementation(GMKSMSService client, CallContext context, MapperlyMapper mapper, IUnitOfWork unitOfWork, UserClaimDto userClaim, IDistributedCache distributedCache, DistributedCacheEntryOptions cacheEntryOptions)
     {
         _client = client;
         _context = context;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _httpContextAccessor = httpContextAccessor;
+        _userClaim = userClaim;
+        _distributedCache = distributedCache;
+        _cacheEntryOptions = cacheEntryOptions;
+    }
+
+    public async Task<ServiceResponse<InventTableDto>> GetInventTable(string itemId)
+    {
+        try
+        {
+            if (_distributedCache.TryGetValue(itemId, out InventTableDto? inventTableDto))
+            {
+                return new ServiceResponse<InventTableDto>
+                {
+                    Data = inventTableDto,
+                    Message = "Invent Table retrieved successfully",
+                    Success = true
+                };
+            }
+            
+            if (_userClaim.UserId > 0)
+            {
+                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(_userClaim.UserId);
+                var filters = rowLevelAccesses.FilterRowLevelAccess(itemId, AxTable.InventTable).ToArray();
+                if (filters.Length == 0)
+                {
+                    throw new Exception("You do not have access to this item");
+                }
+            }
+
+            var request = new GMKSMSServiceGetInventTableRequest
+            {
+                itemId = itemId
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = _client.getInventTableAsync(request).Result;
+            
+            var inventTablesDto = _mapper.MapToInventTableDto(response.response);
+            
+            await _distributedCache.SetAsync(itemId, inventTablesDto, _cacheEntryOptions);
+
+            return new ServiceResponse<InventTableDto>
+            {
+                Data = inventTablesDto,
+                Message = "Invent Table retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            return new ServiceResponse<InventTableDto>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
     }
 
     public async Task<ServiceResponse<PagedListDto<InventTableDto>>> GetInventTablePagedList(int pageNumber, int pageSize, InventTableSearchDto dto)
@@ -38,13 +127,12 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 pageSize = pageSize,
                 productName = dto.ProductName,
                 searchName = dto.SearchName,
-                itemId = dto.ItemId,
+                itemId = dto.ItemId
             };
             
-            var isUserIdExists = int.TryParse(_httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "userid")?.Value, out var userId);
-            if (isUserIdExists)
+            if (_userClaim.UserId > 0)
             {
-                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(userId);
+                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(_userClaim.UserId);
                 request.itemIdFilters = rowLevelAccesses.FilterRowLevelAccess(dto.ItemId, AxTable.InventTable).ToArray();
             }
 
@@ -124,10 +212,9 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 itemId = dto.ItemId,
             };
             
-            var isUserIdExists = int.TryParse(_httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "userid")?.Value, out var userId);
-            if (isUserIdExists)
+            if (_userClaim.UserId > 0)
             {
-                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(userId);
+                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(_userClaim.UserId);
                 request.itemIdFilters = rowLevelAccesses.FilterRowLevelAccess(dto.ItemId, AxTable.InventTable).ToArray();
             }
 
@@ -191,7 +278,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetPurchTablePagedListRequest()
+            var request = new GMKSMSServiceGetPurchTablePagedListRequest
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
@@ -204,12 +291,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 }
             };
             
-            var isUserIdExists = int.TryParse(_httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "userid")?.Value, out var userId);
-            if (isUserIdExists)
+            if (_userClaim.UserId > 0)
             {
-                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(userId);
-                var filters = rowLevelAccesses.FilterRowLevelAccess(dto.OrderAccount, AxTable.PurchTable).ToArray();
-                request.filters = filters;
+                var rowLevelAccesses = await _unitOfWork.RowLevelAccessRepository.GetByUserId(_userClaim.UserId);
+                request.filters = rowLevelAccesses.FilterRowLevelAccess(dto.OrderAccount, AxTable.PurchTable).ToArray();
             }
 
             if (_client is GMKSMSServiceClient client)
@@ -271,7 +356,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetPurchLineListRequest()
+            var request = new GMKSMSServiceGetPurchLineListRequest
             {
                 purchId = purchId
             };
@@ -329,7 +414,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetWMSLocationPagedListRequest()
+            var request = new GMKSMSServiceGetWMSLocationPagedListRequest
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
@@ -339,12 +424,10 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                 }
             };
             
-            var isUserIdExists = int.TryParse(_httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "userid")?.Value, out var userId);
-            if (isUserIdExists)
+            if (_userClaim.UserId > 0)
             {
-                var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByUserId(userId);
-                var filters = userWarehouses.FilterByParm(dto.InventLocationId).ToArray();
-                request.filters = filters;
+                var userWarehouses = await _unitOfWork.UserWarehouseRepository.GetByUserId(_userClaim.UserId);
+                request.filters = userWarehouses.FilterByParm(dto.InventLocationId).ToArray();
             }
 
             if (_client is GMKSMSServiceClient client)
@@ -544,7 +627,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetPurchTableRequest()
+            var request = new GMKSMSServiceGetPurchTableRequest
             {
                 purchId = purchId
             };
@@ -663,7 +746,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderPagedListRequest()
+            var request = new GMKSMSServiceGetWorkOrderPagedListRequest
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
@@ -730,7 +813,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderLineListRequest()
+            var request = new GMKSMSServiceGetWorkOrderLineListRequest
             {
                 agsEAMWOID = workOrderHeaderId
             };
@@ -785,12 +868,86 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
         }
     }
 
+    public async Task<ServiceResponse<IEnumerable<DimensionDto>>> GetDimensionList(string dimensionName)
+    {
+        try
+        {
+            if (_distributedCache.TryGetValue(dimensionName, out IEnumerable<DimensionDto>? dimensions))
+            {
+                return new ServiceResponse<IEnumerable<DimensionDto>>
+                {
+                    Data = dimensions,
+                    Message = "Dimension List retrieved successfully",
+                    Success = true
+                };
+            }
+            
+            var request = new GMKSMSServiceGetDimensionListRequest
+            {
+                dimensionName = dimensionName
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.getDimensionListAsync(request);
+            
+            var dimensionsDto = _mapper.MapToListOfDimensionDto(response.response);
+            var dimensionsDtoArray = dimensionsDto as DimensionDto[] ?? dimensionsDto.ToArray();
+
+            await _distributedCache.SetAsync(dimensionName, dimensionsDtoArray, _cacheEntryOptions);
+
+            return new ServiceResponse<IEnumerable<DimensionDto>>
+            {
+                Data = dimensionsDtoArray,
+                Message = "Dimension List retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            return new ServiceResponse<IEnumerable<DimensionDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
     [Obsolete("Use GetWorkOrderPagedListV2 instead", true)]
     public async Task<ServiceResponse<PagedListDto<WorkOrderAxDto>>> GetWorkOrderPagedList(int pageNumber, int pageSize, WorkOrderAxSearchDto dto)
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderPagedListRequest()
+            var request = new GMKSMSServiceGetWorkOrderPagedListRequest
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
@@ -858,7 +1015,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderLineListRequest()
+            var request = new GMKSMSServiceGetWorkOrderLineListRequest
             {
                 agsEAMWOID = workOrderHeaderId
             };
@@ -866,7 +1023,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getWorkOrderLineListAsync(request);
@@ -925,7 +1082,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getInventLocationListAsync(request);

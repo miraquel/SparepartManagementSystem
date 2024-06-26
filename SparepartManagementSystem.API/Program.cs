@@ -81,11 +81,11 @@ public static class Program
 
         builder.Services.AddHostedService<LifetimeEventsHostedService>();
         // Add services to the container.
-        builder.Services.AddControllers().AddNewtonsoftJson(options =>
+        builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
             options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-        });
+        }).AddRazorRuntimeCompilation();
         builder.Services.AddApiVersioning(options =>
         {
             options.ReportApiVersions = true;
@@ -99,6 +99,7 @@ public static class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+        builder.Services.AddDistributedMemoryCache();
 
         var app = builder.Build();
 

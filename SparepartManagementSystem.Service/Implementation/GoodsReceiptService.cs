@@ -1,10 +1,12 @@
 using System.Data.SqlTypes;
-using Microsoft.AspNetCore.Http;
+using MySqlConnector;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -15,15 +17,18 @@ public class GoodsReceiptService : IGoodsReceiptService
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGMKSMSServiceGroup _gmkSmsServiceGroup;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly UserClaimDto _userClaim;
+    private readonly DateTime _currentDateTime = DateTime.Now;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
 
-    public GoodsReceiptService(IUnitOfWork unitOfWork, IGMKSMSServiceGroup gmkSmsServiceGroup, IHttpContextAccessor httpContextAccessor, MapperlyMapper mapper)
+    public GoodsReceiptService(IUnitOfWork unitOfWork, IGMKSMSServiceGroup gmkSmsServiceGroup, MapperlyMapper mapper, UserClaimDto userClaim, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _gmkSmsServiceGroup = gmkSmsServiceGroup;
-        _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
+        _userClaim = userClaim;
+        _repositoryEvents = repositoryEvents;
     }
 
     public async Task<ServiceResponse> AddGoodsReceiptHeader(GoodsReceiptHeaderDto dto)
@@ -32,18 +37,12 @@ public class GoodsReceiptService : IGoodsReceiptService
         {
             var goodsReceiptHeaderAdd = _mapper.MapToGoodsReceiptHeader(dto);
             
-            var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            goodsReceiptHeaderAdd.CreatedBy = currentUser;
-            goodsReceiptHeaderAdd.CreatedDateTime = DateTime.Now;
-            goodsReceiptHeaderAdd.ModifiedBy = currentUser;
-            goodsReceiptHeaderAdd.ModifiedDateTime = DateTime.Now;
-            
-            await _unitOfWork.GoodsReceiptHeaderRepository.Add(goodsReceiptHeaderAdd);
+            await _unitOfWork.GoodsReceiptHeaderRepository.Add(goodsReceiptHeaderAdd, _repositoryEvents.OnBeforeAdd);
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -53,7 +52,7 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -84,7 +83,7 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -94,7 +93,7 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -248,14 +247,12 @@ public class GoodsReceiptService : IGoodsReceiptService
                     Message = "No changes detected in Goods Receipt Header"
                 };
             }
-            
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record);
+
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully", dto.GoodsReceiptHeaderId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -265,7 +262,7 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -388,50 +385,52 @@ public class GoodsReceiptService : IGoodsReceiptService
     }
     public async Task<ServiceResponse> AddGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto)
     {
+        List<string> errorMessages = [];
+        
         try
         {
-            var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            var currentDateTime = DateTime.Now;
-            
             var goodsReceiptHeaderAdd = _mapper.MapToGoodsReceiptHeader(dto);
-            goodsReceiptHeaderAdd.CreatedBy = currentUser;
-            goodsReceiptHeaderAdd.CreatedDateTime = currentDateTime;
-            goodsReceiptHeaderAdd.ModifiedBy = currentUser;
-            goodsReceiptHeaderAdd.ModifiedDateTime = currentDateTime;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Add(goodsReceiptHeaderAdd);
+            await _unitOfWork.GoodsReceiptHeaderRepository.Add(goodsReceiptHeaderAdd, _repositoryEvents.OnBeforeAdd);
 
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
             
             var goodsReceiptLinesAdd = _mapper.MapToListOfGoodsReceiptLine(dto.GoodsReceiptLines).ToArray();
-            foreach (var goodsReceiptLineAdd in goodsReceiptLinesAdd)
+
+            _repositoryEvents.OnBeforeAdd += (_, args) =>
             {
-                goodsReceiptLineAdd.GoodsReceiptHeaderId = lastInsertedId;
-                goodsReceiptLineAdd.CreatedBy = currentUser;
-                goodsReceiptLineAdd.CreatedDateTime = currentDateTime;
-                goodsReceiptLineAdd.ModifiedBy = currentUser;
-                goodsReceiptLineAdd.ModifiedDateTime = currentDateTime;
-            }
-            
-            await _unitOfWork.GoodsReceiptLineRepository.BulkAdd(goodsReceiptLinesAdd);
+                if (args.Entity is not GoodsReceiptLine goodsReceiptLine) return;
+                
+                goodsReceiptLine.GoodsReceiptHeaderId = lastInsertedId;
+            };
+
+            await _unitOfWork.GoodsReceiptLineRepository.BulkAdd(goodsReceiptLinesAdd, InfoMessageEventHandler, onBeforeAdd: _repositoryEvents.OnBeforeAdd);
             
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully with {lines} lines inserted", lastInsertedId, goodsReceiptLinesAdd.Length);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
                 Message = "Journal Line added successfully",
                 Success = true
             };
+
+            void InfoMessageEventHandler(object _, object args)
+            {
+                if (args is not MySqlInfoMessageEventArgs mySqlInfoMessageEventArgs) return;
+                
+                foreach (var error in mySqlInfoMessageEventArgs.Errors)
+                {
+                    errorMessages.Add(error.Message);
+                    _logger.Error(error.Message);
+                }
+            }
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
+            errorMessages.Add(ex.Message);
 
             if (ex.StackTrace is not null)
             {
@@ -452,9 +451,6 @@ public class GoodsReceiptService : IGoodsReceiptService
     {
         try
         {
-            var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            var currentDateTime = DateTime.Now;
-            
             var headerRecord = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(dto.GoodsReceiptHeaderId, true);
 
             if (headerRecord.ModifiedDateTime > dto.ModifiedDateTime)
@@ -471,9 +467,7 @@ public class GoodsReceiptService : IGoodsReceiptService
             
             if (headerRecord.IsChanged)
             {
-                headerRecord.ModifiedBy = currentUser;
-                headerRecord.ModifiedDateTime = currentDateTime;
-                await _unitOfWork.GoodsReceiptHeaderRepository.Update(headerRecord);
+                await _unitOfWork.GoodsReceiptHeaderRepository.Update(headerRecord, _repositoryEvents.OnBeforeUpdate);
             }
                 
             // if the line is exists in the database, but not exists in the dto, then delete the line
@@ -491,15 +485,11 @@ public class GoodsReceiptService : IGoodsReceiptService
             {
                 var lineRecord = goodsReceiptLines.FirstOrDefault(x => x.GoodsReceiptLineId == goodsReceiptLineDto.GoodsReceiptLineId);
                 
-                // if the line is exists in the database, then update the line, otherwise add the line
+                // if the line exists in the database, then update the line, otherwise add the line
                 if (lineRecord is null)
                 {
                     var goodsReceiptLineAdd = _mapper.MapToGoodsReceiptLine(goodsReceiptLineDto);
-                    goodsReceiptLineAdd.CreatedBy = currentUser;
-                    goodsReceiptLineAdd.CreatedDateTime = currentDateTime;
-                    goodsReceiptLineAdd.ModifiedBy = currentUser;
-                    goodsReceiptLineAdd.ModifiedDateTime = currentDateTime;
-                    await _unitOfWork.GoodsReceiptLineRepository.Add(goodsReceiptLineAdd);
+                    await _unitOfWork.GoodsReceiptLineRepository.Add(goodsReceiptLineAdd, _repositoryEvents.OnBeforeAdd);
                 }
                 else
                 {
@@ -515,15 +505,13 @@ public class GoodsReceiptService : IGoodsReceiptService
                         continue;
                     }
                     
-                    lineRecord.ModifiedBy = currentUser;
-                    lineRecord.ModifiedDateTime = currentDateTime;
-                    await _unitOfWork.GoodsReceiptLineRepository.Update(lineRecord);
+                    await _unitOfWork.GoodsReceiptLineRepository.Update(lineRecord, _repositoryEvents.OnBeforeUpdate);
                 }
             }
             
             _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully with {lines} lines updated", dto.GoodsReceiptHeaderId, dto.GoodsReceiptLines.Count);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -533,7 +521,7 @@ public class GoodsReceiptService : IGoodsReceiptService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -602,11 +590,10 @@ public class GoodsReceiptService : IGoodsReceiptService
             {
                 throw new Exception("All goods receipt line with type item must have the same InventLocationId to post the Goods Receipt Header to AX");
             }
+
+            _repositoryEvents.OnBeforeUpdate += OnRepositoryEventsOnBeforeUpdate;
             
-            record.IsSubmitted = true;
-            record.SubmittedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.SubmittedDate = DateTime.Now;
-            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record);
+            await _unitOfWork.GoodsReceiptHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
             var result = await _gmkSmsServiceGroup.PostPurchPackingSlip(dto);
             
@@ -617,17 +604,26 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             _logger.Information("Goods Receipt Header posted to Ax successfully, Message: {Message}", result.Message);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
                 Message = "Goods Receipt Header has been successfully posted to AX",
                 Success = true
             };
+
+            void OnRepositoryEventsOnBeforeUpdate(object? _, UpdateEventArgs args)
+            {
+                if (args.Entity is not GoodsReceiptHeader goodsReceiptHeader) return;
+
+                goodsReceiptHeader.IsSubmitted = true;
+                goodsReceiptHeader.SubmittedDate = _currentDateTime;
+                goodsReceiptHeader.SubmittedBy = _userClaim.Username;
+            }
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

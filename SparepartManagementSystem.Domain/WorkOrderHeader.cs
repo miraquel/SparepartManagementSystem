@@ -277,70 +277,6 @@ public class WorkOrderHeader : BaseModel
         }
     }
 
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
-
     public ICollection<WorkOrderLine> WorkOrderLines { get; set; } = new List<WorkOrderLine>();
     
     public override void AcceptChanges()
@@ -367,10 +303,7 @@ public class WorkOrderHeader : BaseModel
         OriginalValues[nameof(WOCloseDate)] = _woCloseDate;
         OriginalValues[nameof(AGSEAMSuspend)] = _agseamsuspend;
         OriginalValues[nameof(Notes)] = _notes;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -399,22 +332,18 @@ public class WorkOrderHeader : BaseModel
         _woCloseDate = OriginalValues[nameof(WOCloseDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
         _agseamsuspend = OriginalValues[nameof(AGSEAMSuspend)] as NoYes? ?? NoYes.None;
         _notes = OriginalValues[nameof(Notes)] as string ?? "";
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? "";
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? "";
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not WorkOrderHeader value)
         {
             return;
         }
-
-        WorkOrderHeaderId = value.WorkOrderHeaderId;
+        
         IsSubmitted = value.IsSubmitted;
         SubmittedDate = value.SubmittedDate;
         AGSEAMWOID = value.AGSEAMWOID;
@@ -431,9 +360,5 @@ public class WorkOrderHeader : BaseModel
         WOCloseDate = value.WOCloseDate;
         AGSEAMSuspend = value.AGSEAMSuspend;
         Notes = value.Notes;
-        CreatedBy = value.CreatedBy;
-        CreatedDateTime = value.CreatedDateTime;
-        ModifiedBy = value.ModifiedBy;
-        ModifiedDateTime = value.ModifiedDateTime;
     }
 }

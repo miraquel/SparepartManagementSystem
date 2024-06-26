@@ -1,7 +1,9 @@
 using System.Data;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 
 namespace SparepartManagementSystem.Repository.MySql;
 
@@ -10,16 +12,17 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
     private readonly IDbTransaction _dbTransaction;
     private readonly IDbConnection _sqlConnection;
 
-    public GoodsReceiptHeaderRepositoryMySql(
-        IDbTransaction dbTransaction,
-        IDbConnection sqlConnection)
+    public GoodsReceiptHeaderRepositoryMySql(IDbTransaction dbTransaction, IDbConnection sqlConnection)
     {
         _dbTransaction = dbTransaction;
         _sqlConnection = sqlConnection;
     }
 
-    public async Task Add(GoodsReceiptHeader entity)
+    public async Task Add(GoodsReceiptHeader entity, EventHandler<AddEventArgs>? onBeforeAdd = null,
+        EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO GoodsReceiptHeaders
                            (PackingSlipId, TransDate, Description, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
@@ -29,12 +32,18 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
         entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
 
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId";
-        _ = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        var rows = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Goods receipt header with Id {id} not found");
+        }
     }
 
     public async Task<IEnumerable<GoodsReceiptHeader>> GetAll()
@@ -46,8 +55,12 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
     public async Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId";
-        const string sqlForUpdate = "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId FOR UPDATE";
-        var result = await _sqlConnection.QueryFirstAsync<GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptHeaderId = id }, _dbTransaction);
+        const string sqlForUpdate =
+            "SELECT * FROM GoodsReceiptHeaders WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId FOR UPDATE";
+        var result =
+            await _sqlConnection.QueryFirstOrDefaultAsync<GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql,
+                new { GoodsReceiptHeaderId = id }, _dbTransaction) ??
+            throw new InvalidOperationException($"Goods receipt header with Id {id} not found");
         result.AcceptChanges();
         return result;
     }
@@ -55,10 +68,12 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
     public async Task<IEnumerable<GoodsReceiptHeader>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
+
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) &&
+            int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
         {
-            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
+            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId",
+                new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
         }
 
         if (parameters.TryGetValue("packingSlipId", out var packingSlipId) && !string.IsNullOrEmpty(packingSlipId))
@@ -66,7 +81,8 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
         }
 
-        if (parameters.TryGetValue("transDate", out var transDateString) && DateTime.TryParse(transDateString, out var transDate))
+        if (parameters.TryGetValue("transDate", out var transDateString) &&
+            DateTime.TryParse(transDateString, out var transDate))
         {
             sqlBuilder.Where("TransDate = @TransDate", new { TransDate = transDate });
         }
@@ -101,12 +117,14 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{purchStatus}%" });
         }
 
-        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) &&
+            DateTime.TryParse(submittedDateString, out var submittedDate))
         {
             sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { SubmittedDate = submittedDate });
         }
 
-        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) &&
+            bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
         }
@@ -121,7 +139,8 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
             sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { CreatedDateTime = createdDateTime });
         }
@@ -131,92 +150,112 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
             sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { ModifiedDateTime = modifiedDateTime });
         }
 
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
         var template = sqlBuilder.AddTemplate("SELECT * FROM GoodsReceiptHeaders /**where**/");
-        return  await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters,
+            _dbTransaction);
     }
 
-    public async Task Update(GoodsReceiptHeader entity)
+    public async Task Update(GoodsReceiptHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var builder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
+        
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PackingSlipId)), entity.PackingSlipId))
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
+
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.PackingSlipId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PackingSlipId)), entity.PackingSlipId))
         {
             builder.Set("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)), entity.TransDate))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)), entity.TransDate))
         {
             builder.Set("TransDate = @TransDate", new { entity.TransDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.Description)), entity.Description))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.Description)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchId)), entity.PurchId))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.PurchId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchId)), entity.PurchId))
         {
             builder.Set("PurchId = @PurchId", new { entity.PurchId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchName)), entity.PurchName))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.PurchName)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchName)), entity.PurchName))
         {
             builder.Set("PurchName = @PurchName", new { entity.PurchName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.OrderAccount)), entity.OrderAccount))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.OrderAccount)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.OrderAccount)), entity.OrderAccount))
         {
             builder.Set("OrderAccount = @OrderAccount", new { entity.OrderAccount });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.InvoiceAccount)), entity.InvoiceAccount))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.InvoiceAccount)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.InvoiceAccount)), entity.InvoiceAccount))
         {
             builder.Set("InvoiceAccount = @InvoiceAccount", new { entity.InvoiceAccount });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchStatus)), entity.PurchStatus))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.PurchStatus)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.PurchStatus)), entity.PurchStatus))
         {
             builder.Set("PurchStatus = @PurchStatus", new { entity.PurchStatus });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)), entity.IsSubmitted))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)), entity.IsSubmitted))
         {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)), entity.SubmittedDate))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)), entity.SubmittedDate))
         {
             builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedBy)), entity.SubmittedBy))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedBy)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedBy)), entity.SubmittedBy))
         {
             builder.Set("SubmittedBy = @SubmittedBy", new { entity.SubmittedBy });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)), entity.ModifiedBy))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)), entity.ModifiedDateTime))
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
-        
+
         builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
         
+        if (!builder.HasSet)
+        {
+            return;
+        }
+
         const string sql = "UPDATE GoodsReceiptHeaders /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Goods receipt header with Id {entity.GoodsReceiptHeaderId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
 
     public async Task<PagedList<GoodsReceiptHeader>> GetAllPagedList(int pageNumber, int pageSize)
@@ -227,19 +266,23 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
 
         const string sql = "SELECT * FROM GoodsReceiptHeaders /**orderby**/ LIMIT @PageSize OFFSET @Offset";
         var template = sqlBuilder.AddTemplate(sql);
-        var result = await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
+        var result =
+            await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
         const string countSql = "SELECT COUNT(*) FROM GoodsReceiptHeaders";
         var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(countSql, transaction: _dbTransaction);
         return new PagedList<GoodsReceiptHeader>(result, resultCount, pageNumber, pageSize);
     }
 
-    public async Task<PagedList<GoodsReceiptHeader>> GetByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
+    public async Task<PagedList<GoodsReceiptHeader>> GetByParamsPagedList(int pageNumber, int pageSize,
+        Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
+
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) &&
+            int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
         {
-            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
+            sqlBuilder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId",
+                new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
         }
 
         if (parameters.TryGetValue("packingSlipId", out var packingSlipId) && !string.IsNullOrEmpty(packingSlipId))
@@ -247,7 +290,8 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
         }
 
-        if (parameters.TryGetValue("transDate", out var transDateString) && DateTime.TryParse(transDateString, out var transDate))
+        if (parameters.TryGetValue("transDate", out var transDateString) &&
+            DateTime.TryParse(transDateString, out var transDate))
         {
             sqlBuilder.Where("TransDate = @TransDate", new { TransDate = transDate });
         }
@@ -281,13 +325,15 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         {
             sqlBuilder.Where("PurchStatus LIKE @PurchStatus", new { PurchStatus = $"%{purchStatus}%" });
         }
-        
-        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) &&
+            bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
         }
 
-        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) &&
+            DateTime.TryParse(submittedDateString, out var submittedDate))
         {
             sqlBuilder.Where("SubmittedDate = @SubmittedDate", new { SubmittedDate = submittedDate });
         }
@@ -302,7 +348,8 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
             sqlBuilder.Where("CreatedDateTime = @CreatedDateTime", new { CreatedDateTime = createdDateTime });
         }
@@ -312,24 +359,28 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
             sqlBuilder.Where("ModifiedDateTime = @ModifiedDateTime", new { ModifiedDateTime = modifiedDateTime });
         }
 
         sqlBuilder.OrderBy("GoodsReceiptHeaderId DESC");
         sqlBuilder.AddParameters(new { PageSize = pageSize, Offset = (pageNumber - 1) * pageSize });
-        
-        const string sql = "SELECT * FROM GoodsReceiptHeaders /**where**/ /**orderby**/"; 
+
+        const string sql = "SELECT * FROM GoodsReceiptHeaders /**where**/ /**orderby**/";
         var template = sqlBuilder.AddTemplate(sql);
-        var result = await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
-        
+        var result =
+            await _sqlConnection.QueryAsync<GoodsReceiptHeader>(template.RawSql, template.Parameters, _dbTransaction);
+
         const string sqlCount = "SELECT COUNT(*) FROM GoodsReceiptHeaders /**where**/";
         template = sqlBuilder.AddTemplate(sqlCount);
-        var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, template.Parameters, transaction: _dbTransaction);
-        
+        var resultCount =
+            await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, template.Parameters, _dbTransaction);
+
         return new PagedList<GoodsReceiptHeader>(result, pageNumber, pageSize, resultCount);
     }
+
     public async Task<GoodsReceiptHeader> GetByIdWithLines(int id, bool forUpdate = false)
     {
         // SELECT Statement for GoodsReceiptHeader joined with GoodsReceiptLine
@@ -341,33 +392,39 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
                            LEFT JOIN GoodsReceiptLines grl ON grh.GoodsReceiptHeaderId = grl.GoodsReceiptHeaderId
                            WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
                            """;
-        
+
         const string sqlForUpdate = """
-                                      SELECT
-                                      grh.*,
-                                      grl.*
-                                      FROM GoodsReceiptHeaders grh
-                                      LEFT JOIN GoodsReceiptLines grl ON grh.GoodsReceiptHeaderId = grl.GoodsReceiptHeaderId
-                                      WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
-                                      FOR UPDATE
-                                      """;
-        
+                                    SELECT
+                                    grh.*,
+                                    grl.*
+                                    FROM GoodsReceiptHeaders grh
+                                    LEFT JOIN GoodsReceiptLines grl ON grh.GoodsReceiptHeaderId = grl.GoodsReceiptHeaderId
+                                    WHERE grh.GoodsReceiptHeaderId = @GoodsReceiptHeaderId
+                                    FOR UPDATE
+                                    """;
+
         var result = new GoodsReceiptHeader();
 
-        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine?, GoodsReceiptHeader>(forUpdate ? sqlForUpdate : sql, (header, line) =>
+        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine?, GoodsReceiptHeader>(
+            forUpdate ? sqlForUpdate : sql, (header, line) =>
+            {
+                if (result.GoodsReceiptHeaderId == 0)
+                {
+                    result = header;
+                }
+
+                if (line != null)
+                {
+                    result.GoodsReceiptLines.Add(line);
+                }
+
+                return result;
+            }, new { GoodsReceiptHeaderId = id }, splitOn: "GoodsReceiptLineId", transaction: _dbTransaction);
+        
+        if (result.GoodsReceiptHeaderId == 0)
         {
-            if (result.GoodsReceiptHeaderId == 0)
-            {
-                result = header;
-            }
-
-            if (line != null)
-            {
-                result.GoodsReceiptLines.Add(line);
-            }
-
-            return result;
-        }, new { GoodsReceiptHeaderId = id }, splitOn: "GoodsReceiptLineId", transaction: _dbTransaction);
+            throw new InvalidOperationException($"Goods receipt header with Id {id} not found");
+        }
 
         result.AcceptChanges();
         return result;

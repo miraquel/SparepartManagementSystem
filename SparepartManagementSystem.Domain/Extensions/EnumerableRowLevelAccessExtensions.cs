@@ -1,7 +1,6 @@
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
 
-namespace SparepartManagementSystem.Shared.Helper;
+namespace SparepartManagementSystem.Domain.Extensions;
 
 public static class EnumerableRowLevelAccessExtensions
 {

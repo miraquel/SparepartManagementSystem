@@ -159,8 +159,19 @@ public partial class MapperlyMapper
     
     // Invent Req
     public partial InventReqDto MapToInventReqDto(GMKInventReqDataContract gmkInventReqDataContract);
-    
     public partial GMKInventReqDataContract MapToGMKInventReqDataContract(InventReqDto inventReqDto);
     public partial IEnumerable<InventReqDto> MapToListOfInventReqDto(IEnumerable<GMKInventReqDataContract> source);
     public partial IEnumerable<GMKInventReqDataContract> MapToListOfGMKInventReqDataContract(IEnumerable<InventReqDto> source);
+    
+    // Version Tracker
+    public partial VersionTrackerDto MapToVersionTrackerDto(VersionTracker versionTracker);
+    public partial VersionTracker MapToVersionTracker(VersionTrackerDto versionTrackerDto);
+    public partial IEnumerable<VersionTrackerDto> MapToListOfVersionTrackerDto(IEnumerable<VersionTracker> source);
+    public partial IEnumerable<VersionTracker> MapToListOfVersionTracker(IEnumerable<VersionTrackerDto> source);
+    
+    // Dimension
+    public partial DimensionDto MapToDimensionDto(GMKDimensionDataContract gmkDimensionDataContract);
+    public partial GMKDimensionDataContract MapToGMKDimensionDataContract(DimensionDto dimensionDto);
+    public partial IEnumerable<DimensionDto> MapToListOfDimensionDto(IEnumerable<GMKDimensionDataContract> source);
+    public partial IEnumerable<GMKDimensionDataContract> MapToListOfGMKDimensionDataContract(IEnumerable<DimensionDto> source);
 }

@@ -1,12 +1,12 @@
 ﻿using System.DirectoryServices.Protocols;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -15,19 +15,19 @@ namespace SparepartManagementSystem.Service.Implementation;
 internal class UserService : IUserService
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger _logger = Log.ForContext<UserService>();
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILoginService _loginService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly RepositoryEvents _repositoryEvents;
+    private readonly ILogger _logger = Log.ForContext<UserService>();
 
-    public UserService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IConfiguration configuration, ILoginService loginService, IHttpContextAccessor httpContextAccessor)
+    public UserService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IConfiguration configuration, ILoginService loginService, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _configuration = configuration;
         _loginService = loginService;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
     
     public async Task<ServiceResponse> AddUser(UserDto dto)
@@ -40,11 +40,7 @@ internal class UserService : IUserService
             }
             
             var userAdd = _mapper.MapToUser(dto);
-            userAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            userAdd.CreatedDateTime = DateTime.Now;
-            userAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            userAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserRepository.Add(userAdd);
+            await _unitOfWork.UserRepository.Add(userAdd, _repositoryEvents.OnBeforeAdd);
             
             var userId = await _unitOfWork.GetLastInsertedId();
 
@@ -53,16 +49,12 @@ internal class UserService : IUserService
             foreach (var userWarehouseAdd in userWarehousesAdd)
             {
                 userWarehouseAdd.UserId = userId;
-                userWarehouseAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-                userWarehouseAdd.CreatedDateTime = DateTime.Now;
-                userWarehouseAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-                userWarehouseAdd.ModifiedDateTime = DateTime.Now;
-                await _unitOfWork.UserWarehouseRepository.Add(userWarehouseAdd);
+                await _unitOfWork.UserWarehouseRepository.Add(userWarehouseAdd, _repositoryEvents.OnBeforeAdd);
             }
 
             _logger.Information("User {UserId} added successfully with UserWarehouse {UserWarehouseId}", userAdd.UserId, string.Join(", ", userWarehousesAdd.Select(uw => uw.UserWarehouseId)));
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -72,7 +64,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -103,7 +95,7 @@ internal class UserService : IUserService
 
             _logger.Information("User {UserId} deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -113,7 +105,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -269,13 +261,11 @@ internal class UserService : IUserService
                 };
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.UserRepository.Update(record);
+            await _unitOfWork.UserRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("User {UserId} updated successfully", dto.UserId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -285,7 +275,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -314,7 +304,7 @@ internal class UserService : IUserService
         {
             await _unitOfWork.RoleRepository.AddUser(dto.RoleId, dto.UserId);
 
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -324,7 +314,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -351,7 +341,7 @@ internal class UserService : IUserService
         {
             await _unitOfWork.RoleRepository.DeleteUser(dto.RoleId, dto.UserId);
 
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -361,7 +351,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -645,7 +635,7 @@ internal class UserService : IUserService
 
             _logger.Information("User {Username} logged in successfully, {User}", user.Username, JsonConvert.SerializeObject(user));
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse<TokenDto>
             {
@@ -723,7 +713,7 @@ internal class UserService : IUserService
 
             _logger.Information("Token refreshed successfully, {Token}", JsonConvert.SerializeObject(result));
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse<TokenDto>
             {
@@ -734,7 +724,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -768,7 +758,7 @@ internal class UserService : IUserService
             
             _logger.Information("All tokens revoked successfully for UserId {UserId}", userId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -778,7 +768,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -823,7 +813,7 @@ internal class UserService : IUserService
 
             _logger.Information("Token revoked successfully, {Token}", token);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -833,7 +823,7 @@ internal class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

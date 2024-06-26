@@ -60,30 +60,10 @@ public class InitialMigration : FluentMigrator.Migration
         
         Create.UniqueConstraint("IX_UserWarehouse")
             .OnTable("UserWarehouses").Columns("UserId", "InventLocationId");
-        
-        // Create.UniqueConstraint("IX_Email")
-        //     .OnTable("Users").Columns("Email");
-        //
-        // Create.UniqueConstraint("IX_UserName")
-        //     .OnTable("Users").Columns("Username");
-        
-        // Create.UniqueConstraint("IX_RoleName")
-        //     .OnTable("Roles").Columns("RoleName");
 
         Create.Table("UserRoles")
             .WithColumn("UserId").AsInt32().NotNullable().PrimaryKey("PK_UserRoles").ForeignKey("FK_UserRoles_UserId", "Users", "UserId")
             .WithColumn("RoleId").AsInt32().NotNullable().PrimaryKey("PK_UserRoles").ForeignKey("FK_UserRoles_RoleId", "Roles", "RoleId");
-        
-        // Create.PrimaryKey("PK_UserRoles")
-        //     .OnTable("UserRoles").Columns("UserId", "RoleId");
-        
-        // Create.ForeignKey("FK_UserRoles_RoleId")
-        //     .FromTable("UserRoles").ForeignColumn("RoleId")
-        //     .ToTable("Roles").PrimaryColumn("RoleId");
-        //
-        // Create.ForeignKey("FK_UserRoles_UserId")
-        //     .FromTable("UserRoles").ForeignColumn("UserId")
-        //     .ToTable("Users").PrimaryColumn("UserId");
         
         Create.Table("NumberSequences")
             .WithColumn("NumberSequenceId").AsInt32().PrimaryKey().Identity()
@@ -106,10 +86,6 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("Revoked").AsDateTime().NotNullable()
             .WithColumn("ReplacedByToken").AsString(512).NotNullable();
         
-        // Create.ForeignKey("FK_RefreshTokens_Users1")
-        //     .FromTable("RefreshTokens").ForeignColumn("UserId")
-        //     .ToTable("Users").PrimaryColumn("UserId");
-        
         Create.Table("GoodsReceiptHeaders")
             .WithColumn("GoodsReceiptHeaderId").AsInt32().PrimaryKey().Identity()
             .WithColumn("PackingSlipId").AsString(50).NotNullable().Unique("IX_PackingSlipId")
@@ -127,9 +103,6 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
             .WithColumn("ModifiedBy").AsString(50).NotNullable()
             .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
-        
-        // Create.UniqueConstraint("IX_PackingSlipId")
-        //     .OnTable("GoodsReceiptHeaders").Columns("PackingSlipId");
         
         Create.Table("GoodsReceiptLines")
             .WithColumn("GoodsReceiptLineId").AsInt32().PrimaryKey().Identity()
@@ -151,10 +124,6 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("ModifiedBy").AsString(50).NotNullable()
             .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
         
-        // Create.ForeignKey("FK_GoodsReceiptLines_GoodsReceiptHeaders")
-        //     .FromTable("GoodsReceiptLines").ForeignColumn("GoodsReceiptHeaderId")
-        //     .ToTable("GoodsReceiptHeaders").PrimaryColumn("GoodsReceiptHeaderId");
-        
         Create.UniqueConstraint("IX_GoodsReceiptLines_LineNumber")
             .OnTable("GoodsReceiptLines").Columns("GoodsReceiptHeaderId", "LineNumber");
         
@@ -167,10 +136,6 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
             .WithColumn("ModifiedBy").AsString(50).NotNullable()
             .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
-        
-        // Create.ForeignKey("FK_RowLevelAccess_Users")
-        //     .FromTable("RowLevelAccesses").ForeignColumn("UserId")
-        //     .ToTable("Users").PrimaryColumn("UserId");
         
         Create.Table("WorkOrderHeaders")
             .WithColumn("WorkOrderHeaderId").AsInt32().PrimaryKey().Identity()
@@ -233,9 +198,17 @@ public class InitialMigration : FluentMigrator.Migration
             .WithColumn("ModifiedBy").AsString(50).NotNullable()
             .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
         
-        // Create.ForeignKey("FK_WorkOrderLines_WorkOrderHeaders")
-        //     .FromTable("WorkOrderLines").ForeignColumn("WorkOrderHeaderId")
-        //     .ToTable("WorkOrderHeaders").PrimaryColumn("WorkOrderHeaderId");
+        Create.Table("VersionTrackers")
+            .WithColumn("VersionTrackerId").AsInt32().PrimaryKey().Identity()
+            .WithColumn("Version").AsString().NotNullable().Unique()
+            .WithColumn("Description").AsString().NotNullable()
+            .WithColumn("PhysicalLocation").AsString().NotNullable()
+            .WithColumn("PublishedDateTime").AsDateTime().NotNullable()
+            .WithColumn("Sha1Checksum").AsString().NotNullable()
+            .WithColumn("CreatedDateTime").AsDateTime().NotNullable()
+            .WithColumn("CreatedBy").AsString().NotNullable()
+            .WithColumn("ModifiedBy").AsString().NotNullable()
+            .WithColumn("ModifiedDateTime").AsDateTime().NotNullable();
     }
 
     public override void Down()
@@ -253,5 +226,6 @@ public class InitialMigration : FluentMigrator.Migration
         Delete.Table("Users");
         Delete.Table("Permissions");
         Delete.Table("Roles");
+        Delete.Table("VersionTrackers");
     }
 }

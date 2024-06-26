@@ -1,6 +1,4 @@
-﻿using System.Data.SqlTypes;
-
-namespace SparepartManagementSystem.Domain;
+﻿namespace SparepartManagementSystem.Domain;
 
 public class Permission : BaseModel
 {
@@ -84,70 +82,6 @@ public class Permission : BaseModel
         }
     }
     
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
     public override void AcceptChanges()
     {
         if (!IsChanged)
@@ -160,10 +94,7 @@ public class Permission : BaseModel
         OriginalValues[nameof(RoleId)] = _roleId;
         OriginalValues[nameof(Module)] = _module;
         OriginalValues[nameof(Type)] = _type;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -180,29 +111,21 @@ public class Permission : BaseModel
         _roleId = (int)OriginalValues[nameof(RoleId)];
         _module = OriginalValues[nameof(Module)] as string ?? string.Empty;
         _type = OriginalValues[nameof(Type)] as string ?? string.Empty;
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
-        _createdDateTime = (DateTime)OriginalValues[nameof(CreatedDateTime)];
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
-        _modifiedDateTime = (DateTime)OriginalValues[nameof(ModifiedDateTime)];
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
-        if (!(source is Permission target))
+        if (source is not Permission permission)
         {
             return;
         }
 
-        PermissionId = target.PermissionId;
-        PermissionName = target.PermissionName;
-        RoleId = target.RoleId;
-        Module = target.Module;
-        Type = target.Type;
-        CreatedBy = target.CreatedBy;
-        CreatedDateTime = target.CreatedDateTime;
-        ModifiedBy = target.ModifiedBy;
-        ModifiedDateTime = target.ModifiedDateTime;
+        PermissionName = permission.PermissionName;
+        RoleId = permission.RoleId;
+        Module = permission.Module;
+        Type = permission.Type;
     }
 }

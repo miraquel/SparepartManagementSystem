@@ -1,7 +1,9 @@
 ﻿using System.Data;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 using static System.String;
 
 namespace SparepartManagementSystem.Repository.MySql;
@@ -17,14 +19,18 @@ internal class UserRepositoryMySql : IUserRepository
         _dbTransaction = dbTransaction;
     }
 
-    public async Task Add(User entity)
+    public async Task Add(User entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO Users (Username, FirstName, LastName, Email, IsAdministrator, IsEnabled, LastLogin, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES (@Username, @FirstName, @LastName, @Email, @IsAdministrator, @IsEnabled, @LastLogin, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
         entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
 
     public async Task Delete(int id)
@@ -43,16 +49,18 @@ internal class UserRepositoryMySql : IUserRepository
     {
         const string sql = "SELECT * FROM Users WHERE UserId = @UserId";
         const string sqlForUpdate = "SELECT * FROM Users WHERE UserId = @UserId FOR UPDATE";
-        var result = await _sqlConnection.QueryFirstAsync<User>(forUpdate ? sqlForUpdate : sql, new { UserId = id }, _dbTransaction);
+        var result =
+            await _sqlConnection.QueryFirstAsync<User>(forUpdate ? sqlForUpdate : sql, new { UserId = id },
+                _dbTransaction) ?? throw new Exception($"User with Id {id} not found");
         result.AcceptChanges();
         return result;
     }
 
-    public Task<IEnumerable<User>> GetByParams(Dictionary<string, string> parameters)
+    public async Task<IEnumerable<User>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId)) 
+        if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId))
         {
             builder.Where("UserId = @UserId", new { UserId = userId });
         }
@@ -77,17 +85,20 @@ internal class UserRepositoryMySql : IUserRepository
             builder.Where("Email LIKE @Email", new { Email = $"%{email}%" });
         }
 
-        if (parameters.TryGetValue("isAdministrator", out var isAdministratorString) && bool.TryParse(isAdministratorString, out var isAdministrator))
+        if (parameters.TryGetValue("isAdministrator", out var isAdministratorString) &&
+            bool.TryParse(isAdministratorString, out var isAdministrator))
         {
             builder.Where("IsAdministrator = @IsAdministrator", new { IsAdministrator = isAdministrator });
         }
 
-        if (parameters.TryGetValue("isEnabled", out var isEnabledString) && bool.TryParse(isEnabledString, out var isEnabled))
+        if (parameters.TryGetValue("isEnabled", out var isEnabledString) &&
+            bool.TryParse(isEnabledString, out var isEnabled))
         {
             builder.Where("IsEnabled = @IsEnabled", new { IsEnabled = isEnabled });
         }
 
-        if (parameters.TryGetValue("lastLogin", out var lastLoginString) && DateTime.TryParse(lastLoginString, out var lastLogin))
+        if (parameters.TryGetValue("lastLogin", out var lastLoginString) &&
+            DateTime.TryParse(lastLoginString, out var lastLogin))
         {
             builder.Where("CAST(LastLogin AS date) = CAST(@LastLogin AS date)", new { LastLogin = lastLogin });
         }
@@ -97,9 +108,11 @@ internal class UserRepositoryMySql : IUserRepository
             builder.Where("CreatedBy = @CreatedBy", new { CreatedBy = createdBy });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)",
+                new { CreatedDateTime = createdDateTime });
         }
 
         if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
@@ -107,19 +120,28 @@ internal class UserRepositoryMySql : IUserRepository
             builder.Where("ModifiedBy = @ModifiedBy", new { ModifiedBy = modifiedBy });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)",
+                new { ModifiedDateTime = modifiedDateTime });
         }
 
         const string sql = "SELECT * FROM Users /**where**/";
         var template = builder.AddTemplate(sql);
-        return _sqlConnection.QueryAsync<User>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<User>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(User entity)
+    public async Task Update(User entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var builder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
+        
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
 
         if (!Equals(entity.OriginalValue(nameof(entity.Username)), entity.Username))
         {
@@ -167,12 +189,24 @@ internal class UserRepositoryMySql : IUserRepository
         }
 
         builder.Where("UserId = @UserId", new { entity.UserId });
+        
+        if (!builder.HasSet)
+        {
+            return;
+        }
 
         const string sql = "UPDATE Users /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"User with Id {entity.UserId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
+
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
     public async Task<IEnumerable<User>> GetAllWithRoles()
@@ -239,14 +273,11 @@ internal class UserRepositoryMySql : IUserRepository
         return result;
     }
 
-    public Task<User> GetByUsername(string username)
+    public async Task<User> GetByUsername(string username)
     {
-        const string sql = """
-                           SELECT * FROM Users
-                           WHERE Username = @Username
-                           """;
-
-        return _sqlConnection.QueryFirstAsync<User>(sql, new { Username = username }, _dbTransaction);
+        const string sql = "SELECT * FROM Users WHERE Username = @Username";
+        return await _sqlConnection.QueryFirstOrDefaultAsync<User>(sql, new { Username = username }, _dbTransaction) ??
+               throw new Exception($"User with username {username} not found");
     }
 
     public async Task<User> GetByUsernameWithRoles(string username)

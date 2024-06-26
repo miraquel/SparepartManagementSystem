@@ -1,0 +1,40 @@
+@model IEnumerable<SparepartManagementSystem.Service.DTO.VersionTrackerDto>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+    <title>SparepartManagementSystem Versions</title>
+</head>
+<body>
+<div>
+    <h1>SparepartManagementSystem Versions</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Version</th>
+            <th>Release Notes</th>
+            <th>SHA1 Checksum</th>
+            <th>Release Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var version in Model)
+        {
+        <tr>
+            @* create a link to the version details *@
+            <td><a href="@Url.Action("VersionDetails", "VersionTrackerServicePage", new { version = version.Version })">@version.Version</a></td>
+            <td>@version.Description</td>
+            <td>@version.Sha1Checksum</td>
+            <td>@version.PublishedDateTime</td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

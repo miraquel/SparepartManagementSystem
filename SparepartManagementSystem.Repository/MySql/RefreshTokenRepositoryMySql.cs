@@ -2,6 +2,7 @@
 using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
 
 namespace SparepartManagementSystem.Repository.MySql;
@@ -17,26 +18,18 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         _sqlConnection = sqlConnection;
     }
 
-    public Task<RefreshToken> GetByUserIdAndToken(int userId, string token, bool forUpdate = false)
+    public async Task<RefreshToken> GetByUserIdAndToken(int userId, string token, bool forUpdate = false)
     {
-        const string sql = """
-                           SELECT * FROM RefreshTokens
-                           WHERE UserId = @UserId AND Token = @Token
-                           """;
-        const string sqlForUpdate = """
-                                   SELECT * FROM RefreshTokens
-                                   WHERE UserId = @UserId AND Token = @Token FOR UPDATE
-                                   """;
-        return _sqlConnection.QueryFirstAsync<RefreshToken>(forUpdate ? sqlForUpdate : sql, new { UserId = userId, Token = token }, _dbTransaction);
+        const string sql = "SELECT * FROM RefreshTokens WHERE UserId = @UserId AND Token = @Token";
+        const string sqlForUpdate = "SELECT * FROM RefreshTokens WHERE UserId = @UserId AND Token = @Token FOR UPDATE";
+        return await _sqlConnection.QueryFirstOrDefaultAsync<RefreshToken>(forUpdate ? sqlForUpdate : sql,
+            new { UserId = userId, Token = token }, _dbTransaction) ?? throw new Exception("Refresh token not found");
     }
 
-    public Task<IEnumerable<RefreshToken>> GetByUserId(int userId)
+    public async Task<IEnumerable<RefreshToken>> GetByUserId(int userId)
     {
-        const string sql = """
-                           SELECT * FROM RefreshTokens
-                           WHERE UserId = @UserId
-                           """;
-        return _sqlConnection.QueryAsync<RefreshToken>(sql, new { UserId = userId }, _dbTransaction);
+        const string sql = "SELECT * FROM RefreshTokens WHERE UserId = @UserId";
+        return await _sqlConnection.QueryAsync<RefreshToken>(sql, new { UserId = userId }, _dbTransaction);
     }
 
     public async Task Revoke(int id)
@@ -46,7 +39,9 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
                            SET Revoked = @Revoked
                            WHERE RefreshTokenId = @RefreshTokenId AND Revoked = @RevokedMinValue
                            """;
-        _ = await _sqlConnection.ExecuteAsync(sql, new { Revoked = DateTime.Now, RefreshTokenId = id, RevokedMinValue = SqlDateTime.MinValue.Value }, _dbTransaction);
+        _ = await _sqlConnection.ExecuteAsync(sql,
+            new { Revoked = DateTime.Now, RefreshTokenId = id, RevokedMinValue = SqlDateTime.MinValue.Value },
+            _dbTransaction);
     }
 
     public async Task RevokeAll(int userId)
@@ -56,14 +51,13 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
                            SET Revoked = @Revoked
                            WHERE UserId = @UserId AND Revoked = @RevokedMinValue
                            """;
-        _ = await _sqlConnection.ExecuteAsync(sql, new { Revoked = DateTime.Now, UserId = userId, RevokedMinValue = SqlDateTime.MinValue.Value }, _dbTransaction);
+        _ = await _sqlConnection.ExecuteAsync(sql,
+            new { Revoked = DateTime.Now, UserId = userId, RevokedMinValue = SqlDateTime.MinValue.Value },
+            _dbTransaction);
     }
 
     public async Task Add(RefreshToken entity)
     {
-        var currentDateTime = DateTime.Now;
-        entity.Created = currentDateTime;
-
         const string sql = """
                            INSERT INTO RefreshTokens
                            (UserId, Token, Created, Expires, Revoked, ReplacedByToken)
@@ -84,20 +78,23 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         return await _sqlConnection.QueryAsync<RefreshToken>(sql, null, _dbTransaction);
     }
 
-    public Task<RefreshToken> GetById(int id, bool forUpdate = false)
+    public async Task<RefreshToken> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM RefreshTokens WHERE RefreshTokenId = @RefreshTokenId";
         const string sqlForUpdate = "SELECT * FROM RefreshTokens WHERE RefreshTokenId = @RefreshTokenId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<RefreshToken>(forUpdate ? sqlForUpdate : sql, new { RefreshTokenId = id }, _dbTransaction);
+        return await _sqlConnection.QueryFirstOrDefaultAsync<RefreshToken>(forUpdate ? sqlForUpdate : sql,
+                   new { RefreshTokenId = id }, _dbTransaction) ??
+               throw new InvalidOperationException($"Refresh token with Id {id} not found");
     }
 
-    public Task<IEnumerable<RefreshToken>> GetByParams(Dictionary<string, string> parameters)
+    public async Task<IEnumerable<RefreshToken>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (parameters.TryGetValue("refreshTokenId", out var refreshTokenIdString) && int.TryParse(refreshTokenIdString, out var refreshTokenId))
+        if (parameters.TryGetValue("refreshTokenId", out var refreshTokenIdString) &&
+            int.TryParse(refreshTokenIdString, out var refreshTokenId))
         {
-            builder.Where("RefreshTokenId = @RefreshTokenId", new { RefreshTokenId = refreshTokenId });
+            builder.Where("refreshTokenId = @RefreshTokenId", new { RefreshTokenId = refreshTokenId });
         }
 
         if (parameters.TryGetValue("userId", out var userIdString) && int.TryParse(userIdString, out var userId))
@@ -109,23 +106,27 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         {
             builder.Where("Token LIKE @Token", new { Token = $"%{token}%" });
         }
-        
-        if (parameters.TryGetValue("created", out var createdString) && DateTime.TryParse(createdString, out var created))
+
+        if (parameters.TryGetValue("created", out var createdString) &&
+            DateTime.TryParse(createdString, out var created))
         {
             builder.Where("Created = @Created", new { Created = created });
         }
 
-        if (parameters.TryGetValue("expires", out var expiresString) && DateTime.TryParse(expiresString, out var expires))
+        if (parameters.TryGetValue("expires", out var expiresString) &&
+            DateTime.TryParse(expiresString, out var expires))
         {
             builder.Where("Expires = @Expires", new { Expires = expires });
         }
 
-        if (parameters.TryGetValue("revoked", out var revokedString) && DateTime.TryParse(revokedString, out var revoked))
+        if (parameters.TryGetValue("revoked", out var revokedString) &&
+            DateTime.TryParse(revokedString, out var revoked))
         {
             builder.Where("Revoked = @Revoked", new { Revoked = revoked });
         }
 
-        if (parameters.TryGetValue("replacedByToken", out var replacedByToken) && !string.IsNullOrEmpty(replacedByToken))
+        if (parameters.TryGetValue("replacedByToken", out var replacedByToken) &&
+            !string.IsNullOrEmpty(replacedByToken))
         {
             builder.Where("ReplacedByToken LIKE @ReplacedByToken", new { ReplacedByToken = $"%{replacedByToken}%" });
         }
@@ -135,7 +136,7 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
         const string sql = "SELECT * FROM RefreshTokens /**where**/ /**orderby**/";
         var template = builder.AddTemplate(sql);
 
-        return _sqlConnection.QueryAsync<RefreshToken>(template.RawSql, template.Parameters, _dbTransaction);
+        return await _sqlConnection.QueryAsync<RefreshToken>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
     public async Task Update(RefreshToken entity)
@@ -151,9 +152,6 @@ internal class RefreshTokenRepositoryMySql : IRefreshTokenRepository
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
     }
-    public Task<int> GetLastInsertedId()
-    {
-        return _sqlConnection.ExecuteScalarAsync<int>("SELECT LAST_INSERT_ID()", transaction: _dbTransaction);
-    }
+
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

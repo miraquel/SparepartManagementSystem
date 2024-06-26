@@ -132,70 +132,6 @@ public class User : BaseModel
         }
     }
     
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
     public ICollection<Role> Roles { get; set; } = [];
     public ICollection<UserWarehouse> UserWarehouses { get; set; } = [];
     public override void AcceptChanges()
@@ -213,10 +149,7 @@ public class User : BaseModel
         OriginalValues[nameof(IsAdministrator)] = _isAdministrator;
         OriginalValues[nameof(IsEnabled)] = _isEnabled;
         OriginalValues[nameof(LastLogin)] = _lastLogin;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -236,22 +169,18 @@ public class User : BaseModel
         _isAdministrator = OriginalValues[nameof(IsAdministrator)] as bool? ?? false;
         _isEnabled = OriginalValues[nameof(IsEnabled)] as bool? ?? false;
         _lastLogin = OriginalValues[nameof(LastLogin)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not User user)
         {
             return;
         }
-
-        UserId = user.UserId;
+        
         Username = user.Username;
         Email = user.Email;
         FirstName = user.FirstName;
@@ -259,9 +188,5 @@ public class User : BaseModel
         IsAdministrator = user.IsAdministrator;
         IsEnabled = user.IsEnabled;
         LastLogin = user.LastLogin;
-        CreatedBy = user.CreatedBy;
-        CreatedDateTime = user.CreatedDateTime;
-        ModifiedBy = user.ModifiedBy;
-        ModifiedDateTime = user.ModifiedDateTime;
     }
 }

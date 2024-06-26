@@ -1,13 +1,15 @@
 ﻿using System.Data;
-using System.Text.RegularExpressions;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
+using SparepartManagementSystem.Shared.Helper;
 using static System.String;
 
 namespace SparepartManagementSystem.Repository.MySql;
 
-internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
+internal class NumberSequenceRepositoryMySql : INumberSequenceRepository
 {
     private readonly IDbTransaction _dbTransaction;
     private readonly IDbConnection _sqlConnection;
@@ -24,23 +26,21 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                            UPDATE NumberSequences
                            SET LastNumber = LastNumber + 1
                            WHERE Module = @module;
+                           SELECT * FROM NumberSequences
+                           WHERE Module = @module;
                            """;
 
-        await _sqlConnection.ExecuteAsync(sql, new { module }, _dbTransaction);
-
-        const string afterSql = """
-                                SELECT * FROM NumberSequences
-                                WHERE Module = @module;
-                                """;
-
-        var result = await _sqlConnection.QueryFirstOrDefaultAsync<NumberSequence>(afterSql, new { module }, _dbTransaction);
-        var formatString = NumberSequenceRegex().Matches(result!.Format);
-        return NumberSequenceRegex().Replace(result.Format,
-            result.LastNumber.ToString().PadLeft(formatString[0].Length, '0'));
+        var results = await _sqlConnection.QueryMultipleAsync(sql, new { module }, _dbTransaction);
+        var numberSequenceResult = await results.ReadSingleAsync<NumberSequence>() ?? throw new InvalidOperationException($"Number sequence with module {module} not found");
+        var formatString = RegexHelper.NumberSequenceRegex().Matches(numberSequenceResult.Format);
+        return RegexHelper.NumberSequenceRegex().Replace(numberSequenceResult.Format,
+            numberSequenceResult.LastNumber.ToString().PadLeft(formatString[0].Length, '0'));
     }
 
-    public async Task Add(NumberSequence entity)
+    public async Task Add(NumberSequence entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO NumberSequences
                            (Name, Description, Module, Format, LastNumber, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
@@ -48,6 +48,8 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
         entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
 
     public async Task Delete(int id)
@@ -66,7 +68,10 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
     {
         const string sql = "SELECT * FROM NumberSequences WHERE NumberSequenceId = @NumberSequenceId";
         const string sqlForUpdate = "SELECT * FROM NumberSequences WHERE NumberSequenceId = @NumberSequenceId FOR UPDATE";
-        var result = await _sqlConnection.QueryFirstAsync<NumberSequence>(forUpdate ? sqlForUpdate : sql, new { NumberSequenceId = id }, _dbTransaction);
+        var result =
+            await _sqlConnection.QueryFirstOrDefaultAsync<NumberSequence>(forUpdate ? sqlForUpdate : sql,
+                new { NumberSequenceId = id }, _dbTransaction) ??
+            throw new InvalidOperationException($"Number sequence with Id {id} not found");
         result.AcceptChanges();
         return result;
     }
@@ -74,8 +79,9 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
     public async Task<IEnumerable<NumberSequence>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("numberSequenceId", out var numberSequenceIdString) && int.TryParse(numberSequenceIdString, out var numberSequenceId))
+
+        if (parameters.TryGetValue("numberSequenceId", out var numberSequenceIdString) &&
+            int.TryParse(numberSequenceIdString, out var numberSequenceId))
         {
             builder.Where("NumberSequenceId = @NumberSequenceId", new { NumberSequenceId = numberSequenceId });
         }
@@ -95,7 +101,8 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
             builder.Where("Format LIKE @Format", new { Format = $"%{format}%" });
         }
 
-        if (parameters.TryGetValue("lastNumber", out var lastNumberString) && int.TryParse(lastNumberString, out var lastNumber))
+        if (parameters.TryGetValue("lastNumber", out var lastNumberString) &&
+            int.TryParse(lastNumberString, out var lastNumber))
         {
             builder.Where("LastNumber = @LastNumber", new { LastNumber = lastNumber });
         }
@@ -110,9 +117,11 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
             builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)",
+                new { CreatedDateTime = createdDateTime });
         }
 
         if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
@@ -120,58 +129,81 @@ internal partial class NumberSequenceRepositoryMySql : INumberSequenceRepository
             builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)",
+                new { ModifiedDateTime = modifiedDateTime });
         }
 
         var template = builder.AddTemplate("SELECT * FROM NumberSequences /**where**/");
         return await _sqlConnection.QueryAsync<NumberSequence>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(NumberSequence entity)
+    public async Task Update(NumberSequence entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var builder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
+        
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
 
         if (!Equals(entity.OriginalValue(nameof(NumberSequence.Name)), entity.Name))
         {
             builder.Set("Name = @Name", new { entity.Name });
         }
+
         if (!Equals(entity.OriginalValue(nameof(NumberSequence.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
+
         if (!Equals(entity.OriginalValue(nameof(NumberSequence.Format)), entity.Format))
         {
             builder.Set("Format = @Format", new { entity.Format });
         }
+
         if (!Equals(entity.OriginalValue(nameof(NumberSequence.LastNumber)), entity.LastNumber))
         {
             builder.Set("LastNumber = @LastNumber", new { entity.LastNumber });
         }
+
         if (!Equals(entity.OriginalValue(nameof(NumberSequence.Module)), entity.Module))
         {
             builder.Set("Module = @Module", new { entity.Module });
         }
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.CreatedBy)), entity.CreatedBy))
+
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedBy)), entity.ModifiedBy))
         {
-            builder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
-        
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.CreatedDateTime)), entity.CreatedDateTime))
+
+        if (!Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedDateTime)), entity.ModifiedDateTime))
         {
-            builder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
-        
+
         builder.Where("NumberSequenceId = @NumberSequenceId", new { entity.NumberSequenceId });
+        
+        if (!builder.HasSet)
+        {
+            return;
+        }
 
         const string sql = "UPDATE NumberSequences /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Number sequence with Id {entity.NumberSequenceId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
-    public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 
-    [GeneratedRegex("#+")]
-    private static partial Regex NumberSequenceRegex();
+    public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

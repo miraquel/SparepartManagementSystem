@@ -1,0 +1,23 @@
+@model SparepartManagementSystem.Service.DTO.VersionTrackerDto
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+    <title>SparepartManagementSystem Version @Model.Version</title>
+</head>
+<body>
+<div>
+    <a href="@Url.Action("Index", "VersionTrackerServicePage")">< back</a>
+    <h1>SparepartManagementSystem Version @Model.Version</h1>
+    <p>Release Date: @Model.PublishedDateTime</p>
+    <p>Release Notes: @Model.Description</p>
+    <p>SHA1 Checksum: @Model.Sha1Checksum</p>
+    <p>Download: <a href="@Url.Action("DownloadApkByVersion", "VersionTrackerService", new { version = "1.0", appVersion = Model.Version })">@($"SparepartManagementSystem_v{Model.Version}.apk")</a></p>
+</div>
+</body>
+</html>

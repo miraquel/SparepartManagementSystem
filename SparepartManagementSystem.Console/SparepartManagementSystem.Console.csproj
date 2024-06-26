@@ -11,4 +11,9 @@
       <ProjectReference Include="..\SparepartManagementSystem.Shared\SparepartManagementSystem.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.35" />
+      <PackageReference Include="MySqlConnector" Version="2.3.7" />
+    </ItemGroup>
+
 </Project>

@@ -1,5 +1,6 @@
 using System.ServiceModel;
 using Serilog;
+using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 using SparepartManagementSystem.Service.Interface;
@@ -13,19 +14,21 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     private readonly CallContext _context;
     private readonly MapperlyMapper _mapper;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
+    private readonly UserClaimDto _userClaim;
 
-    public WorkOrderServiceDirect(GMKSMSService client, CallContext context, MapperlyMapper mapper)
+    public WorkOrderServiceDirect(GMKSMSService client, CallContext context, MapperlyMapper mapper, UserClaimDto userClaim)
     {
         _client = client;
         _context = context;
         _mapper = mapper;
+        _userClaim = userClaim;
     }
 
     public async Task<ServiceResponse> UpdateWorkOrderHeader(WorkOrderHeaderDto dto)
     {
         try
         {
-            var request = new GMKSMSServiceUpdateWorkOrderRequest()
+            var request = new GMKSMSServiceUpdateWorkOrderRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKWorkOrderDataContract(dto)
@@ -34,7 +37,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.updateWorkOrderAsync(request);
@@ -93,7 +96,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderRequest()
+            var request = new GMKSMSServiceGetWorkOrderRequest
             {
                 CallContext = _context,
                 agsEAMWOID = agsEamWoId
@@ -102,7 +105,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getWorkOrderAsync(request);
@@ -155,7 +158,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderPagedListRequest()
+            var request = new GMKSMSServiceGetWorkOrderPagedListRequest
             {
                 CallContext = _context,
                 pageNumber = pageNumber,
@@ -166,7 +169,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getWorkOrderPagedListAsync(request);
@@ -223,7 +226,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceAddWorkOrderLineRequest()
+            var request = new GMKSMSServiceAddWorkOrderLineRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKWorkOrderLineDataContract(dto)
@@ -232,7 +235,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.addWorkOrderLineAsync(request);
@@ -291,7 +294,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceUpdateWorkOrderLineRequest()
+            var request = new GMKSMSServiceUpdateWorkOrderLineRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKWorkOrderLineDataContract(dto)
@@ -300,7 +303,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.updateWorkOrderLineAsync(request);
@@ -359,7 +362,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderLineRequest()
+            var request = new GMKSMSServiceGetWorkOrderLineRequest
             {
                 CallContext = _context,
                 agsEAMWOID = agsEamWoId,
@@ -369,7 +372,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getWorkOrderLineAsync(request);
@@ -422,7 +425,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceGetWorkOrderLineListRequest()
+            var request = new GMKSMSServiceGetWorkOrderLineListRequest
             {
                 CallContext = _context,
                 agsEAMWOID = agsEamWoId
@@ -431,7 +434,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getWorkOrderLineListAsync(request);
@@ -480,20 +483,90 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
         }
     }
 
-    public async Task<ServiceResponse> AddItemRequisition(InventReqDto dto)
+    public async Task<ServiceResponse> CloseWorkOrderLineAndPostInventJournal(WorkOrderLineDto dto)
     {
         try
         {
-            var request = new GMKSMSServiceAddInventReqRequest()
+            var request = new GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest
             {
                 CallContext = _context,
-                parm = _mapper.MapToGMKInventReqDataContract(dto)
+                parm = _mapper.MapToGMKWorkOrderLineDataContract(dto)
             };
 
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
+            }
+
+            var response = await _client.closeWorkOrderAndPostInventJournalTableAsync(request);
+
+            if (!response.response.Success)
+            {
+                throw new Exception(response.response.Message);
+            }
+            
+            _logger.Information(response.response.Message);
+
+            return new ServiceResponse
+            {
+                Message = response.response.Message,
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
+    public async Task<ServiceResponse> AddItemRequisition(InventReqDto dto)
+    {
+        try
+        {
+            var request = new GMKSMSServiceAddInventReqRequest
+            {
+                CallContext = _context,
+                parm = _mapper.MapToGMKInventReqDataContract(dto)
+            };
+
+            request.parm.PreparerUserId = _userClaim.Username;
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
             }
 
             var response = await _client.addInventReqAsync(request);
@@ -552,7 +625,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceUpdateInventReqRequest()
+            var request = new GMKSMSServiceUpdateInventReqRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKInventReqDataContract(dto)
@@ -561,7 +634,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.updateInventReqAsync(request);
@@ -620,7 +693,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceDeleteInventReqRequest()
+            var request = new GMKSMSServiceDeleteInventReqRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKInventReqDataContract(dto)
@@ -629,10 +702,76 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.deleteInventReqAsync(request);
+
+            if (!response.response.Success)
+            {
+                throw new Exception(response.response.Message);
+            }
+
+            return new ServiceResponse
+            {
+                Message = response.response.Message,
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
+    public async Task<ServiceResponse> DeleteItemRequisitionWithListOfRecId(IEnumerable<long> recIds)
+    {
+        try
+        {
+            var request = new GMKSMSServiceDeleteInventReqWithListOfRecIdRequest
+            {
+                CallContext = _context,
+                recIds = recIds.ToArray()
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.deleteInventReqWithListOfRecIdAsync(request);
 
             if (!response.response.Success)
             {
@@ -686,7 +825,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
     {
         try
         {
-            var request = new GMKSMSServiceGetInventReqRequest()
+            var request = new GMKSMSServiceGetInventReqRequest
             {
                 CallContext = _context,
                 parm = _mapper.MapToGMKInventReqDataContract(dto)
@@ -695,7 +834,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getInventReqAsync(request);
@@ -744,20 +883,20 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<InventReqDto>>> GetItemRequisitionList(long agsWORecId)
+    public async Task<ServiceResponse<IEnumerable<InventReqDto>>> GetItemRequisitionList(long agsWoRecId)
     {
         try
         {
-            var request = new GMKSMSServiceGetInventReqListRequest()
+            var request = new GMKSMSServiceGetInventReqListRequest
             {
                 CallContext = _context,
-                agsWoRecId = agsWORecId
+                agsWoRecId = agsWoRecId
             };
 
             if (_client is GMKSMSServiceClient client)
             {
                 request.CallContext = _context;
-                client.Open();
+                await client.OpenAsync();
             }
 
             var response = await _client.getInventReqListAsync(request);
@@ -784,6 +923,72 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             _logger.Error(ex, ex.Message);
 
             return new ServiceResponse<IEnumerable<InventReqDto>>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    await client.CloseAsync();
+                }
+            }
+        }
+    }
+
+    public async Task<ServiceResponse> CreateInventJournalTable(WorkOrderLineDto dto)
+    {
+        try
+        {
+            var request = new GMKSMSServiceCreateInventJournalTableRequest
+            {
+                CallContext = _context,
+                parm = _mapper.MapToGMKWorkOrderLineDataContract(dto)
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.createInventJournalTableAsync(request);
+
+            if (!response.response.Success)
+            {
+                throw new Exception(response.response.Message);
+            }
+
+            return new ServiceResponse
+            {
+                Message = response.response.Message,
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse
             {
                 Error = ex.GetType().Name,
                 ErrorMessages = errorMessages,

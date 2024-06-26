@@ -3,7 +3,9 @@ using Dapper;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 
 namespace SparepartManagementSystem.Repository.MySql;
 
@@ -18,16 +20,21 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
         _sqlConnection = sqlConnection;
     }
 
-    public async Task Add(WorkOrderLine entity)
+    public async Task Add(WorkOrderLine entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO WorkOrderLines
                                (WorkOrderHeaderId, Line, LineTitle, EntityId, EntityShutdown, WorkOrderType, TaskId, "Condition", PlanningStartDate, PlanningEndDate, Supervisor, CalendarId, WorkOrderStatus, Suspend, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES
                                (@WorkOrderHeaderId, @Line, @LineTitle, @EntityId, @EntityShutdown, @WorkOrderType, @TaskId, @Condition, @PlanningStartDate, @PlanningEndDate, @Supervisor, @CalendarId, @WorkOrderStatus, @Suspend, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime);
                            """;
-        
+
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
 
     public async Task Delete(int id)
@@ -46,19 +53,23 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
     {
         const string sql = "SELECT * FROM WorkOrderLines WHERE WorkOrderLineId = @WorkOrderLineId";
         const string sqlForUpdate = "SELECT * FROM WorkOrderLines WHERE WorkOrderLineId = @WorkOrderLineId FOR UPDATE";
-        return await _sqlConnection.QueryFirstAsync<WorkOrderLine>(forUpdate ? sqlForUpdate : sql, new { WorkOrderLineId = id }, _dbTransaction);
+        return await _sqlConnection.QueryFirstOrDefaultAsync<WorkOrderLine>(forUpdate ? sqlForUpdate : sql,
+                   new { WorkOrderLineId = id }, _dbTransaction) ??
+               throw new Exception($"Work order line with Id {id} not found");
     }
 
     public async Task<IEnumerable<WorkOrderLine>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("workOrderLineId", out var workOrderLineIdString) && int.TryParse(workOrderLineIdString, out var workOrderLineId))
+
+        if (parameters.TryGetValue("workOrderLineId", out var workOrderLineIdString) &&
+            int.TryParse(workOrderLineIdString, out var workOrderLineId))
         {
             sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { WorkOrderLineId = workOrderLineId });
         }
 
-        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) && int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
+        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) &&
+            int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
         {
             sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { WorkOrderHeaderId = workOrderHeaderId });
         }
@@ -68,7 +79,7 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
             sqlBuilder.Where("Line = @Line", new { Line = line });
         }
 
-        if (parameters.TryGetValue(";ineTitle", out var lineTitle) && !string.IsNullOrEmpty(lineTitle))
+        if (parameters.TryGetValue("lineTitle", out var lineTitle) && !string.IsNullOrEmpty(lineTitle))
         {
             sqlBuilder.Where("LineTitle LIKE @LineTitle", new { LineTitle = $"%{lineTitle}%" });
         }
@@ -78,7 +89,8 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
             sqlBuilder.Where("EntityId LIKE @EntityId", new { EntityId = $"%{entityId}%" });
         }
 
-        if (parameters.TryGetValue("entityShutdown", out var entityShutdownString) && Enum.TryParse<NoYes>(entityShutdownString, out var entityShutdown))
+        if (parameters.TryGetValue("entityShutdown", out var entityShutdownString) &&
+            Enum.TryParse<NoYes>(entityShutdownString, out var entityShutdown))
         {
             sqlBuilder.Where("EntityShutdown = @EntityShutdown", new { EntityShutdown = entityShutdown });
         }
@@ -98,12 +110,14 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
             sqlBuilder.Where("Condition LIKE @Condition", new { Condition = $"%{condition}%" });
         }
 
-        if (parameters.TryGetValue("planningStartDate", out var planningStartDateString) && DateTime.TryParse(planningStartDateString, out var planningStartDate))
+        if (parameters.TryGetValue("planningStartDate", out var planningStartDateString) &&
+            DateTime.TryParse(planningStartDateString, out var planningStartDate))
         {
             sqlBuilder.Where("PlanningStartDate = @PlanningStartDate", new { PlanningStartDate = planningStartDate });
         }
 
-        if (parameters.TryGetValue("planningEndDate", out var planningEndDateString) && DateTime.TryParse(planningEndDateString, out var planningEndDate))
+        if (parameters.TryGetValue("planningEndDate", out var planningEndDateString) &&
+            DateTime.TryParse(planningEndDateString, out var planningEndDate))
         {
             sqlBuilder.Where("PlanningEndDate = @PlanningEndDate", new { PlanningEndDate = planningEndDate });
         }
@@ -118,12 +132,14 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
             sqlBuilder.Where("CalendarId LIKE @CalendarId", new { CalendarId = $"%{calendarId}%" });
         }
 
-        if (parameters.TryGetValue("workOrderStatus", out var workOrderStatus) && !string.IsNullOrEmpty(workOrderStatus))
+        if (parameters.TryGetValue("workOrderStatus", out var workOrderStatus) &&
+            !string.IsNullOrEmpty(workOrderStatus))
         {
             sqlBuilder.Where("WorkOrderStatus LIKE @WorkOrderStatus", new { WorkOrderStatus = $"%{workOrderStatus}%" });
         }
 
-        if (parameters.TryGetValue("suspend", out var suspendString) && Enum.TryParse<NoYes>(suspendString, out var suspend))
+        if (parameters.TryGetValue("suspend", out var suspendString) &&
+            Enum.TryParse<NoYes>(suspendString, out var suspend))
         {
             sqlBuilder.Where("Suspend = @Suspend", new { Suspend = suspend });
         }
@@ -133,109 +149,128 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
         return await _sqlConnection.QueryAsync<WorkOrderLine>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(WorkOrderLine entity)
+    public async Task Update(WorkOrderLine entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var sqlBuilder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
         
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
+
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderHeaderId)), entity.WorkOrderHeaderId))
         {
-            sqlBuilder.Set("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
+            builder.Set("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Line)), entity.Line))
         {
-            sqlBuilder.Set("Line = @Line", new { entity.Line });
+            builder.Set("Line = @Line", new { entity.Line });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.LineTitle)), entity.LineTitle))
         {
-            sqlBuilder.Set("LineTitle = @LineTitle", new { entity.LineTitle });
+            builder.Set("LineTitle = @LineTitle", new { entity.LineTitle });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.EntityId)), entity.EntityId))
         {
-            sqlBuilder.Set("EntityId = @EntityId", new { entity.EntityId });
+            builder.Set("EntityId = @EntityId", new { entity.EntityId });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.EntityShutdown)), entity.EntityShutdown))
         {
-            sqlBuilder.Set("EntityShutdown = @EntityShutdown", new { entity.EntityShutdown });
+            builder.Set("EntityShutdown = @EntityShutdown", new { entity.EntityShutdown });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderType)), entity.WorkOrderType))
         {
-            sqlBuilder.Set("WorkOrderType = @WorkOrderType", new { entity.WorkOrderType });
+            builder.Set("WorkOrderType = @WorkOrderType", new { entity.WorkOrderType });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.TaskId)), entity.TaskId))
         {
-            sqlBuilder.Set("TaskId = @TaskId", new { entity.TaskId });
+            builder.Set("TaskId = @TaskId", new { entity.TaskId });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Condition)), entity.Condition))
         {
-            sqlBuilder.Set("Condition = @Condition", new { entity.Condition });
+            builder.Set("Condition = @Condition", new { entity.Condition });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.PlanningStartDate)), entity.PlanningStartDate))
         {
-            sqlBuilder.Set("PlanningStartDate = @PlanningStartDate", new { entity.PlanningStartDate });
+            builder.Set("PlanningStartDate = @PlanningStartDate", new { entity.PlanningStartDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.PlanningEndDate)), entity.PlanningEndDate))
         {
-            sqlBuilder.Set("PlanningEndDate = @PlanningEndDate", new { entity.PlanningEndDate });
+            builder.Set("PlanningEndDate = @PlanningEndDate", new { entity.PlanningEndDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Supervisor)), entity.Supervisor))
         {
-            sqlBuilder.Set("Supervisor = @Supervisor", new { entity.Supervisor });
+            builder.Set("Supervisor = @Supervisor", new { entity.Supervisor });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CalendarId)), entity.CalendarId))
         {
-            sqlBuilder.Set("CalendarId = @CalendarId", new { entity.CalendarId });
+            builder.Set("CalendarId = @CalendarId", new { entity.CalendarId });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.WorkOrderStatus)), entity.WorkOrderStatus))
         {
-            sqlBuilder.Set("WorkOrderStatus = @WorkOrderStatus", new { entity.WorkOrderStatus });
+            builder.Set("WorkOrderStatus = @WorkOrderStatus", new { entity.WorkOrderStatus });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.Suspend)), entity.Suspend))
         {
-            sqlBuilder.Set("Suspend = @Suspend", new { entity.Suspend });
+            builder.Set("Suspend = @Suspend", new { entity.Suspend });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CreatedBy)), entity.CreatedBy))
         {
-            sqlBuilder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
+            builder.Set("CreatedBy = @CreatedBy", new { entity.CreatedBy });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderLine.CreatedDateTime)), entity.CreatedDateTime))
         {
-            sqlBuilder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
+            builder.Set("CreatedDateTime = @CreatedDateTime", new { entity.CreatedDateTime });
         }
 
-        sqlBuilder.Where("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
+        builder.Where("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
+
+        if (!builder.HasSet)
+        {
+            return;
+        }
 
         const string sql = "UPDATE WorkOrderLines /**set**/ /**where**/";
-        var template = sqlBuilder.AddTemplate(sql);
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        var template = builder.AddTemplate(sql);
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Work order line with Id {entity.WorkOrderLineId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
-    public Task<IEnumerable<WorkOrderLine>> GetByWorkOrderHeaderId(int id)
+
+    public async Task<IEnumerable<WorkOrderLine>> GetByWorkOrderHeaderId(int id)
     {
         const string sql = "SELECT * FROM WorkOrderLines WHERE WorkOrderHeaderId = @WorkOrderHeaderId";
-        return _sqlConnection.QueryAsync<WorkOrderLine>(sql, new { WorkOrderHeaderId = id }, _dbTransaction);
+        return await _sqlConnection.QueryAsync<WorkOrderLine>(sql, new { WorkOrderHeaderId = id }, _dbTransaction);
     }
 
-    public async Task BulkAdd(IEnumerable<WorkOrderLine> entities)
+    public async Task BulkAdd(IEnumerable<WorkOrderLine> entities, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
         var dataTable = new DataTable();
-        
+
         var workOrderLineIdColumn = new DataColumn("WorkOrderLineId", typeof(int));
         var workOrderHeaderIdColumn = new DataColumn("WorkOrderHeaderId", typeof(int));
         var lineColumn = new DataColumn("Line", typeof(int));
@@ -255,7 +290,7 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
         var createdDateTimeColumn = new DataColumn("CreatedDateTime", typeof(DateTime));
         var modifiedByColumn = new DataColumn("ModifiedBy", typeof(string));
         var modifiedDateTimeColumn = new DataColumn("ModifiedDateTime", typeof(DateTime));
-        
+
         dataTable.Columns.Add(workOrderLineIdColumn);
         dataTable.Columns.Add(workOrderHeaderIdColumn);
         dataTable.Columns.Add(lineColumn);
@@ -275,9 +310,10 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
         dataTable.Columns.Add(createdDateTimeColumn);
         dataTable.Columns.Add(modifiedByColumn);
         dataTable.Columns.Add(modifiedDateTimeColumn);
-        
+
         foreach (var entity in entities)
         {
+            onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
             var row = dataTable.NewRow();
             row[workOrderLineIdColumn] = entity.WorkOrderLineId;
             row[workOrderHeaderIdColumn] = entity.WorkOrderHeaderId;
@@ -299,16 +335,15 @@ public class WorkOrderLineRepositoryMySql : IWorkOrderLineRepository
             row[modifiedByColumn] = entity.ModifiedBy;
             row[modifiedDateTimeColumn] = DateTime.Now;
             dataTable.Rows.Add(row);
+            onAfterAdd?.Invoke(this, new AddEventArgs(entity));
         }
-        
-        var mySqlConnection = _sqlConnection as MySqlConnection ?? throw new InvalidOperationException("Connection is not initialized");
+
+        var mySqlConnection = _sqlConnection as MySqlConnection ??
+                              throw new InvalidOperationException("Connection is not initialized");
 
         mySqlConnection.InfoMessage += (_, args) =>
         {
-            foreach (var message in args.Errors)
-            {
-                Console.WriteLine($"Message: {message.Message}");
-            }
+            foreach (var message in args.Errors) Console.WriteLine($"Message: {message.Message}");
         };
 
         var mySqlBulkCopy = new MySqlBulkCopy(mySqlConnection, _dbTransaction as MySqlTransaction)

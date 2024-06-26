@@ -1,5 +1,3 @@
-using System.Data.SqlTypes;
-
 namespace SparepartManagementSystem.Domain;
 
 public class UserWarehouse : BaseModel
@@ -99,70 +97,6 @@ public class UserWarehouse : BaseModel
             IsChanged = true;
         }
     }
-    
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
 
     public override void AcceptChanges()
     {
@@ -177,10 +111,7 @@ public class UserWarehouse : BaseModel
         OriginalValues[nameof(InventSiteId)] = _inventSiteId;
         OriginalValues[nameof(Name)] = _name;
         OriginalValues[nameof(IsDefault)] = _isDefault;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -198,30 +129,22 @@ public class UserWarehouse : BaseModel
         _inventSiteId = OriginalValue(nameof(InventSiteId)) as string ?? string.Empty;
         _name = OriginalValue(nameof(Name)) as string ?? string.Empty;
         _isDefault = OriginalValue(nameof(IsDefault)) as bool? ?? false;
-        _createdBy = OriginalValue(nameof(CreatedBy)) as string ?? string.Empty;
-        _createdDateTime = OriginalValue(nameof(CreatedDateTime)) as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValue(nameof(ModifiedBy)) as string ?? string.Empty;
-        _modifiedDateTime = OriginalValue(nameof(ModifiedDateTime)) as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not UserWarehouse userWarehouse)
         {
             return;
         }
 
-        UserWarehouseId = userWarehouse.UserWarehouseId;
         UserId = userWarehouse.UserId;
         InventLocationId = userWarehouse.InventLocationId;
         InventSiteId = userWarehouse.InventSiteId;
         Name = userWarehouse.Name;
         IsDefault = userWarehouse.IsDefault;
-        CreatedBy = userWarehouse.CreatedBy;
-        CreatedDateTime = userWarehouse.CreatedDateTime;
-        ModifiedBy = userWarehouse.ModifiedBy;
-        ModifiedDateTime = userWarehouse.ModifiedDateTime;
     }
 }

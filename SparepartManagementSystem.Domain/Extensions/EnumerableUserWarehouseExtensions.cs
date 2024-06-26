@@ -1,6 +1,4 @@
-using SparepartManagementSystem.Domain;
-
-namespace SparepartManagementSystem.Shared.Helper;
+namespace SparepartManagementSystem.Domain.Extensions;
 
 public static class EnumerableUserWarehouseExtensions
 {

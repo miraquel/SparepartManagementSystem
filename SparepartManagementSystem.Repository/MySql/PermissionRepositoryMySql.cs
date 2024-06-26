@@ -1,7 +1,9 @@
 ﻿using System.Data;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 
 namespace SparepartManagementSystem.Repository.MySql;
 
@@ -26,8 +28,10 @@ internal class PermissionRepositoryMySql : IPermissionRepository
             _dbTransaction);
     }
 
-    public async Task Add(Permission entity)
+    public async Task Add(Permission entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+
         const string sql = """
                            INSERT INTO Permissions
                            (RoleId, Module, Type, PermissionName, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
@@ -35,6 +39,8 @@ internal class PermissionRepositoryMySql : IPermissionRepository
                            """;
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
         entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
 
     public async Task Delete(int id)
@@ -53,7 +59,9 @@ internal class PermissionRepositoryMySql : IPermissionRepository
     {
         const string sql = "SELECT * FROM Permissions WHERE PermissionId = @PermissionId";
         const string sqlForUpdate = "SELECT * FROM Permissions WHERE PermissionId = @PermissionId FOR UPDATE";
-        var result = await _sqlConnection.QueryFirstAsync<Permission>(forUpdate ? sqlForUpdate : sql, new { PermissionId = id }, _dbTransaction);
+        var result =
+            await _sqlConnection.QueryFirstOrDefaultAsync<Permission>(forUpdate ? sqlForUpdate : sql,
+                new { PermissionId = id }, _dbTransaction) ?? throw new InvalidOperationException($"Permission with Id {id} not found");
         result.AcceptChanges();
         return result;
     }
@@ -61,8 +69,9 @@ internal class PermissionRepositoryMySql : IPermissionRepository
     public async Task<IEnumerable<Permission>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("permissionId", out var permissionIdString) && int.TryParse(permissionIdString, out var permissionId))
+
+        if (parameters.TryGetValue("permissionId", out var permissionIdString) &&
+            int.TryParse(permissionIdString, out var permissionId))
         {
             builder.Where("PermissionId = @PermissionId", new { PermissionId = permissionId });
         }
@@ -92,9 +101,11 @@ internal class PermissionRepositoryMySql : IPermissionRepository
             builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)",
+                new { CreatedDateTime = createdDateTime });
         }
 
         if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
@@ -102,9 +113,11 @@ internal class PermissionRepositoryMySql : IPermissionRepository
             builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)",
+                new { ModifiedDateTime = modifiedDateTime });
         }
 
         const string sql = "SELECT * FROM Permissions /**where**/";
@@ -112,9 +125,16 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         return await _sqlConnection.QueryAsync<Permission>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(Permission entity)
+    public async Task Update(Permission entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var builder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
+
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
 
         if (!Equals(entity.OriginalValue(nameof(Permission.RoleId)), entity.RoleId))
         {
@@ -147,12 +167,23 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         }
 
         builder.Where("PermissionId = @PermissionId", new { entity.PermissionId });
+        
+        if (!builder.HasSet)
+        {
+            return;
+        }
 
         const string sql = "UPDATE Permissions /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Permission with Id {entity.PermissionId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
-    
+
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
 }

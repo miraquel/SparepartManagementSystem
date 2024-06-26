@@ -3,7 +3,9 @@ using Dapper;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 using static System.String;
 
 namespace SparepartManagementSystem.Repository.MySql;
@@ -18,49 +20,69 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         _dbTransaction = dbTransaction;
         _sqlConnection = sqlConnection;
     }
-    
-    public async Task Add(GoodsReceiptLine entity)
+
+    public async Task Add(GoodsReceiptLine entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO GoodsReceiptLines
                                (GoodsReceiptHeaderId, ItemId, LineNumber, ItemName, ProductType, RemainPurchPhysical, ReceiveNow, PurchQty, PurchUnit, PurchPrice, LineAmount, InventLocationId, WMSLocationId, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES
                                (@GoodsReceiptHeaderId, @ItemId, @LineNumber, @ItemName, @ProductType, @RemainPurchPhysical, @ReceiveNow, @PurchQty, @PurchUnit, @PurchPrice, @LineAmount, @InventLocationId, @WMSLocationId, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        
+
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
         entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
+
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId";
-        _ = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        var rows = await _sqlConnection.ExecuteAsync(sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Goods receipt line with Id {id} not found");
+        }
     }
+
     public async Task<IEnumerable<GoodsReceiptLine>> GetAll()
     {
         const string sql = "SELECT * FROM GoodsReceiptLines";
         return await _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, transaction: _dbTransaction);
     }
+
     public async Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId";
-        const string sqlForUpdate = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId FOR UPDATE";
-        var result = await _sqlConnection.QueryFirstAsync<GoodsReceiptLine>(forUpdate ? sqlForUpdate : sql, new { GoodsReceiptLineId = id }, _dbTransaction);
+        const string sqlForUpdate =
+            "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptLineId = @GoodsReceiptLineId FOR UPDATE";
+        var result =
+            await _sqlConnection.QueryFirstOrDefaultAsync<GoodsReceiptLine>(forUpdate ? sqlForUpdate : sql,
+                new { GoodsReceiptLineId = id }, _dbTransaction) ??
+            throw new InvalidOperationException($"Goods receipt line with Id {id} not found");
         result.AcceptChanges();
+        
         return result;
     }
+
     public async Task<IEnumerable<GoodsReceiptLine>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();
 
-        if (parameters.TryGetValue("goodsReceiptLineId", out var goodsReceiptLineIdString) && int.TryParse(goodsReceiptLineIdString, out var goodsReceiptLineId))
+        if (parameters.TryGetValue("goodsReceiptLineId", out var goodsReceiptLineIdString) &&
+            int.TryParse(goodsReceiptLineIdString, out var goodsReceiptLineId))
         {
             builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { GoodsReceiptLineId = goodsReceiptLineId });
         }
 
-        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) && int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
+        if (parameters.TryGetValue("goodsReceiptHeaderId", out var goodsReceiptHeaderIdString) &&
+            int.TryParse(goodsReceiptHeaderIdString, out var goodsReceiptHeaderId))
         {
-            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
+            builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId",
+                new { GoodsReceiptHeaderId = goodsReceiptHeaderId });
         }
 
         if (parameters.TryGetValue("itemId", out var itemId) && !IsNullOrEmpty(itemId))
@@ -68,7 +90,8 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             builder.Where("ItemId LIKE @ItemId", new { ItemId = $"%{itemId}%" });
         }
 
-        if (parameters.TryGetValue("lineNumber", out var lineNumberString) && int.TryParse(lineNumberString, out var lineNumber))
+        if (parameters.TryGetValue("lineNumber", out var lineNumberString) &&
+            int.TryParse(lineNumberString, out var lineNumber))
         {
             builder.Where("LineNumber = @LineNumber", new { LineNumber = lineNumber });
         }
@@ -78,22 +101,27 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             builder.Where("ItemName LIKE @ItemName", new { ItemName = $"%{itemName}%" });
         }
 
-        if (parameters.TryGetValue("productType", out var productTypeString) && Enum.TryParse<ProductType>(productTypeString, out var productType))
+        if (parameters.TryGetValue("productType", out var productTypeString) &&
+            Enum.TryParse<ProductType>(productTypeString, out var productType))
         {
             builder.Where("ProductType = @ProductType", new { ProductType = productType });
         }
 
-        if (parameters.TryGetValue("remainPurchPhysical", out var remainPurchPhysicalString) && decimal.TryParse(remainPurchPhysicalString, out var remainPurchPhysical))
+        if (parameters.TryGetValue("remainPurchPhysical", out var remainPurchPhysicalString) &&
+            decimal.TryParse(remainPurchPhysicalString, out var remainPurchPhysical))
         {
-            builder.Where("RemainPurchPhysical = @RemainPurchPhysical", new { RemainPurchPhysical = remainPurchPhysical });
+            builder.Where("RemainPurchPhysical = @RemainPurchPhysical",
+                new { RemainPurchPhysical = remainPurchPhysical });
         }
 
-        if (parameters.TryGetValue("receiveNow", out var receiveNowString) && decimal.TryParse(receiveNowString, out var receiveNow))
+        if (parameters.TryGetValue("receiveNow", out var receiveNowString) &&
+            decimal.TryParse(receiveNowString, out var receiveNow))
         {
             builder.Where("ReceiveNow = @ReceiveNow", new { ReceiveNow = receiveNow });
         }
 
-        if (parameters.TryGetValue("purchQty", out var purchQtyString) && decimal.TryParse(purchQtyString, out var purchQty))
+        if (parameters.TryGetValue("purchQty", out var purchQtyString) &&
+            decimal.TryParse(purchQtyString, out var purchQty))
         {
             builder.Where("PurchQty = @PurchQty", new { PurchQty = purchQty });
         }
@@ -103,19 +131,22 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             builder.Where("PurchUnit LIKE @PurchUnit", new { PurchUnit = $"%{purchUnit}%" });
         }
 
-        if (parameters.TryGetValue("purchPrice", out var purchPriceString) && decimal.TryParse(purchPriceString, out var purchPrice))
+        if (parameters.TryGetValue("purchPrice", out var purchPriceString) &&
+            decimal.TryParse(purchPriceString, out var purchPrice))
         {
             builder.Where("PurchPrice = @PurchPrice", new { PurchPrice = purchPrice });
         }
 
-        if (parameters.TryGetValue("lineAmount", out var lineAmountString) && decimal.TryParse(lineAmountString, out var lineAmount))
+        if (parameters.TryGetValue("lineAmount", out var lineAmountString) &&
+            decimal.TryParse(lineAmountString, out var lineAmount))
         {
             builder.Where("LineAmount = @LineAmount", new { LineAmount = lineAmount });
         }
 
         if (parameters.TryGetValue("inventLocationId", out var inventLocationId) && !IsNullOrEmpty(inventLocationId))
         {
-            builder.Where("InventLocationId LIKE @InventLocationId", new { InventLocationId = $"%{inventLocationId}%" });
+            builder.Where("InventLocationId LIKE @InventLocationId",
+                new { InventLocationId = $"%{inventLocationId}%" });
         }
 
         if (parameters.TryGetValue("wmsLocationId", out var wmsLocationId) && !IsNullOrEmpty(wmsLocationId))
@@ -128,9 +159,11 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             builder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+            builder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)",
+                new { CreatedDateTime = createdDateTime });
         }
 
         if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !IsNullOrEmpty(modifiedBy))
@@ -138,18 +171,28 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             builder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+            builder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)",
+                new { ModifiedDateTime = modifiedDateTime });
         }
-        
+
         var template = builder.AddTemplate("SELECT * FROM GoodsReceiptLines /**where**/");
-        
+
         return await _sqlConnection.QueryAsync<GoodsReceiptLine>(template.RawSql, template.Parameters, _dbTransaction);
     }
-    public async Task Update(GoodsReceiptLine entity)
+
+    public async Task Update(GoodsReceiptLine entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
     {
-        var builder = new SqlBuilder();
+        var builder = new CustomSqlBuilder();
+        
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+
+        if (!entity.ValidateUpdate())
+        {
+            return;
+        }
 
         if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.GoodsReceiptHeaderId)), entity.GoodsReceiptHeaderId))
         {
@@ -225,25 +268,39 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
-        
+
         builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
-        
+
+        if (!builder.HasSet)
+        {
+            return;
+        }
+
         const string sql = "UPDATE GoodsReceiptLines /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
-        
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Goods receipt line with Id {entity.GoodsReceiptLineId} not found");
+        }
         entity.AcceptChanges();
+        
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
+
     public async Task<IEnumerable<GoodsReceiptLine>> GetByGoodsReceiptHeaderId(int goodsReceiptHeaderId)
     {
         const string sql = "SELECT * FROM GoodsReceiptLines WHERE GoodsReceiptHeaderId = @GoodsReceiptHeaderId";
-        return await _sqlConnection.QueryAsync<GoodsReceiptLine>(sql, new { GoodsReceiptHeaderId = goodsReceiptHeaderId }, _dbTransaction);
+        return await _sqlConnection.QueryAsync<GoodsReceiptLine>(sql,
+            new { GoodsReceiptHeaderId = goodsReceiptHeaderId }, _dbTransaction);
     }
-    
-    public async Task BulkAdd(IEnumerable<GoodsReceiptLine> entities)
+
+    public async Task BulkAdd(IEnumerable<GoodsReceiptLine> entities, Action<object, object>? onSqlBulkCopyError = null, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        ArgumentNullException.ThrowIfNull(entities);
         var dataTable = new DataTable();
-        
+
         var goodsReceiptLineIdColumn = new DataColumn("GoodsReceiptLineId", typeof(int));
         var goodsReceiptHeaderIdColumn = new DataColumn("GoodsReceiptHeaderId", typeof(int));
         var itemIdColumn = new DataColumn("ItemId", typeof(string));
@@ -262,7 +319,7 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         var createdDateTimeColumn = new DataColumn("CreatedDateTime", typeof(DateTime));
         var modifiedByColumn = new DataColumn("ModifiedBy", typeof(string));
         var modifiedDateTimeColumn = new DataColumn("ModifiedDateTime", typeof(DateTime));
-        
+
         dataTable.Columns.Add(goodsReceiptLineIdColumn);
         dataTable.Columns.Add(goodsReceiptHeaderIdColumn);
         dataTable.Columns.Add(itemIdColumn);
@@ -281,9 +338,10 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         dataTable.Columns.Add(createdDateTimeColumn);
         dataTable.Columns.Add(modifiedByColumn);
         dataTable.Columns.Add(modifiedDateTimeColumn);
-        
+
         foreach (var entity in entities)
         {
+            onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
             var row = dataTable.NewRow();
             row[goodsReceiptLineIdColumn] = entity.GoodsReceiptLineId;
             row[goodsReceiptHeaderIdColumn] = entity.GoodsReceiptHeaderId;
@@ -304,17 +362,21 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
             row[modifiedByColumn] = entity.ModifiedBy;
             row[modifiedDateTimeColumn] = DateTime.Now;
             dataTable.Rows.Add(row);
+            onAfterAdd?.Invoke(this, new AddEventArgs(entity));
         }
-        
-        var mySqlConnection = _sqlConnection as MySqlConnection ?? throw new InvalidOperationException("Connection is not initialized");
 
-        mySqlConnection.InfoMessage += (_, args) =>
+        var mySqlConnection = _sqlConnection as MySqlConnection ??
+                              throw new InvalidOperationException("Connection is not initialized");
+        
+        if (onSqlBulkCopyError != null)
         {
-            foreach (var message in args.Errors)
+            void OnMySqlConnectionOnInfoMessage(object sender, MySqlInfoMessageEventArgs args)
             {
-                Console.WriteLine($"Message: {message.Message}");
+                onSqlBulkCopyError(sender, args);
             }
-        };
+
+            mySqlConnection.InfoMessage += OnMySqlConnectionOnInfoMessage;
+        }
 
         var mySqlBulkCopy = new MySqlBulkCopy(mySqlConnection, _dbTransaction as MySqlTransaction)
         {

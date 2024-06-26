@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using Serilog;
+using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -11,14 +12,14 @@ public class WorkOrderService : IWorkOrderService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public WorkOrderService(MapperlyMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+    public WorkOrderService(MapperlyMapper mapper, IUnitOfWork unitOfWork, RepositoryEvents repositoryEvents)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
     
     public async Task<ServiceResponse> AddWorkOrderHeader(WorkOrderHeaderDto dto)
@@ -26,17 +27,13 @@ public class WorkOrderService : IWorkOrderService
         try
         {
             var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
-            workOrderHeaderAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            workOrderHeaderAdd.CreatedDateTime = DateTime.Now;
-            workOrderHeaderAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            workOrderHeaderAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd);
+            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
                 
             _logger.Information("Work Order Header added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -46,7 +43,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -73,34 +70,24 @@ public class WorkOrderService : IWorkOrderService
     {
         try
         {
-            var currentUser = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            var currentDateTime = DateTime.Now;
-            
             var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
-            workOrderHeaderAdd.CreatedBy = currentUser;
-            workOrderHeaderAdd.CreatedDateTime = currentDateTime;
-            workOrderHeaderAdd.ModifiedBy = currentUser;
-            workOrderHeaderAdd.ModifiedDateTime = currentDateTime;
-            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd);
+            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
-            
-            var workOrderLines = _mapper.MapToListOfWorkOrderLine(dto.WorkOrderLines).ToArray();
 
-            foreach (var workOrderLine in workOrderLines)
-            {
-                workOrderLine.WorkOrderHeaderId = lastInsertedId;
-                workOrderLine.CreatedBy = currentUser;
-                workOrderLine.CreatedDateTime = currentDateTime;
-                workOrderLine.ModifiedBy = currentUser;
-                workOrderLine.ModifiedDateTime = currentDateTime;
-            }
+            var workOrderLines = _mapper.MapToListOfWorkOrderLine(dto.WorkOrderLines);
             
-            await _unitOfWork.WorkOrderLineRepository.BulkAdd(workOrderLines);
+            _repositoryEvents.OnBeforeAdd += (_, args) =>
+            {
+                if (args.Entity is not WorkOrderLine workOrderLine) return;
+                workOrderLine.WorkOrderHeaderId = lastInsertedId;
+            };
+            
+            await _unitOfWork.WorkOrderLineRepository.BulkAdd(workOrderLines, _repositoryEvents.OnBeforeAdd);
                 
             _logger.Information("Work Order Header and lines added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -110,7 +97,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -155,13 +142,11 @@ public class WorkOrderService : IWorkOrderService
                 }; 
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderHeaderRepository.Update(record);
+            await _unitOfWork.WorkOrderHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
             _logger.Information("Work Order Header updated successfully, Work Order Header Id: {WorkOrderHeaderId}", dto.WorkOrderHeaderId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -171,7 +156,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -201,7 +186,7 @@ public class WorkOrderService : IWorkOrderService
             
             _logger.Information("Work Order Header deleted successfully, Work Order Header Id: {WorkOrderHeaderId}", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -211,7 +196,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -351,17 +336,13 @@ public class WorkOrderService : IWorkOrderService
         try
         {
             var workOrderLineAdd = _mapper.MapToWorkOrderLine(dto);
-            workOrderLineAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            workOrderLineAdd.CreatedDateTime = DateTime.Now;
-            workOrderLineAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            workOrderLineAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderLineRepository.Add(workOrderLineAdd);
+            await _unitOfWork.WorkOrderLineRepository.Add(workOrderLineAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
                 
             _logger.Information("Work Order Line added successfully, Work Order Line Id: {WorkOrderLineId}", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -371,7 +352,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -415,13 +396,11 @@ public class WorkOrderService : IWorkOrderService
                 };
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.WorkOrderLineRepository.Update(record);
+            await _unitOfWork.WorkOrderLineRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
             _logger.Information("Work Order Line updated successfully, Work Order Line Id: {WorkOrderLineId}", dto.WorkOrderLineId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -431,7 +410,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -461,7 +440,7 @@ public class WorkOrderService : IWorkOrderService
             
             _logger.Information("Work Order Line deleted successfully, Work Order Line Id: {WorkOrderLineId}", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -471,7 +450,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -602,17 +581,13 @@ public class WorkOrderService : IWorkOrderService
         try
         {
             var itemRequisitionAdd = _mapper.MapToItemRequisition(dto);
-            itemRequisitionAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            itemRequisitionAdd.CreatedDateTime = DateTime.Now;
-            itemRequisitionAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            itemRequisitionAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.ItemRequisitionRepository.Add(itemRequisitionAdd);
+            await _unitOfWork.ItemRequisitionRepository.Add(itemRequisitionAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
             
             _logger.Information("Item Requisition added successfully, Item Requisition Id: {ItemRequisitionId}", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -622,7 +597,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -667,13 +642,11 @@ public class WorkOrderService : IWorkOrderService
                 };
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.ItemRequisitionRepository.Update(record);
+            await _unitOfWork.ItemRequisitionRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
             _logger.Information("Item Requisition updated successfully, Item Requisition Id: {ItemRequisitionId}", dto.ItemRequisitionId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -683,7 +656,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -714,7 +687,7 @@ public class WorkOrderService : IWorkOrderService
             
             _logger.Information("Item Requisition deleted successfully, Item Requisition Id: {ItemRequisitionId}", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -724,7 +697,7 @@ public class WorkOrderService : IWorkOrderService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

@@ -116,4 +116,13 @@ public static class PermissionType
         public const string Delete = "userWarehouse.Delete";
         public const string Process = "userWarehouse.Process";
     }
+    
+    public static class VersionTracker
+    {
+        public const string Read = "versionTracker.Read";
+        public const string Create = "versionTracker.Create";
+        public const string Update = "versionTracker.Update";
+        public const string Delete = "versionTracker.Delete";
+        public const string Process = "versionTracker.Process";
+    }
 }

@@ -1,4 +1,5 @@
 using System.Data.SqlTypes;
+using SparepartManagementSystem.Domain.Enums;
 
 namespace SparepartManagementSystem.Service.DTO;
 
@@ -15,6 +16,8 @@ public class InventReqDto
     public string InventSiteId { get; init; } = string.Empty;
     public string InventLocationId { get; init; } = string.Empty;
     public string WMSLocationId { get; init; } = string.Empty;
+    public NoYes Process { get; init; }
+    public string PreparerUserId { get; init; } = string.Empty;
     public long AGSWORecId { get; init; }
     public string CreatedBy { get; init; } = string.Empty;
     public DateTime CreatedDateTime { get; init; }

@@ -1,4 +1,4 @@
-namespace SparepartManagementSystem.Shared.Helper;
+namespace SparepartManagementSystem.Domain.Extensions;
 
 public static class EnumerableStringExtensions
 {

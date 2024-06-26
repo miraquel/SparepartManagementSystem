@@ -180,70 +180,6 @@ public class ItemRequisition : BaseModel
         }
     }
     
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
     public override void AcceptChanges()
     {
         if (!IsChanged)
@@ -262,10 +198,7 @@ public class ItemRequisition : BaseModel
         OriginalValues[nameof(WMSLocationId)] = _wMsLocationId;
         OriginalValues[nameof(JournalId)] = _journalId;
         OriginalValues[nameof(IsSubmitted)] = _isSubmitted;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -288,22 +221,18 @@ public class ItemRequisition : BaseModel
         _wMsLocationId = OriginalValues[nameof(WMSLocationId)] as string ?? string.Empty;
         _journalId = OriginalValues[nameof(JournalId)] as string ?? string.Empty;
         _isSubmitted = OriginalValues[nameof(IsSubmitted)] as bool? ?? false;
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not ItemRequisition value)
         {
             return;
         }
         
-        ItemRequisitionId = value.ItemRequisitionId;
         WorkOrderLineId = value.WorkOrderLineId;
         ItemId = value.ItemId;
         ItemName = value.ItemName;
@@ -314,9 +243,5 @@ public class ItemRequisition : BaseModel
         WMSLocationId = value.WMSLocationId;
         JournalId = value.JournalId;
         IsSubmitted = value.IsSubmitted;
-        CreatedBy = value.CreatedBy;
-        CreatedDateTime = value.CreatedDateTime;
-        ModifiedBy = value.ModifiedBy;
-        ModifiedDateTime = value.ModifiedDateTime;
     }
 }

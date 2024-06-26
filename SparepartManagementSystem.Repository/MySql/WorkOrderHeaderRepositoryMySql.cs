@@ -2,7 +2,9 @@ using System.Data;
 using Dapper;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
+using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
+using SparepartManagementSystem.Shared.DerivedClass;
 
 namespace SparepartManagementSystem.Repository.MySql;
 
@@ -16,57 +18,73 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
         _dbTransaction = dbTransaction;
         _sqlConnection = sqlConnection;
     }
-    
-    public async Task Add(WorkOrderHeader entity)
+
+    public async Task Add(WorkOrderHeader entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null)
     {
+        onBeforeAdd?.Invoke(this, new AddEventArgs(entity));
+        
         const string sql = """
                            INSERT INTO WorkOrderHeaders 
                                (IsSubmitted, SubmittedDate, AGSEAMWOID, AGSEAMWRID, AGSEAMEntityID, Name, HeaderTitle, AGSEAMPriorityID, AGSEAMWOTYPE, AGSEAMWOStatusID, AGSEAMPlanningStartDate, AGSEAMPlanningEndDate, EntityShutDown, WOCloseDate, AGSEAMSuspend, Notes, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES 
                                (@IsSubmitted, @SubmittedDate, @AGSEAMWOID, @AGSEAMWRID, @AGSEAMEntityID, @Name, @HeaderTitle, @AGSEAMPriorityID, @AGSEAMWOTYPE, @AGSEAMWOStatusID, @AGSEAMPlanningStartDate, @AGSEAMPlanningEndDate, @EntityShutDown, @WOCloseDate, @AGSEAMSuspend, @Notes, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
-        
+
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
+        entity.AcceptChanges();
+        
+        onAfterAdd?.Invoke(this, new AddEventArgs(entity));
     }
+
     public async Task Delete(int id)
     {
         const string sql = "DELETE FROM WorkOrderHeaders WHERE WorkOrderHeaderId = @WorkOrderHeaderId";
         _ = await _sqlConnection.ExecuteAsync(sql, new { WorkOrderHeaderId = id }, _dbTransaction);
     }
+
     public async Task<IEnumerable<WorkOrderHeader>> GetAll()
     {
         const string sql = "SELECT * FROM WorkOrderHeaders";
         var workOrderHeaders = await _sqlConnection.QueryAsync<WorkOrderHeader>(sql, transaction: _dbTransaction);
         var workOrderHeadersArray = workOrderHeaders as WorkOrderHeader[] ?? workOrderHeaders.ToArray();
-        foreach (var workOrderHeader in workOrderHeadersArray)
-        {
-            workOrderHeader.AcceptChanges();
-        }
+        foreach (var workOrderHeader in workOrderHeadersArray) workOrderHeader.AcceptChanges();
         return workOrderHeadersArray;
     }
-    public Task<WorkOrderHeader> GetById(int id, bool forUpdate = false)
+
+    public async Task<WorkOrderHeader> GetById(int id, bool forUpdate = false)
     {
         const string sql = "SELECT * FROM WorkOrderHeaders WHERE WorkOrderHeaderId = @WorkOrderHeaderId";
-        const string sqlForUpdate = "SELECT * FROM WorkOrderHeaders WHERE WorkOrderHeaderId = @WorkOrderHeaderId FOR UPDATE";
-        return _sqlConnection.QueryFirstAsync<WorkOrderHeader>(forUpdate ? sqlForUpdate : sql, new { WorkOrderHeaderId = id }, _dbTransaction);
+        const string sqlForUpdate =
+            "SELECT * FROM WorkOrderHeaders WHERE WorkOrderHeaderId = @WorkOrderHeaderId FOR UPDATE";
+        var result =
+            await _sqlConnection.QueryFirstOrDefaultAsync<WorkOrderHeader>(forUpdate ? sqlForUpdate : sql,
+                new { WorkOrderHeaderId = id }, _dbTransaction) ??
+            throw new Exception($"Work order header with Id {id} not found");
+        result.AcceptChanges();
+        return result;
     }
-    public Task<IEnumerable<WorkOrderHeader>> GetByParams(Dictionary<string, string> parameters)
+
+    public async Task<IEnumerable<WorkOrderHeader>> GetByParams(Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
 
-        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) && int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
+        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) &&
+            int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
         {
             sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { WorkOrderHeaderId = workOrderHeaderId });
         }
 
-        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) &&
+            bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
         }
 
-        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) &&
+            DateTime.TryParse(submittedDateString, out var submittedDate))
         {
-            sqlBuilder.Where("CAST(SubmittedDate AS date) = CAST(@SubmittedDate AS date)", new { SubmittedDate = submittedDate });
+            sqlBuilder.Where("CAST(SubmittedDate AS date) = CAST(@SubmittedDate AS date)",
+                new { SubmittedDate = submittedDate });
         }
 
         if (parameters.TryGetValue("aGSEAMWOID", out var agseamwoid) && !string.IsNullOrEmpty(agseamwoid))
@@ -94,9 +112,11 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("HeaderTitle LIKE @HeaderTitle", new { HeaderTitle = $"%{headertitle}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMPriorityID", out var agseampriorityid) && !string.IsNullOrEmpty(agseampriorityid))
+        if (parameters.TryGetValue("aGSEAMPriorityID", out var agseampriorityid) &&
+            !string.IsNullOrEmpty(agseampriorityid))
         {
-            sqlBuilder.Where("AGSEAMPriorityID LIKE @AGSEAMPriorityID", new { AGSEAMPriorityID = $"%{agseampriorityid}%" });
+            sqlBuilder.Where("AGSEAMPriorityID LIKE @AGSEAMPriorityID",
+                new { AGSEAMPriorityID = $"%{agseampriorityid}%" });
         }
 
         if (parameters.TryGetValue("aGSEAMWOTYPE", out var agseamwotype) && !string.IsNullOrEmpty(agseamwotype))
@@ -104,32 +124,42 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("AGSEAMWOTYPE LIKE @AGSEAMWOTYPE", new { AGSEAMWOTYPE = $"%{agseamwotype}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMWOStatusID", out var agseamwostatusid) && !string.IsNullOrEmpty(agseamwostatusid))
+        if (parameters.TryGetValue("aGSEAMWOStatusID", out var agseamwostatusid) &&
+            !string.IsNullOrEmpty(agseamwostatusid))
         {
-            sqlBuilder.Where("AGSEAMWOStatusID LIKE @AGSEAMWOStatusID", new { AGSEAMWOStatusID = $"%{agseamwostatusid}%" });
+            sqlBuilder.Where("AGSEAMWOStatusID LIKE @AGSEAMWOStatusID",
+                new { AGSEAMWOStatusID = $"%{agseamwostatusid}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMPlanningStartDate", out var agseamplanningstartdateString) && DateTime.TryParse(agseamplanningstartdateString, out var agseamplanningstartdate))
+        if (parameters.TryGetValue("aGSEAMPlanningStartDate", out var agseamplanningstartdateString) &&
+            DateTime.TryParse(agseamplanningstartdateString, out var agseamplanningstartdate))
         {
-            sqlBuilder.Where("CAST(AGSEAMPlanningStartDate AS date) = CAST(@AGSEAMPlanningStartDate AS date)", new { AGSEAMPlanningStartDate = agseamplanningstartdate });
+            sqlBuilder.Where("CAST(AGSEAMPlanningStartDate AS date) = CAST(@AGSEAMPlanningStartDate AS date)",
+                new { AGSEAMPlanningStartDate = agseamplanningstartdate });
         }
 
-        if (parameters.TryGetValue("aGSEAMPlanningEndDate", out var agseamplanningenddateString) && DateTime.TryParse(agseamplanningenddateString, out var agseamplanningenddate))
+        if (parameters.TryGetValue("aGSEAMPlanningEndDate", out var agseamplanningenddateString) &&
+            DateTime.TryParse(agseamplanningenddateString, out var agseamplanningenddate))
         {
-            sqlBuilder.Where("CAST(AGSEAMPlanningEndDate AS date) = CAST(@AGSEAMPlanningEndDate AS date)", new { AGSEAMPlanningEndDate = agseamplanningenddate });
+            sqlBuilder.Where("CAST(AGSEAMPlanningEndDate AS date) = CAST(@AGSEAMPlanningEndDate AS date)",
+                new { AGSEAMPlanningEndDate = agseamplanningenddate });
         }
 
-        if (parameters.TryGetValue("entityShutDown", out var entityshutDownString) && Enum.TryParse(entityshutDownString, out NoYes entityShutDown))
+        if (parameters.TryGetValue("entityShutDown", out var entityShutDownString) &&
+            Enum.TryParse(entityShutDownString, out NoYes entityShutDown))
         {
             sqlBuilder.Where("EntityShutDown = @EntityShutDown", new { EntityShutDown = entityShutDown });
         }
 
-        if (parameters.TryGetValue("wOCloseDate", out var woclosedateString) && DateTime.TryParse(woclosedateString, out var woclosedate))
+        if (parameters.TryGetValue("wOCloseDate", out var woclosedateString) &&
+            DateTime.TryParse(woclosedateString, out var woclosedate))
         {
-            sqlBuilder.Where("CAST(WOCloseDate AS date) = CAST(@WOCloseDate AS date)", new { WOCloseDate = woclosedate });
+            sqlBuilder.Where("CAST(WOCloseDate AS date) = CAST(@WOCloseDate AS date)",
+                new { WOCloseDate = woclosedate });
         }
 
-        if (parameters.TryGetValue("aGSEAMSuspend", out var agseamsuspendString) && Enum.TryParse(agseamsuspendString, out NoYes agseamsuspend))
+        if (parameters.TryGetValue("aGSEAMSuspend", out var agseamsuspendString) &&
+            Enum.TryParse(agseamsuspendString, out NoYes agseamsuspend))
         {
             sqlBuilder.Where("AGSEAMSuspend = @AGSEAMSuspend", new { AGSEAMSuspend = agseamsuspend });
         }
@@ -144,9 +174,11 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("CreatedBy LIKE @CreatedBy", new { CreatedBy = $"%{createdBy}%" });
         }
 
-        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) && DateTime.TryParse(createdDateTimeString, out var createdDateTime))
+        if (parameters.TryGetValue("createdDateTime", out var createdDateTimeString) &&
+            DateTime.TryParse(createdDateTimeString, out var createdDateTime))
         {
-            sqlBuilder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)", new { CreatedDateTime = createdDateTime });
+            sqlBuilder.Where("CAST(CreatedDateTime AS date) = CAST(@CreatedDateTime AS date)",
+                new { CreatedDateTime = createdDateTime });
         }
 
         if (parameters.TryGetValue("modifiedBy", out var modifiedBy) && !string.IsNullOrEmpty(modifiedBy))
@@ -154,120 +186,145 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("ModifiedBy LIKE @ModifiedBy", new { ModifiedBy = $"%{modifiedBy}%" });
         }
 
-        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) && DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
+        if (parameters.TryGetValue("modifiedDateTime", out var modifiedDateTimeString) &&
+            DateTime.TryParse(modifiedDateTimeString, out var modifiedDateTime))
         {
-            sqlBuilder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)", new { ModifiedDateTime = modifiedDateTime });
+            sqlBuilder.Where("CAST(ModifiedDateTime AS date) = CAST(@ModifiedDateTime AS date)",
+                new { ModifiedDateTime = modifiedDateTime });
         }
 
         const string sql = "SELECT * FROM WorkOrderHeaders /**where**/";
         var template = sqlBuilder.AddTemplate(sql);
-        
-        return _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
-    }
-    public async Task Update(WorkOrderHeader entity)
-    {
-        var sqlBuilder = new SqlBuilder();
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.IsSubmitted)), entity.IsSubmitted) && entity.IsSubmitted)
+        return await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
+    }
+
+    public async Task Update(WorkOrderHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    {
+        var builder = new CustomSqlBuilder();
+        
+        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+
+        if (!entity.ValidateUpdate())
         {
-            sqlBuilder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
+            return;
+        }
+
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.IsSubmitted)), entity.IsSubmitted) &&
+            entity.IsSubmitted)
+        {
+            builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.SubmittedDate)), entity.SubmittedDate))
         {
-            sqlBuilder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
+            builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOID)), entity.AGSEAMWOID))
         {
-            sqlBuilder.Set("AGSEAMWOID = @AGSEAMWOID", new { entity.AGSEAMWOID });
+            builder.Set("AGSEAMWOID = @AGSEAMWOID", new { entity.AGSEAMWOID });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWRID)), entity.AGSEAMWRID))
         {
-            sqlBuilder.Set("AGSEAMWRID = @AGSEAMWRID", new { entity.AGSEAMWRID });
+            builder.Set("AGSEAMWRID = @AGSEAMWRID", new { entity.AGSEAMWRID });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMEntityID)), entity.AGSEAMEntityID))
         {
-            sqlBuilder.Set("AGSEAMEntityID = @AGSEAMEntityID", new { entity.AGSEAMEntityID });
+            builder.Set("AGSEAMEntityID = @AGSEAMEntityID", new { entity.AGSEAMEntityID });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.Name)), entity.Name))
         {
-            sqlBuilder.Set("Name = @Name", new { entity.Name });
+            builder.Set("Name = @Name", new { entity.Name });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.HeaderTitle)), entity.HeaderTitle))
         {
-            sqlBuilder.Set("HeaderTitle = @HeaderTitle", new { entity.HeaderTitle });
+            builder.Set("HeaderTitle = @HeaderTitle", new { entity.HeaderTitle });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPriorityID)), entity.AGSEAMPriorityID))
         {
-            sqlBuilder.Set("AGSEAMPriorityID = @AGSEAMPriorityID", new { entity.AGSEAMPriorityID });
+            builder.Set("AGSEAMPriorityID = @AGSEAMPriorityID", new { entity.AGSEAMPriorityID });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOTYPE)), entity.AGSEAMWOTYPE))
         {
-            sqlBuilder.Set("AGSEAMWOTYPE = @AGSEAMWOTYPE", new { entity.AGSEAMWOTYPE });
+            builder.Set("AGSEAMWOTYPE = @AGSEAMWOTYPE", new { entity.AGSEAMWOTYPE });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOStatusID)), entity.AGSEAMWOStatusID))
         {
-            sqlBuilder.Set("AGSEAMWOStatusID = @AGSEAMWOStatusID", new { entity.AGSEAMWOStatusID });
+            builder.Set("AGSEAMWOStatusID = @AGSEAMWOStatusID", new { entity.AGSEAMWOStatusID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningStartDate)), entity.AGSEAMPlanningStartDate))
+        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningStartDate)),
+                entity.AGSEAMPlanningStartDate))
         {
-            sqlBuilder.Set("AGSEAMPlanningStartDate = @AGSEAMPlanningStartDate", new { entity.AGSEAMPlanningStartDate });
+            builder.Set("AGSEAMPlanningStartDate = @AGSEAMPlanningStartDate",
+                new { entity.AGSEAMPlanningStartDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningEndDate)), entity.AGSEAMPlanningEndDate))
         {
-            sqlBuilder.Set("AGSEAMPlanningEndDate = @AGSEAMPlanningEndDate", new { entity.AGSEAMPlanningEndDate });
+            builder.Set("AGSEAMPlanningEndDate = @AGSEAMPlanningEndDate", new { entity.AGSEAMPlanningEndDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.EntityShutDown)), entity.EntityShutDown))
         {
-            sqlBuilder.Set("EntityShutDown = @EntityShutDown", new { entity.EntityShutDown });
+            builder.Set("EntityShutDown = @EntityShutDown", new { entity.EntityShutDown });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.WOCloseDate)), entity.WOCloseDate))
         {
-            sqlBuilder.Set("WOCloseDate = @WOCloseDate", new { entity.WOCloseDate });
+            builder.Set("WOCloseDate = @WOCloseDate", new { entity.WOCloseDate });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMSuspend)), entity.AGSEAMSuspend))
         {
-            sqlBuilder.Set("AGSEAMSuspend = @AGSEAMSuspend", new { entity.AGSEAMSuspend });
+            builder.Set("AGSEAMSuspend = @AGSEAMSuspend", new { entity.AGSEAMSuspend });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.Notes)), entity.Notes))
         {
-            sqlBuilder.Set("Notes = @Notes", new { entity.Notes });
+            builder.Set("Notes = @Notes", new { entity.Notes });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedBy)), entity.ModifiedBy))
         {
-            sqlBuilder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
         if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedDateTime)), entity.ModifiedDateTime))
         {
-            sqlBuilder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
-        
-        sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
+
+        builder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
+
+        if (!builder.HasSet)
+        {
+            return;
+        }
 
         const string sql = "UPDATE WorkOrderHeaders /**set**/ /**where**/";
-        var template = sqlBuilder.AddTemplate(sql);
+        var template = builder.AddTemplate(sql);
+
+        var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        if (rows == 0)
+        {
+            throw new InvalidOperationException($"Work order header with Id {entity.WorkOrderHeaderId} not found");
+        }
+        entity.AcceptChanges();
         
-        _ = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
+        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
-    
+
     public async Task<PagedList<WorkOrderHeader>> GetAllPagedList(int pageNumber, int pageSize)
     {
         var sqlBuilder = new SqlBuilder();
@@ -276,28 +333,35 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
 
         const string sql = "SELECT * FROM WorkOrderHeaders LIMIT @PageSize OFFSET @Offset";
         var template = sqlBuilder.AddTemplate(sql);
-        var result = await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
+        var result =
+            await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
         const string countSql = "SELECT COUNT(*) FROM WorkOrderHeaders";
         var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(countSql, transaction: _dbTransaction);
         return new PagedList<WorkOrderHeader>(result, pageNumber, pageSize, resultCount);
     }
-    public async Task<PagedList<WorkOrderHeader>> GetByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
+
+    public async Task<PagedList<WorkOrderHeader>> GetByParamsPagedList(int pageNumber, int pageSize,
+        Dictionary<string, string> parameters)
     {
         var sqlBuilder = new SqlBuilder();
-        
-        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) && int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
+
+        if (parameters.TryGetValue("workOrderHeaderId", out var workOrderHeaderIdString) &&
+            int.TryParse(workOrderHeaderIdString, out var workOrderHeaderId))
         {
             sqlBuilder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { WorkOrderHeaderId = workOrderHeaderId });
         }
 
-        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) && bool.TryParse(isSubmittedString, out var isSubmitted))
+        if (parameters.TryGetValue("isSubmitted", out var isSubmittedString) &&
+            bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
         }
 
-        if (parameters.TryGetValue("submittedDate", out var submittedDateString) && DateTime.TryParse(submittedDateString, out var submittedDate))
+        if (parameters.TryGetValue("submittedDate", out var submittedDateString) &&
+            DateTime.TryParse(submittedDateString, out var submittedDate))
         {
-            sqlBuilder.Where("CAST(SubmittedDate AS date) = CAST(@SubmittedDate AS date)", new { SubmittedDate = submittedDate });
+            sqlBuilder.Where("CAST(SubmittedDate AS date) = CAST(@SubmittedDate AS date)",
+                new { SubmittedDate = submittedDate });
         }
 
         if (parameters.TryGetValue("aGSEAMWOID", out var agseamwoid) && !string.IsNullOrEmpty(agseamwoid))
@@ -325,9 +389,11 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("HeaderTitle LIKE @HeaderTitle", new { HeaderTitle = $"%{headerTitle}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMPriorityID", out var agseampriorityid) && !string.IsNullOrEmpty(agseampriorityid))
+        if (parameters.TryGetValue("aGSEAMPriorityID", out var agseampriorityid) &&
+            !string.IsNullOrEmpty(agseampriorityid))
         {
-            sqlBuilder.Where("AGSEAMPriorityID LIKE @AGSEAMPriorityID", new { AGSEAMPriorityID = $"%{agseampriorityid}%" });
+            sqlBuilder.Where("AGSEAMPriorityID LIKE @AGSEAMPriorityID",
+                new { AGSEAMPriorityID = $"%{agseampriorityid}%" });
         }
 
         if (parameters.TryGetValue("aGSEAMWOTYPE", out var agseamwotype) && !string.IsNullOrEmpty(agseamwotype))
@@ -335,32 +401,42 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
             sqlBuilder.Where("AGSEAMWOTYPE LIKE @AGSEAMWOTYPE", new { AGSEAMWOTYPE = $"%{agseamwotype}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMWOStatusID", out var agseamwostatusid) && !string.IsNullOrEmpty(agseamwostatusid))
+        if (parameters.TryGetValue("aGSEAMWOStatusID", out var agseamwostatusid) &&
+            !string.IsNullOrEmpty(agseamwostatusid))
         {
-            sqlBuilder.Where("AGSEAMWOStatusID LIKE @AGSEAMWOStatusID", new { AGSEAMWOStatusID = $"%{agseamwostatusid}%" });
+            sqlBuilder.Where("AGSEAMWOStatusID LIKE @AGSEAMWOStatusID",
+                new { AGSEAMWOStatusID = $"%{agseamwostatusid}%" });
         }
 
-        if (parameters.TryGetValue("aGSEAMPlanningStartDate", out var agseamplanningstartdateString) && DateTime.TryParse(agseamplanningstartdateString, out var agseamplanningstartdate))
+        if (parameters.TryGetValue("aGSEAMPlanningStartDate", out var agseamplanningstartdateString) &&
+            DateTime.TryParse(agseamplanningstartdateString, out var agseamplanningstartdate))
         {
-            sqlBuilder.Where("CAST(AGSEAMPlanningStartDate AS date) = CAST(@AGSEAMPlanningStartDate AS date)", new { AGSEAMPlanningStartDate = agseamplanningstartdate });
+            sqlBuilder.Where("CAST(AGSEAMPlanningStartDate AS date) = CAST(@AGSEAMPlanningStartDate AS date)",
+                new { AGSEAMPlanningStartDate = agseamplanningstartdate });
         }
 
-        if (parameters.TryGetValue("aGSEAMPlanningEndDate", out var agseamplanningenddateString) && DateTime.TryParse(agseamplanningenddateString, out var agseamplanningenddate))
+        if (parameters.TryGetValue("aGSEAMPlanningEndDate", out var agseamplanningenddateString) &&
+            DateTime.TryParse(agseamplanningenddateString, out var agseamplanningenddate))
         {
-            sqlBuilder.Where("CAST(AGSEAMPlanningEndDate AS date) = CAST(@AGSEAMPlanningEndDate AS date)", new { AGSEAMPlanningEndDate = agseamplanningenddate });
+            sqlBuilder.Where("CAST(AGSEAMPlanningEndDate AS date) = CAST(@AGSEAMPlanningEndDate AS date)",
+                new { AGSEAMPlanningEndDate = agseamplanningenddate });
         }
 
-        if (parameters.TryGetValue("entityShutDown", out var entityShutDownString) && Enum.TryParse(entityShutDownString, out NoYes entityShutDown))
+        if (parameters.TryGetValue("entityShutDown", out var entityShutDownString) &&
+            Enum.TryParse(entityShutDownString, out NoYes entityShutDown))
         {
             sqlBuilder.Where("EntityShutDown = @EntityShutDown", new { EntityShutDown = entityShutDown });
         }
 
-        if (parameters.TryGetValue("wOCloseDate", out var woclosedateString) && DateTime.TryParse(woclosedateString, out var woclosedate))
+        if (parameters.TryGetValue("wOCloseDate", out var woclosedateString) &&
+            DateTime.TryParse(woclosedateString, out var woclosedate))
         {
-            sqlBuilder.Where("CAST(WOCloseDate AS date) = CAST(@WOCloseDate AS date)", new { WOCloseDate = woclosedate });
+            sqlBuilder.Where("CAST(WOCloseDate AS date) = CAST(@WOCloseDate AS date)",
+                new { WOCloseDate = woclosedate });
         }
 
-        if (parameters.TryGetValue("aGSEAMSuspend", out var agseamsuspendString) && Enum.TryParse(agseamsuspendString, out NoYes agseamsuspend))
+        if (parameters.TryGetValue("aGSEAMSuspend", out var agseamsuspendString) &&
+            Enum.TryParse(agseamsuspendString, out NoYes agseamsuspend))
         {
             sqlBuilder.Where("AGSEAMSuspend = @AGSEAMSuspend", new { AGSEAMSuspend = agseamsuspend });
         }
@@ -372,17 +448,19 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
 
         sqlBuilder.OrderBy("WorkOrderHeaderId DESC");
         sqlBuilder.AddParameters(new { PageSize = pageSize, Offset = (pageNumber - 1) * pageSize });
-        
-        const string sql = "SELECT * FROM WorkOrderHeaders /**where**/ LIMIT @PageSize OFFSET @Offset"; 
+
+        const string sql = "SELECT * FROM WorkOrderHeaders /**where**/ LIMIT @PageSize OFFSET @Offset";
         var template = sqlBuilder.AddTemplate(sql);
-        var result = await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
-        
+        var result =
+            await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
+
         const string sqlCount = "SELECT COUNT(*) FROM WorkOrderHeaders /**where**/";
         template = sqlBuilder.AddTemplate(sqlCount);
         var resultCount = await _sqlConnection.ExecuteScalarAsync<int>(template.RawSql, transaction: _dbTransaction);
-        
+
         return new PagedList<WorkOrderHeader>(result, pageNumber, pageSize, resultCount);
     }
+
     public async Task<WorkOrderHeader> GetByIdWithLines(int id)
     {
         const string sql = """
@@ -395,7 +473,7 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
                            """;
 
         var result = new WorkOrderHeader();
-        
+
         _ = await _sqlConnection.QueryAsync<WorkOrderHeader, WorkOrderLine?, WorkOrderHeader>(sql, (woh, wol) =>
         {
             if (result.WorkOrderHeaderId == 0)
@@ -410,7 +488,7 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
 
             return result;
         }, new { WorkOrderHeaderId = id }, splitOn: "WorkOrderLineId", transaction: _dbTransaction);
-        
+
         return result;
     }
 }

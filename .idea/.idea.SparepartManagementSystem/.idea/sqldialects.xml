@@ -11,6 +11,7 @@
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/RowLevelAccessRepositoryMysql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/UserRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/UserWarehouseRepositoryMySql.cs" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/VersionTrackerRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/WorkOrderHeaderRepositoryMySql.cs" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SparepartManagementSystem.Repository/MySql/WorkOrderLineRepositoryMySql.cs" dialect="MySQL" />
   </component>

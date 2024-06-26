@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using SparepartManagementSystem.Repository.Factory;
@@ -6,24 +7,12 @@ using SparepartManagementSystem.Repository.Interface;
 
 namespace SparepartManagementSystem.Repository.UnitOfWork;
 
-internal sealed class UnitOfWork : IUnitOfWork, IDisposable
+internal class UnitOfWork : IUnitOfWork
 {
-    private readonly IDbTransaction _dbTransaction;
-    private readonly IDbConnection _dbConnection;
     private readonly DatabaseProvider _databaseProvider;
-    public IUserRepository UserRepository { get; }
-    public IUserWarehouseRepository UserWarehouseRepository { get; }
-    public IPermissionRepository PermissionRepository { get; }
-    public IRoleRepository RoleRepository { get; }
-    public INumberSequenceRepository NumberSequenceRepository { get; }
-    public IRefreshTokenRepository RefreshTokenRepository { get; }
-    public IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
-    public IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
-    public IRowLevelAccessRepository RowLevelAccessRepository { get; }
-    public IWorkOrderHeaderRepository WorkOrderHeaderRepository { get; }
-    public IWorkOrderLineRepository WorkOrderLineRepository { get; }
-    public IItemRequisitionRepository ItemRequisitionRepository { get; }
-    
+    private readonly IDbConnection _dbConnection;
+    private readonly IDbTransaction _dbTransaction;
+
     public UnitOfWork(IDbTransaction dbTransaction, IDbConnection dbConnection, IConfiguration configuration, IRepositoryFactory repositoryFactory)
     {
         _dbConnection = dbConnection;
@@ -45,6 +34,7 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
             WorkOrderHeaderRepository = repositoryFactory.GetRepository<IWorkOrderHeaderRepository>(_databaseProvider) ?? throw new NullReferenceException();
             WorkOrderLineRepository = repositoryFactory.GetRepository<IWorkOrderLineRepository>(_databaseProvider) ?? throw new NullReferenceException();
             ItemRequisitionRepository = repositoryFactory.GetRepository<IItemRequisitionRepository>(_databaseProvider) ?? throw new NullReferenceException();
+            VersionTrackerRepository = repositoryFactory.GetRepository<IVersionTrackerRepository>(_databaseProvider) ?? throw new NullReferenceException();
         }
         else
         {
@@ -52,23 +42,19 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    private void Dispose(bool disposing)
-    {
-        if (!disposing)
-        {
-            return;
-        }
-
-        //Close the SQL Connection and dispose the objects
-        _dbConnection.Close();
-        _dbConnection.Dispose();
-        _dbTransaction.Dispose();
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-    }
+    public IUserRepository UserRepository { get; }
+    public IUserWarehouseRepository UserWarehouseRepository { get; }
+    public IPermissionRepository PermissionRepository { get; }
+    public IRoleRepository RoleRepository { get; }
+    public INumberSequenceRepository NumberSequenceRepository { get; }
+    public IRefreshTokenRepository RefreshTokenRepository { get; }
+    public IGoodsReceiptHeaderRepository GoodsReceiptHeaderRepository { get; }
+    public IGoodsReceiptLineRepository GoodsReceiptLineRepository { get; }
+    public IRowLevelAccessRepository RowLevelAccessRepository { get; }
+    public IWorkOrderHeaderRepository WorkOrderHeaderRepository { get; }
+    public IWorkOrderLineRepository WorkOrderLineRepository { get; }
+    public IItemRequisitionRepository ItemRequisitionRepository { get; }
+    public IVersionTrackerRepository VersionTrackerRepository { get; }
 
     public async Task<int> GetLastInsertedId()
     {
@@ -87,22 +73,90 @@ internal sealed class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public void Commit()
+    public async Task Commit()
     {
-        try
+        if (_dbTransaction is DbTransaction dbTransaction)
         {
-            _dbTransaction.Commit();
+            try
+            {
+                await dbTransaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await dbTransaction.RollbackAsync();
+            }
         }
-        catch (Exception)
+        else
+        {
+            try
+            {
+                _dbTransaction.Commit();
+                _dbConnection.BeginTransaction();
+            }
+            catch (Exception)
+            {
+                _dbTransaction.Rollback();
+            }
+        }
+    }
+
+    public async Task Rollback()
+    {
+        if (_dbTransaction is DbTransaction dbTransaction)
+        {
+            await dbTransaction.RollbackAsync();
+        }
+        else
         {
             _dbTransaction.Rollback();
         }
     }
+    
+    private bool _disposed;
 
-    public void Rollback()
+    private void Dispose(bool disposing)
     {
-        _dbTransaction.Rollback();
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                //Close the SQL Connection and dispose the objects
+                _dbConnection.Close();
+                _dbConnection.Dispose();
+                _dbTransaction.Dispose();
+            }
+        }
+        _disposed = true;
     }
 
-    
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_dbConnection is DbConnection dbConnection)
+        {
+            await dbConnection.CloseAsync();
+        }
+        else
+        {
+            _dbConnection.Close();
+        }
+        
+        await CastAndDispose(_dbConnection);
+        await CastAndDispose(_dbTransaction);
+
+        return;
+
+        static async ValueTask CastAndDispose(IDisposable resource)
+        {
+            if (resource is IAsyncDisposable resourceAsyncDisposable)
+                await resourceAsyncDisposable.DisposeAsync();
+            else
+                resource.Dispose();
+        }
+    }
 }

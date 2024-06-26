@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using Serilog;
+using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -11,14 +12,14 @@ public class RowLevelAccessService : IRowLevelAccessService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<RoleService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RowLevelAccessService(IUnitOfWork unitOfWork, MapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
+    public RowLevelAccessService(IUnitOfWork unitOfWork, MapperlyMapper mapper, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
 
     public async Task<ServiceResponse> AddRowLevelAccess(RowLevelAccessDto dto)
@@ -26,17 +27,13 @@ public class RowLevelAccessService : IRowLevelAccessService
         try
         {
             var roleLevelAccessAdd = _mapper.MapToRowLevelAccess(dto);
-            roleLevelAccessAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            roleLevelAccessAdd.CreatedDateTime = DateTime.Now;
-            roleLevelAccessAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            roleLevelAccessAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RowLevelAccessRepository.Add(roleLevelAccessAdd);
+            await _unitOfWork.RowLevelAccessRepository.Add(roleLevelAccessAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
             
             _logger.Information("Row Level Access with id {rowLevelAccessId} added successfully", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -46,7 +43,7 @@ public class RowLevelAccessService : IRowLevelAccessService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -76,7 +73,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             
             _logger.Information("Row Level Access with id {rowLevelAccessId} deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -86,7 +83,7 @@ public class RowLevelAccessService : IRowLevelAccessService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -231,13 +228,11 @@ public class RowLevelAccessService : IRowLevelAccessService
                 };
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.RowLevelAccessRepository.Update(record);
+            await _unitOfWork.RowLevelAccessRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("Row Level Access with id {rowLevelAccessId} updated successfully", dto.RowLevelAccessId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -247,7 +242,7 @@ public class RowLevelAccessService : IRowLevelAccessService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -318,7 +313,7 @@ public class RowLevelAccessService : IRowLevelAccessService
             
             _logger.Information("Row Level Accesses with ids {ids} deleted successfully", string.Join(", ", idsArray));
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return new ServiceResponse
             {
@@ -328,7 +323,7 @@ public class RowLevelAccessService : IRowLevelAccessService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {

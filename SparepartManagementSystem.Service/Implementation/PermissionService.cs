@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Serilog;
+﻿using Serilog;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
+using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -12,15 +12,15 @@ internal class PermissionService : IPermissionService
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly PermissionTypeAccessor _permissionTypeAccessor;
+    private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<PermissionService>();
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PermissionService(IUnitOfWork unitOfWork, MapperlyMapper mapper, PermissionTypeAccessor permissionTypeAccessor, IHttpContextAccessor httpContextAccessor)
+    public PermissionService(IUnitOfWork unitOfWork, MapperlyMapper mapper, PermissionTypeAccessor permissionTypeAccessor, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _permissionTypeAccessor = permissionTypeAccessor;
-        _httpContextAccessor = httpContextAccessor;
+        _repositoryEvents = repositoryEvents;
     }
 
     public ServiceResponse<IEnumerable<PermissionDto>> GetAllPermissionTypes()
@@ -142,17 +142,13 @@ internal class PermissionService : IPermissionService
         try
         {
             var permissionAdd = _mapper.MapToPermission(dto);
-            permissionAdd.CreatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            permissionAdd.CreatedDateTime = DateTime.Now;
-            permissionAdd.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            permissionAdd.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.PermissionRepository.Add(permissionAdd);
+            await _unitOfWork.PermissionRepository.Add(permissionAdd, _repositoryEvents.OnBeforeAdd);
             
             var lastInsertedId = await _unitOfWork.GetLastInsertedId();
 
             _logger.Information("id: {PermissionId}, Permission added successfully", lastInsertedId);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -162,7 +158,7 @@ internal class PermissionService : IPermissionService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -193,7 +189,7 @@ internal class PermissionService : IPermissionService
 
             _logger.Information("id: {PermissionId}, Permission deleted successfully", id);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
@@ -203,7 +199,7 @@ internal class PermissionService : IPermissionService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -281,7 +277,7 @@ internal class PermissionService : IPermissionService
         }
         catch (Exception ex)
         {
-            _unitOfWork.Rollback();
+            await _unitOfWork.Rollback();
 
             var errorMessages = new List<string>
             {
@@ -361,11 +357,9 @@ internal class PermissionService : IPermissionService
                 };
             }
             
-            record.ModifiedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
-            record.ModifiedDateTime = DateTime.Now;
-            await _unitOfWork.PermissionRepository.Update(record);
+            await _unitOfWork.PermissionRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return new ServiceResponse
             {

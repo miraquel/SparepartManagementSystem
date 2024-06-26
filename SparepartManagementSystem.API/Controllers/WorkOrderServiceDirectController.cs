@@ -94,6 +94,19 @@ public class WorkOrderServiceDirectController : ControllerBase
         }
         return BadRequest(response);
     }
+    
+    // POST: api/WorkOrderServiceDirect/CloseWorkOrderLineAndPostInventJournal
+    [MapToApiVersion(1.0)]
+    [HttpPost]
+    public async Task<IActionResult> CloseWorkOrderLineAndPostInventJournal(WorkOrderLineDto dto)
+    {
+        var response = await _workOrderServiceDirect.CloseWorkOrderLineAndPostInventJournal(dto);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
         
     // POST: api/WorkOrderServiceDirect/AddItemRequisition
     [MapToApiVersion(1.0)]
@@ -133,6 +146,19 @@ public class WorkOrderServiceDirectController : ControllerBase
         }
         return BadRequest(response);
     }
+    
+    // DELETE: api/WorkOrderServiceDirect/DeleteItemRequisitionWithListOfRecId
+    [MapToApiVersion(1.0)]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteItemRequisitionWithListOfRecId([FromQuery] IEnumerable<long> recIds)
+    {
+        var response = await _workOrderServiceDirect.DeleteItemRequisitionWithListOfRecId(recIds);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
         
     // GET: api/WorkOrderServiceDirect/GetItemRequisition?dto=InventReqDto
     [MapToApiVersion(1.0)]
@@ -153,6 +179,19 @@ public class WorkOrderServiceDirectController : ControllerBase
     public async Task<IActionResult> GetItemRequisitionList(long agswoRecId)
     {
         var response = await _workOrderServiceDirect.GetItemRequisitionList(agswoRecId);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
+    
+    // POST: api/WorkOrderServiceDirect/CreateInventJournalTable
+    [MapToApiVersion(1.0)]
+    [HttpPost]
+    public async Task<IActionResult> CreateInventJournalTable(WorkOrderLineDto dto)
+    {
+        var response = await _workOrderServiceDirect.CreateInventJournalTable(dto);
         if (response.Success)
         {
             return Ok(response);

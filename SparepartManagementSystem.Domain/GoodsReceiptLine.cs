@@ -1,4 +1,3 @@
-using System.Data.SqlTypes;
 using SparepartManagementSystem.Domain.Enums;
 
 namespace SparepartManagementSystem.Domain;
@@ -228,70 +227,6 @@ public class GoodsReceiptLine : BaseModel
             IsChanged = true;
         }
     }
-    
-    private string _createdBy = string.Empty;
-    public string CreatedBy
-    {
-        get => _createdBy;
-        set
-        {
-            if (_createdBy == value)
-            {
-                return;
-            }
-
-            _createdBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _createdDateTime = SqlDateTime.MinValue.Value;
-    public DateTime CreatedDateTime
-    {
-        get => _createdDateTime;
-        set
-        {
-            if (_createdDateTime == value)
-            {
-                return;
-            }
-
-            _createdDateTime = value;
-            IsChanged = true;
-        }
-    }
-    
-    private string _modifiedBy = string.Empty;
-    public string ModifiedBy
-    {
-        get => _modifiedBy;
-        set
-        {
-            if (_modifiedBy == value)
-            {
-                return;
-            }
-
-            _modifiedBy = value;
-            IsChanged = true;
-        }
-    }
-    
-    private DateTime _modifiedDateTime = SqlDateTime.MinValue.Value;
-    public DateTime ModifiedDateTime
-    {
-        get => _modifiedDateTime;
-        set
-        {
-            if (_modifiedDateTime == value)
-            {
-                return;
-            }
-
-            _modifiedDateTime = value;
-            IsChanged = true;
-        }
-    }
 
     public override void AcceptChanges()
     {
@@ -314,10 +249,7 @@ public class GoodsReceiptLine : BaseModel
         OriginalValues[nameof(LineAmount)] = _lineAmount;
         OriginalValues[nameof(InventLocationId)] = _inventLocationId;
         OriginalValues[nameof(WMSLocationId)] = _wmsLocationId;
-        OriginalValues[nameof(CreatedBy)] = _createdBy;
-        OriginalValues[nameof(CreatedDateTime)] = _createdDateTime;
-        OriginalValues[nameof(ModifiedBy)] = _modifiedBy;
-        OriginalValues[nameof(ModifiedDateTime)] = _modifiedDateTime;
+        base.AcceptChanges();
         
         IsChanged = false;
     }
@@ -343,22 +275,18 @@ public class GoodsReceiptLine : BaseModel
         _lineAmount = OriginalValues[nameof(LineAmount)] as decimal? ?? 0;
         _inventLocationId = OriginalValues[nameof(InventLocationId)] as string ?? string.Empty;
         _wmsLocationId = OriginalValues[nameof(WMSLocationId)] as string ?? string.Empty;
-        _createdBy = OriginalValues[nameof(CreatedBy)] as string ?? string.Empty;
-        _createdDateTime = OriginalValues[nameof(CreatedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
-        _modifiedBy = OriginalValues[nameof(ModifiedBy)] as string ?? string.Empty;
-        _modifiedDateTime = OriginalValues[nameof(ModifiedDateTime)] as DateTime? ?? SqlDateTime.MinValue.Value;
+        base.RejectChanges();
         
         IsChanged = false;
     }
 
-    public override void UpdateProperties<T>(T source)
+    public void UpdateProperties<T>(T source)
     {
         if (source is not GoodsReceiptLine value)
         {
             return;
         }
-
-        GoodsReceiptLineId = value.GoodsReceiptLineId;
+        
         GoodsReceiptHeaderId = value.GoodsReceiptHeaderId;
         ItemId = value.ItemId;
         LineNumber = value.LineNumber;
@@ -372,9 +300,5 @@ public class GoodsReceiptLine : BaseModel
         LineAmount = value.LineAmount;
         InventLocationId = value.InventLocationId;
         WMSLocationId = value.WMSLocationId;
-        CreatedBy = value.CreatedBy;
-        CreatedDateTime = value.CreatedDateTime;
-        ModifiedBy = value.ModifiedBy;
-        ModifiedDateTime = value.ModifiedDateTime;
     }
 }
