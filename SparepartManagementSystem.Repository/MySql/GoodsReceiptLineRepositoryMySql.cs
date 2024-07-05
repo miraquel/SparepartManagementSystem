@@ -183,97 +183,98 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         return await _sqlConnection.QueryAsync<GoodsReceiptLine>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(GoodsReceiptLine entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(GoodsReceiptLine entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
-
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.GoodsReceiptHeaderId)), entity.GoodsReceiptHeaderId))
+        
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.GoodsReceiptHeaderId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.GoodsReceiptHeaderId)), entity.GoodsReceiptHeaderId))
         {
             builder.Set("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemId)), entity.ItemId))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ItemId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemId)), entity.ItemId))
         {
             builder.Set("ItemId = @ItemId", new { entity.ItemId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineNumber)), entity.LineNumber))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.LineNumber)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineNumber)), entity.LineNumber))
         {
             builder.Set("LineNumber = @LineNumber", new { entity.LineNumber });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemName)), entity.ItemName))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ItemName)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ItemName)), entity.ItemName))
         {
             builder.Set("ItemName = @ItemName", new { entity.ItemName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ProductType)), entity.ProductType))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ProductType)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ProductType)), entity.ProductType))
         {
             builder.Set("ProductType = @ProductType", new { entity.ProductType });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.RemainPurchPhysical)), entity.RemainPurchPhysical))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.RemainPurchPhysical)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.RemainPurchPhysical)), entity.RemainPurchPhysical))
         {
             builder.Set("RemainPurchPhysical = @RemainPurchPhysical", new { entity.RemainPurchPhysical });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ReceiveNow)), entity.ReceiveNow))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ReceiveNow)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ReceiveNow)), entity.ReceiveNow))
         {
             builder.Set("ReceiveNow = @ReceiveNow", new { entity.ReceiveNow });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchQty)), entity.PurchQty))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.PurchQty)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchQty)), entity.PurchQty))
         {
             builder.Set("PurchQty = @PurchQty", new { entity.PurchQty });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchUnit)), entity.PurchUnit))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.PurchUnit)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchUnit)), entity.PurchUnit))
         {
             builder.Set("PurchUnit = @PurchUnit", new { entity.PurchUnit });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchPrice)), entity.PurchPrice))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.PurchPrice)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.PurchPrice)), entity.PurchPrice))
         {
             builder.Set("PurchPrice = @PurchPrice", new { entity.PurchPrice });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineAmount)), entity.LineAmount))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.LineAmount)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.LineAmount)), entity.LineAmount))
         {
             builder.Set("LineAmount = @LineAmount", new { entity.LineAmount });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.InventLocationId)), entity.InventLocationId))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.InventLocationId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.InventLocationId)), entity.InventLocationId))
         {
             builder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.WMSLocationId)), entity.WMSLocationId))
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.WMSLocationId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.WMSLocationId)), entity.WMSLocationId))
         {
             builder.Set("WMSLocationId = @WMSLocationId", new { entity.WMSLocationId });
         }
-
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
+        
         builder.Where("GoodsReceiptLineId = @GoodsReceiptLineId", new { entity.GoodsReceiptLineId });
 
         if (!builder.HasSet)
         {
             return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptLine.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
         const string sql = "UPDATE GoodsReceiptLines /**set**/ /**where**/";
@@ -286,7 +287,7 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public async Task<IEnumerable<GoodsReceiptLine>> GetByGoodsReceiptHeaderId(int goodsReceiptHeaderId)

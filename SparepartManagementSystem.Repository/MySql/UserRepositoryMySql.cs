@@ -132,67 +132,68 @@ internal class UserRepositoryMySql : IUserRepository
         return await _sqlConnection.QueryAsync<User>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(User entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(User entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.Username)), entity.Username))
+        if (entity.OriginalValue(nameof(User.Username)) is not null && !Equals(entity.OriginalValue(nameof(entity.Username)), entity.Username))
         {
             builder.Set("Username = @Username", new { entity.Username });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.FirstName)), entity.FirstName))
+        if (entity.OriginalValue(nameof(User.FirstName)) is not null && !Equals(entity.OriginalValue(nameof(entity.FirstName)), entity.FirstName))
         {
             builder.Set("FirstName = @FirstName", new { entity.FirstName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.LastName)), entity.LastName))
+        if (entity.OriginalValue(nameof(User.LastName)) is not null && !Equals(entity.OriginalValue(nameof(entity.LastName)), entity.LastName))
         {
             builder.Set("LastName = @LastName", new { entity.LastName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.Email)), entity.Email))
+        if (entity.OriginalValue(nameof(User.Email)) is not null && !Equals(entity.OriginalValue(nameof(entity.Email)), entity.Email))
         {
             builder.Set("Email = @Email", new { entity.Email });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.IsAdministrator)), entity.IsAdministrator))
+        if (entity.OriginalValue(nameof(User.IsAdministrator)) is not null && !Equals(entity.OriginalValue(nameof(entity.IsAdministrator)), entity.IsAdministrator))
         {
             builder.Set("IsAdministrator = @IsAdministrator", new { entity.IsAdministrator });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.IsEnabled)), entity.IsEnabled))
+        if (entity.OriginalValue(nameof(User.IsEnabled)) is not null && !Equals(entity.OriginalValue(nameof(entity.IsEnabled)), entity.IsEnabled))
         {
             builder.Set("IsEnabled = @IsEnabled", new { entity.IsEnabled });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.LastLogin)), entity.LastLogin))
+        if (entity.OriginalValue(nameof(User.LastLogin)) is not null && !Equals(entity.OriginalValue(nameof(entity.LastLogin)), entity.LastLogin))
         {
             builder.Set("LastLogin = @LastLogin", new { entity.LastLogin });
         }
+        
+        builder.Where("UserId = @UserId", new { entity.UserId });
 
-        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedBy)), entity.ModifiedBy))
+        if (!builder.HasSet)
+        {
+            return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(User.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(entity.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedDateTime)), entity.ModifiedDateTime))
+        if (entity.OriginalValue(nameof(User.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(entity.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
-        builder.Where("UserId = @UserId", new { entity.UserId });
-        
-        if (!builder.HasSet)
-        {
-            return;
         }
 
         const string sql = "UPDATE Users /**set**/ /**where**/";
@@ -204,7 +205,7 @@ internal class UserRepositoryMySql : IUserRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
@@ -276,8 +277,10 @@ internal class UserRepositoryMySql : IUserRepository
     public async Task<User> GetByUsername(string username)
     {
         const string sql = "SELECT * FROM Users WHERE Username = @Username";
-        return await _sqlConnection.QueryFirstOrDefaultAsync<User>(sql, new { Username = username }, _dbTransaction) ??
+        var result = await _sqlConnection.QueryFirstOrDefaultAsync<User>(sql, new { Username = username }, _dbTransaction) ??
                throw new Exception($"User with username {username} not found");
+        result.AcceptChanges();
+        return result;
     }
 
     public async Task<User> GetByUsernameWithRoles(string username)

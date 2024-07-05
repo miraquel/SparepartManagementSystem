@@ -62,9 +62,12 @@ public class VersionTrackerRepositoryMySql : IVersionTrackerRepository
                                     FOR UPDATE;
                                     """;
 
-        return await _sqlConnection.QueryFirstOrDefaultAsync<VersionTracker>(forUpdate ? sqlForUpdate : sql,
+        var result = await _sqlConnection.QueryFirstAsync<VersionTracker>(forUpdate ? sqlForUpdate : sql,
                    new { VersionTrackerId = id }, _dbTransaction) ??
-               throw new Exception($"Version tracker with Id {id} not found");
+               throw new InvalidOperationException($"Version tracker with Id {id} not found");
+        result.AcceptChanges();
+        
+        return result;
     }
 
     public async Task<IEnumerable<VersionTracker>> GetByParams(Dictionary<string, string> parameters)
@@ -134,57 +137,58 @@ public class VersionTrackerRepositoryMySql : IVersionTrackerRepository
         return await _sqlConnection.QueryAsync<VersionTracker>(selector.RawSql, selector.Parameters, _dbTransaction);
     }
 
-    public async Task Update(VersionTracker entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(VersionTracker entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.Version)), entity.Version))
+        if (entity.OriginalValue(nameof(VersionTracker.Version)) is not null && !Equals(entity.OriginalValue(nameof(entity.Version)), entity.Version))
         {
             builder.Set("Version = @Version", new { entity.Version });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.Description)), entity.Description))
+        if (entity.OriginalValue(nameof(VersionTracker.Description)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.PhysicalLocation)), entity.PhysicalLocation))
+        if (entity.OriginalValue(nameof(VersionTracker.PhysicalLocation)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.PhysicalLocation)), entity.PhysicalLocation))
         {
             builder.Set("PhysicalLocation = @PhysicalLocation", new { entity.PhysicalLocation });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.PublishedDateTime)), entity.PublishedDateTime))
+        if (entity.OriginalValue(nameof(VersionTracker.PublishedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.PublishedDateTime)), entity.PublishedDateTime))
         {
             builder.Set("PublishedDateTime = @PublishedDateTime", new { entity.PublishedDateTime });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(entity.Sha1Checksum)), entity.Sha1Checksum))
+        if (entity.OriginalValue(nameof(VersionTracker.Sha1Checksum)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.Sha1Checksum)), entity.Sha1Checksum))
         {
             builder.Set("Sha1Checksum = @Sha1Checksum", new { entity.Sha1Checksum });
         }
-
-        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(entity.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
+        
         builder.Where("VersionTrackerId = @VersionTrackerId", new { entity.VersionTrackerId });
 
         if (!builder.HasSet)
         {
             return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(VersionTracker.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(VersionTracker.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(VersionTracker.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
         const string sql = """
@@ -201,7 +205,7 @@ public class VersionTrackerRepositoryMySql : IVersionTrackerRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
 

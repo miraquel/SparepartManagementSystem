@@ -162,11 +162,10 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             _dbTransaction);
     }
 
-    public async Task Update(GoodsReceiptHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(GoodsReceiptHeader entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
@@ -227,6 +226,15 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         {
             builder.Set("SubmittedBy = @SubmittedBy", new { entity.SubmittedBy });
         }
+        
+        builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
+
+        if (!builder.HasSet)
+        {
+            return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
 
         if (entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedBy)), entity.ModifiedBy))
         {
@@ -236,13 +244,6 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         if (entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
-        builder.Where("GoodsReceiptHeaderId = @GoodsReceiptHeaderId", new { entity.GoodsReceiptHeaderId });
-        
-        if (!builder.HasSet)
-        {
-            return;
         }
 
         const string sql = "UPDATE GoodsReceiptHeaders /**set**/ /**where**/";
@@ -255,7 +256,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public async Task<PagedList<GoodsReceiptHeader>> GetAllPagedList(int pageNumber, int pageSize)
@@ -415,6 +416,7 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
 
                 if (line != null)
                 {
+                    line.AcceptChanges();
                     result.GoodsReceiptLines.Add(line);
                 }
 

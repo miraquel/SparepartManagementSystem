@@ -7,7 +7,8 @@ namespace SparepartManagementSystem.Repository.Interface
     {
         Task Add(NumberSequence entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
         Task Delete(int id);
-        Task Update(NumberSequence entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+        Task Update(NumberSequence entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+            EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
         Task<IEnumerable<NumberSequence>> GetAll();
         Task<NumberSequence> GetById(int id, bool forUpdate = false);
         Task<IEnumerable<NumberSequence>> GetByParams(Dictionary<string, string> parameters);

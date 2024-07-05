@@ -17,11 +17,9 @@ public static class ServiceCollectionExtension
 {
     public static void AddService(this IServiceCollection services)
     {
-        //services.AddScoped<IMapper>(_ => MapperConfig.InitializeAutoMapper());
         // Mapperly
         services.AddScoped(_ => new MapperlyMapper());
         
-        services.AddSingleton<PermissionTypeAccessor>();
         services.AddScoped<RepositoryEvents>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserWarehouseService, UserWarehouseService>();

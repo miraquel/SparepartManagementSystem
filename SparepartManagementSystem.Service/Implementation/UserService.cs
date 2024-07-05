@@ -134,8 +134,6 @@ internal class UserService : IUserService
         {
             var users = (await _unitOfWork.UserRepository.GetAll()).ToList();
 
-            _logger.Information("Users retrieved successfully with total {TotalRecord} rows", users.Count);
-
             return new ServiceResponse<IEnumerable<UserDto>>
             {
                 Data = _mapper.MapToListOfUserDto(users),
@@ -171,8 +169,6 @@ internal class UserService : IUserService
         try
         {
             var user = await _unitOfWork.UserRepository.GetById(id);
-
-            _logger.Information("User {UserId} retrieved successfully", user.UserId);
 
             return new ServiceResponse<UserDto>
             {
@@ -378,8 +374,6 @@ internal class UserService : IUserService
         {
             var result = (await _unitOfWork.UserRepository.GetAllWithRoles()).ToList();
 
-            _logger.Information("Users retrieved successfully with total {TotalRecord} rows", result.Count);
-
             return new ServiceResponse<IEnumerable<UserDto>>
             {
                 Data = _mapper.MapToListOfUserDto(result),
@@ -415,8 +409,6 @@ internal class UserService : IUserService
         try
         {
             var result = await _unitOfWork.UserRepository.GetByIdWithRoles(id);
-
-            _logger.Information("User {UserId} retrieved successfully", result.UserId);
 
             return new ServiceResponse<UserDto>
             {
@@ -454,8 +446,6 @@ internal class UserService : IUserService
         {
             var result = await _unitOfWork.UserRepository.GetByUsernameWithRoles(username);
 
-            _logger.Information("User {Username} retrieved successfully", result.Username);
-
             return new ServiceResponse<UserDto>
             {
                 Data = _mapper.MapToUserDto(result),
@@ -491,8 +481,6 @@ internal class UserService : IUserService
         try
         {
             var result = await _unitOfWork.UserRepository.GetByIdWithUserWarehouse(id);
-
-            _logger.Information("User {UserId} retrieved successfully", result.UserId);
 
             return new ServiceResponse<UserDto>
             {
@@ -632,6 +620,9 @@ internal class UserService : IUserService
                 AccessToken = _loginService.GenerateToken(user),
                 RefreshToken = refreshTokenResult
             };
+            
+            user.LastLogin = DateTime.Now;
+            await _unitOfWork.UserRepository.Update(user, _repositoryEvents.OnBeforeUpdate);
 
             _logger.Information("User {Username} logged in successfully, {User}", user.Username, JsonConvert.SerializeObject(user));
             
@@ -710,8 +701,6 @@ internal class UserService : IUserService
                 AccessToken = accessTokenResult,
                 RefreshToken = refreshTokenResult
             };
-
-            _logger.Information("Token refreshed successfully, {Token}", JsonConvert.SerializeObject(result));
             
             await _unitOfWork.Commit();
 
@@ -755,8 +744,6 @@ internal class UserService : IUserService
                 throw new InvalidOperationException($"RefreshToken with UserId {userId} not found");
 
             await _unitOfWork.RefreshTokenRepository.RevokeAll(userId);
-            
-            _logger.Information("All tokens revoked successfully for UserId {UserId}", userId);
             
             await _unitOfWork.Commit();
 
@@ -810,8 +797,6 @@ internal class UserService : IUserService
                                throw new InvalidOperationException($"RefreshToken {token} with UserId {userId} not found");
 
             await _unitOfWork.RefreshTokenRepository.Revoke(refreshToken.RefreshTokenId);
-
-            _logger.Information("Token revoked successfully, {Token}", token);
             
             await _unitOfWork.Commit();
 

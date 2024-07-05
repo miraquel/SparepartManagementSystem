@@ -108,11 +108,10 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
         return await _sqlConnection.QueryAsync<RowLevelAccess>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(RowLevelAccess entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(RowLevelAccess entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
@@ -133,6 +132,15 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
         {
             builder.Set("Query = @Query", new { entity.Query });
         }
+        
+        builder.Where("RowLevelAccessId = @RowLevelAccessId", new { entity.RowLevelAccessId });
+
+        if (!builder.HasSet)
+        {
+            return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
 
         if (entity.OriginalValue(nameof(RowLevelAccess.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(RowLevelAccess.ModifiedBy)), entity.ModifiedBy))
         {
@@ -144,13 +152,6 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
-        builder.Where("RowLevelAccessId = @RowLevelAccessId", new { entity.RowLevelAccessId });
-
-        if (!builder.HasSet)
-        {
-            return;
-        }
-
         const string sql = "UPDATE RowLevelAccesses /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
         var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
@@ -160,7 +161,7 @@ internal class RowLevelAccessRepositoryMysql : IRowLevelAccessRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public async Task<IEnumerable<RowLevelAccess>> GetByUserId(int userId)

@@ -1,7 +1,6 @@
 using System.Net;
 using System.ServiceModel;
 using Microsoft.Extensions.Caching.Distributed;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
 using SparepartManagementSystem.Domain.Extensions;
 using SparepartManagementSystem.Repository.UnitOfWork;
@@ -939,6 +938,37 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                     await client.CloseAsync();
                 }
             }
+        }
+    }
+
+    public async Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(string packingSlipId)
+    {
+        try
+        {
+            var request = new GMKSMSServiceGetVendPackingSlipJourWithLinesRequest
+            {
+                packingSlipId = packingSlipId
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = await _client.getVendPackingSlipJourWithLinesAsync(request);
+
+            return new ServiceResponse<VendPackingSlipJourDto>
+            {
+                Data = _mapper.MapToVendPackingSlipJourDto(response.response),
+                Message = "Vend Packing Slip Jour with Lines retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 

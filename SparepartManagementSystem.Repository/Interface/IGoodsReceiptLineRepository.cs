@@ -6,7 +6,8 @@ namespace SparepartManagementSystem.Repository.Interface;
 public interface IGoodsReceiptLineRepository
 {
     Task Add(GoodsReceiptLine entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
-    Task Update(GoodsReceiptLine entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(GoodsReceiptLine entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task Delete(int id);
     Task<IEnumerable<GoodsReceiptLine>> GetAll();
     Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false);

@@ -30,7 +30,7 @@ internal static class RepositoryTestsHelper
         args.Entity.ModifiedDateTime = RandomDateTime();
     }
     
-    internal static void OnBeforeUpdate(object? _, UpdateEventArgs args)
+    internal static void OnBeforeUpdate(object? _, BeforeUpdateEventArgs args)
     {
         args.Entity.ModifiedBy = RandomString(12);
         args.Entity.ModifiedDateTime = RandomDateTime();
@@ -206,5 +206,21 @@ internal static class RepositoryTestsHelper
         var result = CreateUserWarehouse();
         result.UserId = userId;
         return result;
+    }
+    
+    internal static VersionTracker CreateVersionTracker()
+    {
+        return new VersionTracker
+        {
+            Version = RandomString(12),
+            Description = RandomString(12),
+            PhysicalLocation = RandomString(12),
+            PublishedDateTime = RandomDateTime(),
+            Sha1Checksum = RandomString(12),
+            CreatedBy = RandomString(12),
+            CreatedDateTime = DateTime.Now.TrimMiliseconds(),
+            ModifiedBy = RandomString(12),
+            ModifiedDateTime = DateTime.Now.TrimMiliseconds(),
+        };
     }
 }

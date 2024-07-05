@@ -1,5 +1,4 @@
 ﻿using SparepartManagementSystem.Domain;
-using SparepartManagementSystem.Repository.EventHandlers;
 
 namespace SparepartManagementSystem.Repository.Interface;
 

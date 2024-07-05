@@ -145,77 +145,66 @@ public class ItemRequisitionRepositoryMySql : IItemRequisitionRepository
         return await _sqlConnection.QueryAsync<ItemRequisition>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(ItemRequisition entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(ItemRequisition entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.WorkOrderLineId)), entity.WorkOrderLineId))
+        if (entity.OriginalValue(nameof(ItemRequisition.WorkOrderLineId)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.WorkOrderLineId)), entity.WorkOrderLineId))
         {
             builder.Set("WorkOrderLineId = @WorkOrderLineId", new { entity.WorkOrderLineId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ItemId)), entity.ItemId))
+        if (entity.OriginalValue(nameof(ItemRequisition.ItemId)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.ItemId)), entity.ItemId))
         {
             builder.Set("ItemId = @ItemId", new { entity.ItemId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ItemName)), entity.ItemName))
+        if (entity.OriginalValue(nameof(ItemRequisition.ItemName)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.ItemName)), entity.ItemName))
         {
             builder.Set("ItemName = @ItemName", new { entity.ItemName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.RequiredDate)), entity.RequiredDate))
+        if (entity.OriginalValue(nameof(ItemRequisition.RequiredDate)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.RequiredDate)), entity.RequiredDate))
         {
             builder.Set("RequiredDate = @RequiredDate", new { entity.RequiredDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.Quantity)), entity.Quantity))
+        if (entity.OriginalValue(nameof(ItemRequisition.Quantity)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.Quantity)), entity.Quantity))
         {
             builder.Set("Quantity = @Quantity", new { entity.Quantity });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.RequestQuantity)), entity.RequestQuantity))
+        if (entity.OriginalValue(nameof(ItemRequisition.RequestQuantity)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.RequestQuantity)), entity.RequestQuantity))
         {
             builder.Set("RequestQuantity = @RequestQuantity", new { entity.RequestQuantity });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.InventLocationId)), entity.InventLocationId))
+        if (entity.OriginalValue(nameof(ItemRequisition.InventLocationId)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.InventLocationId)), entity.InventLocationId))
         {
             builder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.WMSLocationId)), entity.WMSLocationId))
+        if (entity.OriginalValue(nameof(ItemRequisition.WMSLocationId)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.WMSLocationId)), entity.WMSLocationId))
         {
             builder.Set("WMSLocationId = @WMSLocationId", new { entity.WMSLocationId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.JournalId)), entity.JournalId))
+        if (entity.OriginalValue(nameof(ItemRequisition.JournalId)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.JournalId)), entity.JournalId))
         {
             builder.Set("JournalId = @JournalId", new { entity.JournalId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.IsSubmitted)), entity.IsSubmitted))
+        if (entity.OriginalValue(nameof(ItemRequisition.IsSubmitted)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.IsSubmitted)), entity.IsSubmitted))
         {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
-
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
+        
         builder.Where("ItemRequisitionId = @ItemRequisitionId", new { entity.ItemRequisitionId });
 
         if (!builder.HasSet)
@@ -223,6 +212,18 @@ public class ItemRequisitionRepositoryMySql : IItemRequisitionRepository
             return;
         }
         
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(ItemRequisition.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(ItemRequisition.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(ItemRequisition.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        }
+
         var template = builder.AddTemplate("UPDATE ItemRequisition /**set**/ /**where**/");
         var rows = await _sqlConnection.ExecuteAsync(template.RawSql, template.Parameters, _dbTransaction);
         if (rows == 0)
@@ -231,7 +232,7 @@ public class ItemRequisitionRepositoryMySql : IItemRequisitionRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

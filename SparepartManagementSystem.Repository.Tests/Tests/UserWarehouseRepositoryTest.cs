@@ -360,7 +360,7 @@ public class UserWarehouseRepositoryTest : IAsyncLifetime
             // Arrange
             var userWarehouse = RepositoryTestsHelper.CreateUserWarehouse(_user.UserId);
             userWarehouse.AcceptChanges();
-            userWarehouse.ModifiedBy = RepositoryTestsHelper.RandomString(12);
+            userWarehouse.Name = RepositoryTestsHelper.RandomString(12);
             
             // Act
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await unitOfWork.UserWarehouseRepository.Update(userWarehouse));

@@ -124,52 +124,41 @@ internal class UserWarehouseRepositoryMySql : IUserWarehouseRepository
         return await _sqlConnection.QueryAsync<UserWarehouse>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(UserWarehouse entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(UserWarehouse entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.UserId)), entity.UserId))
+        if (entity.OriginalValue(nameof(UserWarehouse.UserId)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.UserId)), entity.UserId))
         {
             builder.Set("UserId = @UserId", new { entity.UserId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.InventLocationId)), entity.InventLocationId))
+        if (entity.OriginalValue(nameof(UserWarehouse.InventLocationId)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.InventLocationId)), entity.InventLocationId))
         {
             builder.Set("InventLocationId = @InventLocationId", new { entity.InventLocationId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.InventSiteId)), entity.InventSiteId))
+        if (entity.OriginalValue(nameof(UserWarehouse.InventSiteId)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.InventSiteId)), entity.InventSiteId))
         {
             builder.Set("InventSiteId = @InventSiteId", new { entity.InventSiteId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.Name)), entity.Name))
+        if (entity.OriginalValue(nameof(UserWarehouse.Name)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.Name)), entity.Name))
         {
             builder.Set("Name = @Name", new { entity.Name });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.IsDefault)), entity.IsDefault))
+        if (entity.OriginalValue(nameof(UserWarehouse.IsDefault)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.IsDefault)), entity.IsDefault))
         {
             builder.Set("IsDefault = @IsDefault", new { entity.IsDefault });
         }
-
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(UserWarehouse.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
+        
         builder.Where("UserWarehouseId = @UserWarehouseId", new { entity.UserWarehouseId });
 
         if (!builder.HasSet)
@@ -177,6 +166,18 @@ internal class UserWarehouseRepositoryMySql : IUserWarehouseRepository
             return;
         }
         
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(UserWarehouse.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(UserWarehouse.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(UserWarehouse.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
+        }
+
         const string sql = "UPDATE UserWarehouses /**set**/ /**where**/";
         var template = builder.AddTemplate(sql);
 
@@ -187,7 +188,7 @@ internal class UserWarehouseRepositoryMySql : IUserWarehouseRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

@@ -140,57 +140,58 @@ internal class NumberSequenceRepositoryMySql : INumberSequenceRepository
         return await _sqlConnection.QueryAsync<NumberSequence>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(NumberSequence entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(NumberSequence entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Name)), entity.Name))
+        if (entity.OriginalValue(nameof(NumberSequence.Name)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.Name)), entity.Name))
         {
             builder.Set("Name = @Name", new { entity.Name });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Description)), entity.Description))
+        if (entity.OriginalValue(nameof(NumberSequence.Description)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Format)), entity.Format))
+        if (entity.OriginalValue(nameof(NumberSequence.Format)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.Format)), entity.Format))
         {
             builder.Set("Format = @Format", new { entity.Format });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.LastNumber)), entity.LastNumber))
+        if (entity.OriginalValue(nameof(NumberSequence.LastNumber)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.LastNumber)), entity.LastNumber))
         {
             builder.Set("LastNumber = @LastNumber", new { entity.LastNumber });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.Module)), entity.Module))
+        if (entity.OriginalValue(nameof(NumberSequence.Module)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.Module)), entity.Module))
         {
             builder.Set("Module = @Module", new { entity.Module });
         }
+        
+        builder.Where("NumberSequenceId = @NumberSequenceId", new { entity.NumberSequenceId });
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedBy)), entity.ModifiedBy))
+        if (!builder.HasSet)
+        {
+            return;
+        }
+
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+        
+        if (entity.OriginalValue(nameof(NumberSequence.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedDateTime)), entity.ModifiedDateTime))
+        if (entity.OriginalValue(nameof(NumberSequence.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(NumberSequence.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
-        builder.Where("NumberSequenceId = @NumberSequenceId", new { entity.NumberSequenceId });
-        
-        if (!builder.HasSet)
-        {
-            return;
         }
 
         const string sql = "UPDATE NumberSequences /**set**/ /**where**/";
@@ -202,7 +203,7 @@ internal class NumberSequenceRepositoryMySql : INumberSequenceRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

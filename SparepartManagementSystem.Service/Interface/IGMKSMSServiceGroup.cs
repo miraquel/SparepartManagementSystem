@@ -14,10 +14,12 @@ public interface IGMKSMSServiceGroup
     Task<ServiceResponse<GMKServiceResponseDto>> PostPurchPackingSlip(GoodsReceiptHeaderDto dto);
     Task<ServiceResponse<PurchTableDto>> GetPurchTable(string purchId);
     Task<ServiceResponse<IEnumerable<InventSumDto>>> GetInventSumList(InventSumSearchDto dto);
-    Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderPagedListV2(int pageNumber, int pageSize, WorkOrderHeaderDto dto);
+    Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderPagedListV2(int pageNumber, int pageSize,
+        WorkOrderHeaderDto headerDto);
     Task<ServiceResponse<IEnumerable<WorkOrderLineDto>>> GetWorkOrderLineListV2(string workOrderHeaderId);
     Task<ServiceResponse<IEnumerable<InventLocationDto>>> GetInventLocationList(InventLocationDto dto);
     Task<ServiceResponse<IEnumerable<DimensionDto>>> GetDimensionList(string dimensionName);
+    Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(string packingSlipId);
     
     #region Obsolete
     [Obsolete("Use GetWorkOrderPagedListV2 instead", true)]

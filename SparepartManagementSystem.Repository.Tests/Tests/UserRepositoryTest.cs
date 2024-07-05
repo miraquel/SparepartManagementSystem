@@ -222,9 +222,10 @@ public class UserRepositoryTest
         await using var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var user = RepositoryTestsHelper.CreateUser();
         user.AcceptChanges();
+        user.FirstName = RepositoryTestsHelper.RandomString(12);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await unitOfWork.UserRepository.Update(user, RepositoryTestsHelper.OnBeforeUpdate));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await unitOfWork.UserRepository.Update(user));
     }
     
     [Fact]

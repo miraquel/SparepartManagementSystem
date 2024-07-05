@@ -3,12 +3,12 @@ using SparepartManagementSystem.Service.DTO;
 
 namespace SparepartManagementSystem.Service.Implementation;
 
-public class PermissionTypeAccessor
+public static class PermissionTypeAccessor
 {
-    public IEnumerable<PermissionDto> AllPermission { get; } = GetAllPermission();
-    public IEnumerable<PermissionDto> AllModule { get; } = GetAllModule();
+    public static IEnumerable<PermissionDto> AllPermission => GetAllPermission();
+    public static IEnumerable<PermissionDto> AllModule => GetAllModule();
 
-    private static IEnumerable<PermissionDto> GetAllPermission()
+    private static PermissionDto[] GetAllPermission()
     {
         var permissionType = typeof(PermissionType);
         var members = permissionType.GetNestedTypes();
@@ -23,10 +23,10 @@ public class PermissionTypeAccessor
             Module = fieldInfo.ReflectedType?.Name ?? string.Empty,
             Type = fieldInfo.Name,
             PermissionName = fieldInfo.GetValue(null)?.ToString() ?? string.Empty
-        });
+        }).ToArray();
     }
 
-    private static IEnumerable<PermissionDto> GetAllModule()
+    private static PermissionDto[] GetAllModule()
     {
         var permissionType = typeof(PermissionType);
         var members = permissionType.GetNestedTypes();
@@ -36,6 +36,7 @@ public class PermissionTypeAccessor
         }).ToArray();
     }
 }
+
 public static class PermissionType
 {
     public static class GoodsReceiptActivity

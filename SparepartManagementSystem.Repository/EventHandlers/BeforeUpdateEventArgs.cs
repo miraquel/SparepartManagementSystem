@@ -3,9 +3,9 @@ using SparepartManagementSystem.Shared.DerivedClass;
 
 namespace SparepartManagementSystem.Repository.EventHandlers;
 
-public class UpdateEventArgs : EventArgs
+public class BeforeUpdateEventArgs : EventArgs
 {
-    public UpdateEventArgs(BaseModel entity, CustomSqlBuilder sqlBuilder)
+    public BeforeUpdateEventArgs(BaseModel entity, CustomSqlBuilder sqlBuilder)
     {
         Entity = entity;
         SqlBuilder = sqlBuilder;

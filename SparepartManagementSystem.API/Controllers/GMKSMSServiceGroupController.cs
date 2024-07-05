@@ -274,4 +274,17 @@ public class GMKSMSServiceGroupController : ControllerBase
         }
         return BadRequest(response);
     }
+    
+    [MapToApiVersion(1.0)]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroupActivity.Read }])]
+    [HttpGet]
+    public async Task<IActionResult> GetVendPackingSlipJourWithLines([FromQuery] string packingSlipId)
+    {
+        var response = await _gmkSmsServiceGroup.GetVendPackingSlipJourWithLines(packingSlipId);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        return BadRequest(response);
+    }
 }

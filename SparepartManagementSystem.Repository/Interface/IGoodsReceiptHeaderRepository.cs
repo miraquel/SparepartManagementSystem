@@ -7,7 +7,8 @@ public interface IGoodsReceiptHeaderRepository
 {
     DatabaseProvider DatabaseProvider { get; }
     Task Add(GoodsReceiptHeader entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
-    Task Update(GoodsReceiptHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(GoodsReceiptHeader entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task Delete(int id);
     Task<IEnumerable<GoodsReceiptHeader>> GetAll();
     Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false);

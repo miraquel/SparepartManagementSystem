@@ -2,7 +2,6 @@
 using System.Data.SqlTypes;
 using Dapper;
 using SparepartManagementSystem.Domain;
-using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
 
 namespace SparepartManagementSystem.Repository.MySql;

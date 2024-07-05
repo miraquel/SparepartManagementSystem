@@ -350,9 +350,10 @@ public class RoleRepositoryTest
             // Arrange
             var updatedRole = RepositoryTestsHelper.CreateRole();
             updatedRole.AcceptChanges();
+            updatedRole.RoleName = RepositoryTestsHelper.RandomString(12);
         
             // Act
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await unitOfWork.RoleRepository.Update(updatedRole, RepositoryTestsHelper.OnBeforeUpdate));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await unitOfWork.RoleRepository.Update(updatedRole));
         }
         finally
         {

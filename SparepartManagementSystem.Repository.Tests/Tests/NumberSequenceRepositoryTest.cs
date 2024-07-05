@@ -278,9 +278,10 @@ public class NumberSequenceRepositoryTest : IAsyncLifetime
         // Arrange
         var numberSequence = RepositoryTestsHelper.CreateNumberSequence();
         numberSequence.AcceptChanges();
+        numberSequence.Name = RepositoryTestsHelper.RandomString(12);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.NumberSequenceRepository.Update(numberSequence, RepositoryTestsHelper.OnBeforeUpdate));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.NumberSequenceRepository.Update(numberSequence));
     }
     
     [Fact]
