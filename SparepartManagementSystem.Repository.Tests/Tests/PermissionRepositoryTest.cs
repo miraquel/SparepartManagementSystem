@@ -404,9 +404,10 @@ public class PermissionRepositoryTest : IAsyncLifetime
         // Arrange
         var newPermission = RepositoryTestsHelper.CreatePermission(_role.RoleId);
         newPermission.AcceptChanges();
+        newPermission.PermissionName = RepositoryTestsHelper.RandomString(12);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => unitOfWork.PermissionRepository.Update(newPermission, RepositoryTestsHelper.OnBeforeUpdate));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => unitOfWork.PermissionRepository.Update(newPermission));
     }
 
 

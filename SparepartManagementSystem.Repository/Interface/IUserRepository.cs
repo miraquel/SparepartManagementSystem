@@ -7,7 +7,8 @@ public interface IUserRepository
 {
     Task Add(User entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
     Task Delete(int id);
-    Task Update(User entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(User entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task<IEnumerable<User>> GetAll();
     Task<User> GetById(int id, bool forUpdate = false);
     Task<IEnumerable<User>> GetByParams(Dictionary<string, string> parameters);

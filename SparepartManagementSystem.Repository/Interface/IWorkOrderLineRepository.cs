@@ -7,7 +7,7 @@ public interface IWorkOrderLineRepository
 {
     Task Add(WorkOrderLine entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
     Task Delete(int id);
-    Task Update(WorkOrderLine entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(WorkOrderLine entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null, EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task<IEnumerable<WorkOrderLine>> GetAll();
     Task<WorkOrderLine> GetById(int id, bool forUpdate = false);
     Task<IEnumerable<WorkOrderLine>> GetByParams(Dictionary<string, string> parameters);

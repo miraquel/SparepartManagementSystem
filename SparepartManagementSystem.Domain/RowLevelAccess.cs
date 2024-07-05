@@ -1,4 +1,3 @@
-using System.Data.SqlTypes;
 using SparepartManagementSystem.Domain.Enums;
 
 namespace SparepartManagementSystem.Domain;

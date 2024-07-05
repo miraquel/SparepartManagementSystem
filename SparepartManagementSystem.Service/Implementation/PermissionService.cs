@@ -11,15 +11,13 @@ internal class PermissionService : IPermissionService
 {
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly PermissionTypeAccessor _permissionTypeAccessor;
     private readonly RepositoryEvents _repositoryEvents;
     private readonly ILogger _logger = Log.ForContext<PermissionService>();
 
-    public PermissionService(IUnitOfWork unitOfWork, MapperlyMapper mapper, PermissionTypeAccessor permissionTypeAccessor, RepositoryEvents repositoryEvents)
+    public PermissionService(IUnitOfWork unitOfWork, MapperlyMapper mapper, RepositoryEvents repositoryEvents)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _permissionTypeAccessor = permissionTypeAccessor;
         _repositoryEvents = repositoryEvents;
     }
 
@@ -27,7 +25,7 @@ internal class PermissionService : IPermissionService
     {
         try
         {
-            var result = _permissionTypeAccessor.AllPermission.ToList();
+            var result = PermissionTypeAccessor.AllPermission.ToList();
 
             _logger.Information("Permission Type retrieved successfully with total {TotalRecord} rows", result.Count);
 
@@ -65,7 +63,7 @@ internal class PermissionService : IPermissionService
     {
         try
         {
-            var result = _permissionTypeAccessor.AllModule.ToList();
+            var result = PermissionTypeAccessor.AllModule.ToList();
 
             _logger.Information("Permission Module retrieved successfully with total {TotalRecord} rows", result.Count);
 

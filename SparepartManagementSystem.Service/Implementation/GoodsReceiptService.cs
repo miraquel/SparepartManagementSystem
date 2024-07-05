@@ -3,7 +3,6 @@ using MySqlConnector;
 using Serilog;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
-using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.EventHandlers;
@@ -470,7 +469,7 @@ public class GoodsReceiptService : IGoodsReceiptService
                 await _unitOfWork.GoodsReceiptHeaderRepository.Update(headerRecord, _repositoryEvents.OnBeforeUpdate);
             }
                 
-            // if the line is exists in the database, but not exists in the dto, then delete the line
+            // if the line exists in the database, but not exists in the dto, then delete the line
             var goodsReceiptLines = headerRecord.GoodsReceiptLines as GoodsReceiptLine[] ?? headerRecord.GoodsReceiptLines.ToArray();
             foreach (var goodsReceiptLine in goodsReceiptLines)
             {
@@ -590,9 +589,10 @@ public class GoodsReceiptService : IGoodsReceiptService
             {
                 throw new Exception("All goods receipt line with type item must have the same InventLocationId to post the Goods Receipt Header to AX");
             }
-
-            _repositoryEvents.OnBeforeUpdate += OnRepositoryEventsOnBeforeUpdate;
             
+            record.IsSubmitted = true;
+            record.SubmittedDate = _currentDateTime;
+            record.SubmittedBy = _userClaim.Username;
             await _unitOfWork.GoodsReceiptHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
             
             var result = await _gmkSmsServiceGroup.PostPurchPackingSlip(dto);
@@ -611,15 +611,6 @@ public class GoodsReceiptService : IGoodsReceiptService
                 Message = "Goods Receipt Header has been successfully posted to AX",
                 Success = true
             };
-
-            void OnRepositoryEventsOnBeforeUpdate(object? _, UpdateEventArgs args)
-            {
-                if (args.Entity is not GoodsReceiptHeader goodsReceiptHeader) return;
-
-                goodsReceiptHeader.IsSubmitted = true;
-                goodsReceiptHeader.SubmittedDate = _currentDateTime;
-                goodsReceiptHeader.SubmittedBy = _userClaim.Username;
-            }
         }
         catch (Exception ex)
         {

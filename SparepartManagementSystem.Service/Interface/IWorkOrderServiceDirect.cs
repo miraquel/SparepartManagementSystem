@@ -5,7 +5,8 @@ namespace SparepartManagementSystem.Service.Interface;
 public interface IWorkOrderServiceDirect
 {
     public Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeader(string agsEamWoId);
-    public Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderPagedList(int pageNumber, int pageSize, WorkOrderHeaderDto dto);
+    public Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderPagedList(int pageNumber,
+        int pageSize, WorkOrderHeaderDto dto);
     public Task<ServiceResponse> AddWorkOrderLine(WorkOrderLineDto dto);
     public Task<ServiceResponse> UpdateWorkOrderLine(WorkOrderLineDto dto);
     public Task<ServiceResponse<WorkOrderLineDto>> GetWorkOrderLine(string agsEamWoId, int line);

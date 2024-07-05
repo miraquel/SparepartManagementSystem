@@ -174,4 +174,16 @@ public partial class MapperlyMapper
     public partial GMKDimensionDataContract MapToGMKDimensionDataContract(DimensionDto dimensionDto);
     public partial IEnumerable<DimensionDto> MapToListOfDimensionDto(IEnumerable<GMKDimensionDataContract> source);
     public partial IEnumerable<GMKDimensionDataContract> MapToListOfGMKDimensionDataContract(IEnumerable<DimensionDto> source);
+    
+    // Vend Packing Slip Jour
+    public partial VendPackingSlipJourDto MapToVendPackingSlipJourDto(GMKVendPackingSlipJourDataContract gmkVendPackingSlipJourDataContract);
+    public partial GMKVendPackingSlipJourDataContract MapToGMKVendPackingSlipJourDataContract(VendPackingSlipJourDto vendPackingSlipJourDto);
+    public partial IEnumerable<VendPackingSlipJourDto> MapToListOfVendPackingSlipJourDto(IEnumerable<GMKVendPackingSlipJourDataContract> source);
+    public partial IEnumerable<GMKVendPackingSlipJourDataContract> MapToListOfGMKVendPackingSlipJourDataContract(IEnumerable<VendPackingSlipJourDto> source);
+    
+    // Vend Packing Slip Trans
+    public partial VendPackingSlipTransDto MapToVendPackingSlipTransDto(GMKVendPackingSlipTransDataContract gmkVendPackingSlipTransDataContract);
+    public partial GMKVendPackingSlipTransDataContract MapToGMKVendPackingSlipTransDataContract(VendPackingSlipTransDto vendPackingSlipTransDto);
+    public partial IEnumerable<VendPackingSlipTransDto> MapToListOfVendPackingSlipTransDto(IEnumerable<GMKVendPackingSlipTransDataContract> source);
+    public partial IEnumerable<GMKVendPackingSlipTransDataContract> MapToListOfGMKVendPackingSlipTransDataContract(IEnumerable<VendPackingSlipTransDto> source);
 }

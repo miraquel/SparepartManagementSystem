@@ -104,35 +104,24 @@ internal class RoleRepositoryMySql : IRoleRepository
         return await _sqlConnection.QueryAsync<Role>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(Role entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(Role entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
         
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
-
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Role.RoleName)), entity.RoleName))
+        if (entity.OriginalValue(nameof(Role.RoleName)) is not null && !Equals(entity.OriginalValue(nameof(Role.RoleName)), entity.RoleName))
         {
             builder.Set("RoleName = @RoleName", new { entity.RoleName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Role.Description)), entity.Description))
+        if (entity.OriginalValue(nameof(Role.Description)) is not null && !Equals(entity.OriginalValue(nameof(Role.Description)), entity.Description))
         {
             builder.Set("Description = @Description", new { entity.Description });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(Role.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(Role.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
         builder.Where("RoleId = @RoleId", new { entity.RoleId });
@@ -140,6 +129,18 @@ internal class RoleRepositoryMySql : IRoleRepository
         if (!builder.HasSet)
         {
             return;
+        }
+
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+        
+        if (entity.OriginalValue(nameof(Role.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(Role.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(Role.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(Role.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
         const string sql = "UPDATE Roles /**set**/ /**where**/";
@@ -152,7 +153,7 @@ internal class RoleRepositoryMySql : IRoleRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

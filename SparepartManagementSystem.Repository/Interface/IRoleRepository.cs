@@ -7,7 +7,7 @@ public interface IRoleRepository
 {
     Task Add(Role entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
     Task Delete(int id);
-    Task Update(Role entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(Role entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null, EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task<IEnumerable<Role>> GetAll();
     Task<Role> GetById(int id, bool forUpdate = false);
     Task<IEnumerable<Role>> GetByParams(Dictionary<string, string> parameters);

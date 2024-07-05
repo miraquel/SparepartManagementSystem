@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Domain.Enums;
-using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Repository.UnitOfWork;
 
@@ -156,8 +155,7 @@ public class GoodsReceiptLineRepositoryTest : IAsyncLifetime
         var id = await _unitOfWork.GetLastInsertedId();
         goodsReceiptLine.GoodsReceiptLineId = id;
         var updatedGoodsReceiptLine = await _unitOfWork.GoodsReceiptLineRepository.GetById(id);
-        updatedGoodsReceiptLine.ModifiedBy = RepositoryTestsHelper.RandomString(12);
-        updatedGoodsReceiptLine.ModifiedBy = goodsReceiptLine.ModifiedBy;
+        updatedGoodsReceiptLine.ItemId = RepositoryTestsHelper.RandomString(12);
         
         // Act
         await _unitOfWork.GoodsReceiptLineRepository.Update(updatedGoodsReceiptLine);
@@ -224,10 +222,11 @@ public class GoodsReceiptLineRepositoryTest : IAsyncLifetime
     {
         // Arrange
         var goodsReceiptLine = RepositoryTestsHelper.CreateGoodsReceiptLine(_goodsReceiptHeader.GoodsReceiptHeaderId);
-        goodsReceiptLine.AcceptChanges();
+        // goodsReceiptLine.AcceptChanges();
+        // goodsReceiptLine.ItemId = RepositoryTestsHelper.RandomString(12);
         
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.GoodsReceiptLineRepository.Update(goodsReceiptLine, RepositoryTestsHelper.OnBeforeUpdate));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.GoodsReceiptLineRepository.Update(goodsReceiptLine));
     }
     
     [Fact]

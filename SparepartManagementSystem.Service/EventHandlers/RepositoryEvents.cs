@@ -22,5 +22,5 @@ public class RepositoryEvents
     }
 
     public EventHandler<AddEventArgs> OnBeforeAdd { get; set; }
-    public EventHandler<UpdateEventArgs> OnBeforeUpdate { get; set; }
+    public EventHandler<BeforeUpdateEventArgs> OnBeforeUpdate { get; set; }
 }

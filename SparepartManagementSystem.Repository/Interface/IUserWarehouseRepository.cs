@@ -7,7 +7,8 @@ public interface IUserWarehouseRepository
 {
     Task Add(UserWarehouse entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
     Task Delete(int id);
-    Task Update(UserWarehouse entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(UserWarehouse entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task<IEnumerable<UserWarehouse>> GetAll();
     Task<UserWarehouse> GetById(int id, bool forUpdate = false);
     Task<IEnumerable<UserWarehouse>> GetByParams(Dictionary<string, string> parameters);

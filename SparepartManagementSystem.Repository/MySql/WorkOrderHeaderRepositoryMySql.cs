@@ -199,115 +199,116 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
         return await _sqlConnection.QueryAsync<WorkOrderHeader>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(WorkOrderHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(WorkOrderHeader entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-        
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
 
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.IsSubmitted)), entity.IsSubmitted) &&
+        if (entity.OriginalValue(nameof(WorkOrderHeader.IsSubmitted)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.IsSubmitted)), entity.IsSubmitted) &&
             entity.IsSubmitted)
         {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.SubmittedDate)), entity.SubmittedDate))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.SubmittedDate)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.SubmittedDate)), entity.SubmittedDate))
         {
             builder.Set("SubmittedDate = @SubmittedDate", new { entity.SubmittedDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOID)), entity.AGSEAMWOID))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOID)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOID)), entity.AGSEAMWOID))
         {
             builder.Set("AGSEAMWOID = @AGSEAMWOID", new { entity.AGSEAMWOID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWRID)), entity.AGSEAMWRID))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWRID)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWRID)), entity.AGSEAMWRID))
         {
             builder.Set("AGSEAMWRID = @AGSEAMWRID", new { entity.AGSEAMWRID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMEntityID)), entity.AGSEAMEntityID))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMEntityID)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMEntityID)), entity.AGSEAMEntityID))
         {
             builder.Set("AGSEAMEntityID = @AGSEAMEntityID", new { entity.AGSEAMEntityID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.Name)), entity.Name))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.Name)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.Name)), entity.Name))
         {
             builder.Set("Name = @Name", new { entity.Name });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.HeaderTitle)), entity.HeaderTitle))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.HeaderTitle)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.HeaderTitle)), entity.HeaderTitle))
         {
             builder.Set("HeaderTitle = @HeaderTitle", new { entity.HeaderTitle });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPriorityID)), entity.AGSEAMPriorityID))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPriorityID)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPriorityID)), entity.AGSEAMPriorityID))
         {
             builder.Set("AGSEAMPriorityID = @AGSEAMPriorityID", new { entity.AGSEAMPriorityID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOTYPE)), entity.AGSEAMWOTYPE))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOTYPE)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOTYPE)), entity.AGSEAMWOTYPE))
         {
             builder.Set("AGSEAMWOTYPE = @AGSEAMWOTYPE", new { entity.AGSEAMWOTYPE });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOStatusID)), entity.AGSEAMWOStatusID))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOStatusID)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMWOStatusID)), entity.AGSEAMWOStatusID))
         {
             builder.Set("AGSEAMWOStatusID = @AGSEAMWOStatusID", new { entity.AGSEAMWOStatusID });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningStartDate)),
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningStartDate)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningStartDate)),
                 entity.AGSEAMPlanningStartDate))
         {
             builder.Set("AGSEAMPlanningStartDate = @AGSEAMPlanningStartDate",
                 new { entity.AGSEAMPlanningStartDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningEndDate)), entity.AGSEAMPlanningEndDate))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningEndDate)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMPlanningEndDate)), entity.AGSEAMPlanningEndDate))
         {
             builder.Set("AGSEAMPlanningEndDate = @AGSEAMPlanningEndDate", new { entity.AGSEAMPlanningEndDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.EntityShutDown)), entity.EntityShutDown))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.EntityShutDown)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.EntityShutDown)), entity.EntityShutDown))
         {
             builder.Set("EntityShutDown = @EntityShutDown", new { entity.EntityShutDown });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.WOCloseDate)), entity.WOCloseDate))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.WOCloseDate)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.WOCloseDate)), entity.WOCloseDate))
         {
             builder.Set("WOCloseDate = @WOCloseDate", new { entity.WOCloseDate });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMSuspend)), entity.AGSEAMSuspend))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMSuspend)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.AGSEAMSuspend)), entity.AGSEAMSuspend))
         {
             builder.Set("AGSEAMSuspend = @AGSEAMSuspend", new { entity.AGSEAMSuspend });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.Notes)), entity.Notes))
+        if (entity.OriginalValue(nameof(WorkOrderHeader.Notes)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.Notes)), entity.Notes))
         {
             builder.Set("Notes = @Notes", new { entity.Notes });
         }
-
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedBy)), entity.ModifiedBy))
-        {
-            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
-        }
-
-        if (!Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedDateTime)), entity.ModifiedDateTime))
-        {
-            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
+        
         builder.Where("WorkOrderHeaderId = @WorkOrderHeaderId", new { entity.WorkOrderHeaderId });
 
         if (!builder.HasSet)
         {
             return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(WorkOrderHeader.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedBy)), entity.ModifiedBy))
+        {
+            builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
+        }
+
+        if (entity.OriginalValue(nameof(WorkOrderHeader.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(WorkOrderHeader.ModifiedDateTime)), entity.ModifiedDateTime))
+        {
+            builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
         }
 
         const string sql = "UPDATE WorkOrderHeaders /**set**/ /**where**/";
@@ -320,7 +321,7 @@ public class WorkOrderHeaderRepositoryMySql : IWorkOrderHeaderRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;

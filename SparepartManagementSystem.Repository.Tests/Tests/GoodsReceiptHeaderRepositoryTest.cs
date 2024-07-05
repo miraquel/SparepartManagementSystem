@@ -2,7 +2,6 @@ using System.Globalization;
 using JetBrains.Annotations;
 using MySqlConnector;
 using SparepartManagementSystem.Domain;
-using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Repository.UnitOfWork;
 
@@ -172,8 +171,7 @@ public class GoodsReceiptHeaderRepositoryTest : IAsyncLifetime
         // Arrange
         var goodsReceiptHeader = RepositoryTestsHelper.CreateGoodsReceiptHeader();
         goodsReceiptHeader.AcceptChanges();
-        goodsReceiptHeader.ModifiedBy = RepositoryTestsHelper.RandomString(12);
-        goodsReceiptHeader.ModifiedDateTime = RepositoryTestsHelper.RandomDateTime();
+        goodsReceiptHeader.PurchId = RepositoryTestsHelper.RandomString(12);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.GoodsReceiptHeaderRepository.Update(goodsReceiptHeader));
@@ -190,7 +188,12 @@ public class GoodsReceiptHeaderRepositoryTest : IAsyncLifetime
         var result = await _unitOfWork.GoodsReceiptHeaderRepository.GetAll();
 
         // Assert
-        Assert.NotEmpty(result);
+        var goodsReceiptHeaders = result as GoodsReceiptHeader[] ?? result.ToArray();
+        Assert.NotEmpty(goodsReceiptHeaders);
+        foreach (var item in goodsReceiptHeaders)
+        {
+            Assert.True(item.OriginalValuesCount > 0);
+        }
     }
     
     [Fact]

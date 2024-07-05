@@ -1,6 +1,5 @@
 using System.ServiceModel;
 using Serilog;
-using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.GMKSMSServiceGroup;
 using SparepartManagementSystem.Service.Interface;
@@ -160,7 +159,6 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
         {
             var request = new GMKSMSServiceGetWorkOrderPagedListRequest
             {
-                CallContext = _context,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
                 agsEAMWOID = dto.AGSEAMWOID,

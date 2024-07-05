@@ -7,7 +7,8 @@ public interface IWorkOrderHeaderRepository
 {
     Task Add(WorkOrderHeader entity, EventHandler<AddEventArgs>? onBeforeAdd = null, EventHandler<AddEventArgs>? onAfterAdd = null);
     Task Delete(int id);
-    Task Update(WorkOrderHeader entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null);
+    Task Update(WorkOrderHeader entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null);
     Task<IEnumerable<WorkOrderHeader>> GetAll();
     Task<WorkOrderHeader> GetById(int id, bool forUpdate = false);
     Task<IEnumerable<WorkOrderHeader>> GetByParams(Dictionary<string, string> parameters);

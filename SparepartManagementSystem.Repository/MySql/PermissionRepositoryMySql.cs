@@ -125,52 +125,53 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         return await _sqlConnection.QueryAsync<Permission>(template.RawSql, template.Parameters, _dbTransaction);
     }
 
-    public async Task Update(Permission entity, EventHandler<UpdateEventArgs>? onBeforeUpdate = null, EventHandler<UpdateEventArgs>? onAfterUpdate = null)
+    public async Task Update(Permission entity, EventHandler<BeforeUpdateEventArgs>? onBeforeUpdate = null,
+        EventHandler<AfterUpdateEventArgs>? onAfterUpdate = null)
     {
         var builder = new CustomSqlBuilder();
-
-        onBeforeUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
         
         if (!entity.ValidateUpdate())
         {
             return;
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.RoleId)), entity.RoleId))
+        if (entity.OriginalValue(nameof(Permission.RoleId)) is not null && !Equals(entity.OriginalValue(nameof(Permission.RoleId)), entity.RoleId))
         {
             builder.Set("RoleId = @RoleId", new { entity.RoleId });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.PermissionName)), entity.PermissionName))
+        if (entity.OriginalValue(nameof(Permission.PermissionName)) is not null && !Equals(entity.OriginalValue(nameof(Permission.PermissionName)), entity.PermissionName))
         {
             builder.Set("PermissionName = @PermissionName", new { entity.PermissionName });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.Module)), entity.Module))
+        if (entity.OriginalValue(nameof(Permission.Module)) is not null && !Equals(entity.OriginalValue(nameof(Permission.Module)), entity.Module))
         {
             builder.Set("Module = @Module", new { entity.Module });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.Type)), entity.Type))
+        if (entity.OriginalValue(nameof(Permission.Type)) is not null && !Equals(entity.OriginalValue(nameof(Permission.Type)), entity.Type))
         {
             builder.Set("Type = @Type", new { entity.Type });
         }
+        
+        builder.Where("PermissionId = @PermissionId", new { entity.PermissionId });
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.ModifiedBy)), entity.ModifiedBy))
+        if (!builder.HasSet)
+        {
+            return;
+        }
+        
+        onBeforeUpdate?.Invoke(this, new BeforeUpdateEventArgs(entity, builder));
+
+        if (entity.OriginalValue(nameof(Permission.ModifiedBy)) is not null && !Equals(entity.OriginalValue(nameof(Permission.ModifiedBy)), entity.ModifiedBy))
         {
             builder.Set("ModifiedBy = @ModifiedBy", new { entity.ModifiedBy });
         }
 
-        if (!Equals(entity.OriginalValue(nameof(Permission.ModifiedDateTime)), entity.ModifiedDateTime))
+        if (entity.OriginalValue(nameof(Permission.ModifiedDateTime)) is not null && !Equals(entity.OriginalValue(nameof(Permission.ModifiedDateTime)), entity.ModifiedDateTime))
         {
             builder.Set("ModifiedDateTime = @ModifiedDateTime", new { entity.ModifiedDateTime });
-        }
-
-        builder.Where("PermissionId = @PermissionId", new { entity.PermissionId });
-        
-        if (!builder.HasSet)
-        {
-            return;
         }
 
         const string sql = "UPDATE Permissions /**set**/ /**where**/";
@@ -182,7 +183,7 @@ internal class PermissionRepositoryMySql : IPermissionRepository
         }
         entity.AcceptChanges();
         
-        onAfterUpdate?.Invoke(this, new UpdateEventArgs(entity, builder));
+        onAfterUpdate?.Invoke(this, new AfterUpdateEventArgs(entity));
     }
 
     public DatabaseProvider DatabaseProvider => DatabaseProvider.MySql;
