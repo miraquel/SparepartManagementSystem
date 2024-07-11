@@ -4,17 +4,17 @@ using FluentMigrator;
 
 namespace SparepartManagementSystem.Repository.Migration.Profile;
 
-[Profile("Development")]
+[Profile("Production")]
 [ExcludeFromCodeCoverage]
-public class Development : FluentMigrator.Migration
+public class Production : FluentMigrator.Migration
 {
     public override void Up()
     {
         Insert.IntoTable("Users").Row(new
         {
             Username = "chaidir.ali",
-            FirstName = "admin",
-            LastName = "admin",
+            FirstName = "Chaidir",
+            LastName = "Ali",
             Email = "chaidir.ali@gandummas.co.id",
             IsAdministrator = true,
             IsEnabled = true,
