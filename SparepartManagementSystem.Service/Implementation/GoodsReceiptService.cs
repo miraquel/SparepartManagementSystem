@@ -591,6 +591,7 @@ public class GoodsReceiptService : IGoodsReceiptService
             }
             
             record.IsSubmitted = true;
+            record.SubmitStatus = SubmitStatus.Submitted;
             record.SubmittedDate = _currentDateTime;
             record.SubmittedBy = _userClaim.Username;
             await _unitOfWork.GoodsReceiptHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
