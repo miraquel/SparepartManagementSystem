@@ -10,8 +10,8 @@ namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
-[ApiController]
 [Authorize]
+[ApiController]
 public class UserServiceController : ControllerBase
 {
     private readonly IUserService _userService;

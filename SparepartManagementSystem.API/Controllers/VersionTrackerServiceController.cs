@@ -10,6 +10,7 @@ namespace SparepartManagementSystem.API.Controllers;
 
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
+[Authorize]
 [ApiController]
 public class VersionTrackerServiceController : ControllerBase
 {

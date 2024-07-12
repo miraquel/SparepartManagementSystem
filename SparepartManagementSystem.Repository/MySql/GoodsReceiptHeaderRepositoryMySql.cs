@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using SparepartManagementSystem.Domain;
+using SparepartManagementSystem.Domain.Enums;
 using SparepartManagementSystem.Repository.EventHandlers;
 using SparepartManagementSystem.Repository.Interface;
 using SparepartManagementSystem.Shared.DerivedClass;
@@ -25,9 +26,9 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         
         const string sql = """
                            INSERT INTO GoodsReceiptHeaders
-                           (PackingSlipId, TransDate, Description, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
+                           (PackingSlipId, InternalPackingSlipId, TransDate, Description, PurchId, PurchName, OrderAccount, InvoiceAccount, PurchStatus, IsSubmitted, SubmitStatus, SubmittedDate, SubmittedBy, CreatedBy, CreatedDateTime, ModifiedBy, ModifiedDateTime)
                            VALUES
-                           (@PackingSlipId, @TransDate, @Description, @PurchId, @PurchName, @OrderAccount, @InvoiceAccount, @PurchStatus, @IsSubmitted, @SubmittedDate, @SubmittedBy, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
+                           (@PackingSlipId, @InternalPackingSlipId, @TransDate, @Description, @PurchId, @PurchName, @OrderAccount, @InvoiceAccount, @PurchStatus, @IsSubmitted, @SubmitStatus, @SubmittedDate, @SubmittedBy, @CreatedBy, @CreatedDateTime, @ModifiedBy, @ModifiedDateTime)
                            """;
         
         _ = await _sqlConnection.ExecuteAsync(sql, entity, _dbTransaction);
@@ -80,6 +81,11 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         {
             sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
         }
+        
+        if (parameters.TryGetValue("internalPackingSlipId", out var internalPackingSlipId) && !string.IsNullOrEmpty(internalPackingSlipId))
+        {
+            sqlBuilder.Where("InternalPackingSlipId LIKE @InternalPackingSlipId", new { InternalPackingSlipId = $"%{internalPackingSlipId}%" });
+        }
 
         if (parameters.TryGetValue("transDate", out var transDateString) &&
             DateTime.TryParse(transDateString, out var transDate))
@@ -127,6 +133,12 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
+        }
+        
+        if (parameters.TryGetValue("submitStatus", out var submitStatusString) &&
+            Enum.TryParse<SubmitStatus>(submitStatusString, out var submitStatus))
+        {
+            sqlBuilder.Where("SubmitStatus = @SubmitStatus", new { SubmitStatus = submitStatus });
         }
 
         if (parameters.TryGetValue("submittedBy", out var submittedBy) && !string.IsNullOrEmpty(submittedBy))
@@ -177,6 +189,11 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             builder.Set("PackingSlipId = @PackingSlipId", new { entity.PackingSlipId });
         }
 
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.InternalPackingSlipId)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.InternalPackingSlipId)), entity.InternalPackingSlipId))
+        {
+            builder.Set("InternalPackingSlipId = @InternalPackingSlipId", new { entity.InternalPackingSlipId });
+        }
+
         if (entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.TransDate)), entity.TransDate))
         {
             builder.Set("TransDate = @TransDate", new { entity.TransDate });
@@ -215,6 +232,11 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         if (entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.IsSubmitted)), entity.IsSubmitted))
         {
             builder.Set("IsSubmitted = @IsSubmitted", new { entity.IsSubmitted });
+        }
+        
+        if (entity.OriginalValue(nameof(GoodsReceiptHeader.SubmitStatus)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmitStatus)), entity.SubmitStatus))
+        {
+            builder.Set("SubmitStatus = @SubmitStatus", new { entity.SubmitStatus });
         }
 
         if (entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)) is not null && !Equals(entity.OriginalValue(nameof(GoodsReceiptHeader.SubmittedDate)), entity.SubmittedDate))
@@ -290,6 +312,11 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
         {
             sqlBuilder.Where("PackingSlipId LIKE @PackingSlipId", new { PackingSlipId = $"%{packingSlipId}%" });
         }
+        
+        if (parameters.TryGetValue("internalPackingSlipId", out var internalPackingSlipId) && !string.IsNullOrEmpty(internalPackingSlipId))
+        {
+            sqlBuilder.Where("InternalPackingSlipId LIKE @InternalPackingSlipId", new { InternalPackingSlipId = $"%{internalPackingSlipId}%" });
+        }
 
         if (parameters.TryGetValue("transDate", out var transDateString) &&
             DateTime.TryParse(transDateString, out var transDate))
@@ -331,6 +358,12 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
             bool.TryParse(isSubmittedString, out var isSubmitted))
         {
             sqlBuilder.Where("IsSubmitted = @IsSubmitted", new { IsSubmitted = isSubmitted });
+        }
+        
+        if (parameters.TryGetValue("submitStatus", out var submitStatusString) &&
+            Enum.TryParse<SubmitStatus>(submitStatusString, out var submitStatus))
+        {
+            sqlBuilder.Where("SubmitStatus = @SubmitStatus", new { SubmitStatus = submitStatus });
         }
 
         if (parameters.TryGetValue("submittedDate", out var submittedDateString) &&

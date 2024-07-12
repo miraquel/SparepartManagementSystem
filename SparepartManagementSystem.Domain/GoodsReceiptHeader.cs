@@ -1,4 +1,5 @@
 using System.Data.SqlTypes;
+using SparepartManagementSystem.Domain.Enums;
 
 namespace SparepartManagementSystem.Domain;
 
@@ -32,6 +33,22 @@ public class GoodsReceiptHeader : BaseModel
             }
 
             _packingSlipId = value;
+            IsChanged = true;
+        }
+    }
+    
+    private string _internalPackingSlipId = string.Empty;
+    public string InternalPackingSlipId
+    {
+        get => _internalPackingSlipId;
+        set
+        {
+            if (_internalPackingSlipId == value)
+            {
+                return;
+            }
+
+            _internalPackingSlipId = value;
             IsChanged = true;
         }
     }
@@ -164,6 +181,22 @@ public class GoodsReceiptHeader : BaseModel
         }
     }
     
+    private SubmitStatus _submitStatus = SubmitStatus.Draft;
+    public SubmitStatus SubmitStatus
+    {
+        get => _submitStatus;
+        set
+        {
+            if (_submitStatus == value)
+            {
+                return;
+            }
+        
+            _submitStatus = value;
+            IsChanged = true;
+        }
+    }
+    
     private DateTime _submittedDate = SqlDateTime.MinValue.Value;
     public DateTime SubmittedDate
     {
@@ -207,6 +240,7 @@ public class GoodsReceiptHeader : BaseModel
         
         OriginalValues[nameof(GoodsReceiptHeaderId)] = _goodsReceiptHeaderId;
         OriginalValues[nameof(PackingSlipId)] = _packingSlipId;
+        OriginalValues[nameof(InternalPackingSlipId)] = _internalPackingSlipId;
         OriginalValues[nameof(TransDate)] = _transDate;
         OriginalValues[nameof(Description)] = _description;
         OriginalValues[nameof(PurchId)] = _purchId;
@@ -215,6 +249,7 @@ public class GoodsReceiptHeader : BaseModel
         OriginalValues[nameof(InvoiceAccount)] = _invoiceAccount;
         OriginalValues[nameof(PurchStatus)] = _purchStatus;
         OriginalValues[nameof(IsSubmitted)] = _isSubmitted;
+        OriginalValues[nameof(SubmitStatus)] = _submitStatus;
         OriginalValues[nameof(SubmittedDate)] = _submittedDate;
         OriginalValues[nameof(SubmittedBy)] = _submittedBy;
         base.AcceptChanges();
@@ -231,6 +266,7 @@ public class GoodsReceiptHeader : BaseModel
         
         _goodsReceiptHeaderId = OriginalValues[nameof(GoodsReceiptHeaderId)] as int? ?? 0;
         _packingSlipId = OriginalValues[nameof(PackingSlipId)] as string ?? "";
+        _internalPackingSlipId = OriginalValues[nameof(InternalPackingSlipId)] as string ?? "";
         _transDate = OriginalValues[nameof(TransDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
         _description = OriginalValues[nameof(Description)] as string ?? "";
         _purchId = OriginalValues[nameof(PurchId)] as string ?? "";
@@ -239,6 +275,7 @@ public class GoodsReceiptHeader : BaseModel
         _invoiceAccount = OriginalValues[nameof(InvoiceAccount)] as string ?? "";
         _purchStatus = OriginalValues[nameof(PurchStatus)] as string ?? "";
         _isSubmitted = OriginalValues[nameof(IsSubmitted)] as bool? ?? false;
+        _submitStatus = OriginalValues[nameof(SubmitStatus)] as SubmitStatus? ?? SubmitStatus.Draft;
         _submittedDate = OriginalValues[nameof(SubmittedDate)] as DateTime? ?? SqlDateTime.MinValue.Value;
         _submittedBy = OriginalValues[nameof(SubmittedBy)] as string ?? "";
         base.RejectChanges();
@@ -254,6 +291,7 @@ public class GoodsReceiptHeader : BaseModel
         }
         
         PackingSlipId = value.PackingSlipId;
+        InternalPackingSlipId = value.InternalPackingSlipId;
         TransDate = value.TransDate;
         Description = value.Description;
         PurchId = value.PurchId;
@@ -262,6 +300,7 @@ public class GoodsReceiptHeader : BaseModel
         InvoiceAccount = value.InvoiceAccount;
         PurchStatus = value.PurchStatus;
         IsSubmitted = value.IsSubmitted;
+        SubmitStatus = value.SubmitStatus;
         SubmittedDate = value.SubmittedDate;
         SubmittedBy = value.SubmittedBy;
     }
