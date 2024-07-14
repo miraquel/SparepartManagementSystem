@@ -56,6 +56,7 @@ public static class ServiceCollectionExtension
             var endpointIdentityConfig = config["DynamicsAXIntegration:EndpointIdentity"] ?? throw new InvalidOperationException("DynamicsAXIntegration:EndpointIdentity is not exists in configuration");
             var binding = new NetTcpBinding
             {
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
                 MaxReceivedMessageSize = 2000000,
                 Security =
                 {
