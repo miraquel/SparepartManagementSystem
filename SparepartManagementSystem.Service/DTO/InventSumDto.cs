@@ -4,6 +4,7 @@ public class InventSumDto
 {
     public string ItemId { get; init; } = string.Empty;
     public string ItemName { get; init; } = string.Empty;
+    public string InventSiteId { get; init; } = string.Empty;
     public string InventLocationId { get; init; } = string.Empty;
     public string WMSLocationId { get; init; } = string.Empty;
     public decimal PhysicalInvent { get; init; }
