@@ -65,7 +65,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
 
     [MapToApiVersion(1.0)]
-    //[TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroup.Read }])]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetImageFromNetworkUri(string networkUri)
     {
@@ -97,7 +97,7 @@ public class GMKSMSServiceGroupController : ControllerBase
     }
 
     [MapToApiVersion(1.0)]
-    //[TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GMKSMSServiceGroup.Read }])]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetImageWithResolutionFromNetworkUri(string networkUri, int maxLength)
     {

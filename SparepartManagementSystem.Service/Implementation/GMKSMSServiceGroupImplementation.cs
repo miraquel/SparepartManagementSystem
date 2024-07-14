@@ -1,4 +1,3 @@
-using System.Net;
 using System.ServiceModel;
 using Microsoft.Extensions.Caching.Distributed;
 using SparepartManagementSystem.Domain.Enums;
@@ -149,7 +148,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
                     var isValidUri = Uri.TryCreate(x.Image, UriKind.Absolute, out var result);
                     var isValidMimeType = isValidUri && MimeTypes.TryGetMimeType(result?.LocalPath, out var mimeType) && mimeType.StartsWith("image");
 
-                    x.Image = isValidMimeType ? WebUtility.UrlEncode(x.Image) : string.Empty;
+                    x.Image = isValidMimeType ? Uri.EscapeDataString(x.Image) : string.Empty;
                     return x;
                 })),
                 response.response.PageNumber,
