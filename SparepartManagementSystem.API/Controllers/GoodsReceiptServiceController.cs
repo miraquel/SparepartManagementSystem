@@ -148,6 +148,20 @@ public class GoodsReceiptServiceController : ControllerBase
     }
     
     [MapToApiVersion(1.0)]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GoodsReceiptActivity.Create }])]
+    [HttpPost]
+    public async Task<IActionResult> AddAndReturnGoodsReceiptHeaderWithLines([FromBody] GoodsReceiptHeaderDto dto)
+    {
+        var result = await _goodsReceiptService.AddAndReturnGoodsReceiptHeaderWithLines(dto);
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+    
+    [MapToApiVersion(1.0)]
     [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GoodsReceiptActivity.Read }])]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetGoodsReceiptHeaderByIdWithLines(int id)
