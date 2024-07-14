@@ -343,7 +343,7 @@ public class VersionTrackerService : IVersionTrackerService
         
         return new FileContentResult(fileContents, contentType)
         {
-            FileDownloadName = Path.GetFileName(filePath)
+            FileDownloadName = $"SAMSON_v{version}.apk"
         };
     }
 
