@@ -35,7 +35,7 @@ public class WorkOrderServiceDirectController : ControllerBase
     // GET: api/WorkOrderServiceDirect/GetWorkOrderHeaderPagedList?pageNumber=int&pageSize=int&dto=WorkOrderHeaderDto
     [MapToApiVersion(1.0)]
     [HttpGet]
-    public async Task<IActionResult> GetWorkOrderHeaderPagedList(int pageNumber, int pageSize, [FromQuery] WorkOrderHeaderDto dto)
+    public async Task<IActionResult> GetWorkOrderHeaderPagedList(int pageNumber, int pageSize, [FromQuery] WorkOrderHeaderSearchDto dto)
     {
         var response = await _workOrderServiceDirect.GetWorkOrderHeaderPagedList(pageNumber, pageSize, dto);
         if (response.Success)
