@@ -45,7 +45,7 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             return new ServiceResponse
             {
-                Message = "Journal Line added successfully",
+                Message = "Goods Receipt Header added successfully",
                 Success = true
             };
         }
@@ -86,7 +86,7 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             return new ServiceResponse
             {
-                Message = "Journal Line deleted successfully",
+                Message = "Goods Receipt Header deleted successfully",
                 Success = true
             };
         }
@@ -124,7 +124,7 @@ public class GoodsReceiptService : IGoodsReceiptService
             return new ServiceResponse<IEnumerable<GoodsReceiptHeaderDto>>
             {
                 Data = _mapper.MapToListOfGoodsReceiptHeaderDto(result),
-                Message = "Journal Line retrieved successfully",
+                Message = "Goods Receipt Headers retrieved successfully",
                 Success = true
             };
         }
@@ -162,7 +162,7 @@ public class GoodsReceiptService : IGoodsReceiptService
             return new ServiceResponse<GoodsReceiptHeaderDto>
             {
                 Data = _mapper.MapToGoodsReceiptHeaderDto(result),
-                Message = "Journal Line added successfully",
+                Message = "Goods Receipt Header retrieved successfully",
                 Success = true
             };
         }
@@ -198,7 +198,7 @@ public class GoodsReceiptService : IGoodsReceiptService
             return new ServiceResponse<IEnumerable<GoodsReceiptHeaderDto>>
             {
                 Data = _mapper.MapToListOfGoodsReceiptHeaderDto(result),
-                Message = "Journal Line retrieved successfully",
+                Message = "Goods Receipt Headers retrieved successfully",
                 Success = true
             };
         }
@@ -255,7 +255,7 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             return new ServiceResponse
             {
-                Message = "Journal Line updated successfully",
+                Message = "Goods Receipt Header updated successfully",
                 Success = true
             };
         }
@@ -410,7 +410,7 @@ public class GoodsReceiptService : IGoodsReceiptService
 
             return new ServiceResponse
             {
-                Message = "Journal Line added successfully",
+                Message = "Goods receipt header added successfully",
                 Success = true
             };
 
@@ -508,13 +508,13 @@ public class GoodsReceiptService : IGoodsReceiptService
                 }
             }
             
-            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header updated successfully with {lines} lines updated", dto.GoodsReceiptHeaderId, dto.GoodsReceiptLines.Count);
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header and Lines updated successfully with {lines} lines updated", dto.GoodsReceiptHeaderId, dto.GoodsReceiptLines.Count);
             
             await _unitOfWork.Commit();
 
             return new ServiceResponse
             {
-                Message = "Journal Line added successfully",
+                Message = "Goods Receipt Header and Lines updated successfully",
                 Success = true
             };
         }
