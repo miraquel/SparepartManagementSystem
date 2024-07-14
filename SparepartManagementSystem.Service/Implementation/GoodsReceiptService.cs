@@ -446,6 +446,75 @@ public class GoodsReceiptService : IGoodsReceiptService
             };
         }
     }
+
+    public async Task<ServiceResponse<GoodsReceiptHeaderDto>> AddAndReturnGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto)
+    {
+        List<string> errorMessages = [];
+        
+        try
+        {
+            var goodsReceiptHeaderAdd = _mapper.MapToGoodsReceiptHeader(dto);
+            await _unitOfWork.GoodsReceiptHeaderRepository.Add(goodsReceiptHeaderAdd, _repositoryEvents.OnBeforeAdd);
+
+            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
+            
+            var goodsReceiptLinesAdd = _mapper.MapToListOfGoodsReceiptLine(dto.GoodsReceiptLines).ToArray();
+
+            _repositoryEvents.OnBeforeAdd += (_, args) =>
+            {
+                if (args.Entity is not GoodsReceiptLine goodsReceiptLine) return;
+                
+                goodsReceiptLine.GoodsReceiptHeaderId = lastInsertedId;
+            };
+
+            await _unitOfWork.GoodsReceiptLineRepository.BulkAdd(goodsReceiptLinesAdd, InfoMessageEventHandler, onBeforeAdd: _repositoryEvents.OnBeforeAdd);
+            
+            _logger.Information("id: {GoodsReceiptHeaderId}, Goods Receipt Header added successfully with {lines} lines inserted", lastInsertedId, goodsReceiptLinesAdd.Length);
+            
+            var goodsReceiptHeaderResult = await _unitOfWork.GoodsReceiptHeaderRepository.GetByIdWithLines(lastInsertedId);
+            
+            await _unitOfWork.Commit();
+
+            return new ServiceResponse<GoodsReceiptHeaderDto>
+            {
+                Data = _mapper.MapToGoodsReceiptHeaderDto(goodsReceiptHeaderResult),
+                Message = "Goods receipt header added successfully",
+                Success = true
+            };
+
+            void InfoMessageEventHandler(object _, object args)
+            {
+                if (args is not MySqlInfoMessageEventArgs mySqlInfoMessageEventArgs) return;
+                
+                foreach (var error in mySqlInfoMessageEventArgs.Errors)
+                {
+                    errorMessages.Add(error.Message);
+                    _logger.Error(error.Message);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.Rollback();
+
+            errorMessages.Add(ex.Message);
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<GoodsReceiptHeaderDto>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
+
     public async Task<ServiceResponse> UpdateGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto)
     {
         try

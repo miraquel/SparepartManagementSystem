@@ -16,6 +16,7 @@ public interface IGoodsReceiptService
         Dictionary<string, string> parameters);
     Task<ServiceResponse<GoodsReceiptHeaderDto>> GetGoodsReceiptHeaderByIdWithLines(int id);
     Task<ServiceResponse> AddGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto);
+    Task<ServiceResponse<GoodsReceiptHeaderDto>> AddAndReturnGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto);
     Task<ServiceResponse> UpdateGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto);
     Task<ServiceResponse> PostToAx(GoodsReceiptHeaderDto dto);
 }
