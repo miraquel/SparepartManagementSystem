@@ -111,13 +111,304 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GMKInventReqDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
+    public partial class GMKInventReqDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
+    {
+        
+        private long AGSWORecIdField;
+        
+        private decimal CostAmountField;
+        
+        private decimal CostPriceField;
+        
+        private string CreatedByField;
+        
+        private System.DateTime CreatedDateTimeField;
+        
+        private string CurrencyField;
+        
+        private string InventLocationIdField;
+        
+        private string InventSiteIdField;
+        
+        private string ItemIdField;
+        
+        private string ModifiedByField;
+        
+        private System.DateTime ModifiedDateTimeField;
+        
+        private string PreparerUserIdField;
+        
+        private SparepartManagementSystem.Service.GMKSMSServiceGroup.NoYes ProcessField;
+        
+        private string ProductNameField;
+        
+        private decimal QtyField;
+        
+        private long RecIdField;
+        
+        private System.DateTime RequiredDateField;
+        
+        private long UnitOfMeasureField;
+        
+        private string WMSLocationIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long AGSWORecId
+        {
+            get
+            {
+                return this.AGSWORecIdField;
+            }
+            set
+            {
+                this.AGSWORecIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal CostAmount
+        {
+            get
+            {
+                return this.CostAmountField;
+            }
+            set
+            {
+                this.CostAmountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal CostPrice
+        {
+            get
+            {
+                return this.CostPriceField;
+            }
+            set
+            {
+                this.CostPriceField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CreatedBy
+        {
+            get
+            {
+                return this.CreatedByField;
+            }
+            set
+            {
+                this.CreatedByField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime CreatedDateTime
+        {
+            get
+            {
+                return this.CreatedDateTimeField;
+            }
+            set
+            {
+                this.CreatedDateTimeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Currency
+        {
+            get
+            {
+                return this.CurrencyField;
+            }
+            set
+            {
+                this.CurrencyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string InventLocationId
+        {
+            get
+            {
+                return this.InventLocationIdField;
+            }
+            set
+            {
+                this.InventLocationIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string InventSiteId
+        {
+            get
+            {
+                return this.InventSiteIdField;
+            }
+            set
+            {
+                this.InventSiteIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ItemId
+        {
+            get
+            {
+                return this.ItemIdField;
+            }
+            set
+            {
+                this.ItemIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ModifiedBy
+        {
+            get
+            {
+                return this.ModifiedByField;
+            }
+            set
+            {
+                this.ModifiedByField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime ModifiedDateTime
+        {
+            get
+            {
+                return this.ModifiedDateTimeField;
+            }
+            set
+            {
+                this.ModifiedDateTimeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string PreparerUserId
+        {
+            get
+            {
+                return this.PreparerUserIdField;
+            }
+            set
+            {
+                this.PreparerUserIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.NoYes Process
+        {
+            get
+            {
+                return this.ProcessField;
+            }
+            set
+            {
+                this.ProcessField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ProductName
+        {
+            get
+            {
+                return this.ProductNameField;
+            }
+            set
+            {
+                this.ProductNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal Qty
+        {
+            get
+            {
+                return this.QtyField;
+            }
+            set
+            {
+                this.QtyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long RecId
+        {
+            get
+            {
+                return this.RecIdField;
+            }
+            set
+            {
+                this.RecIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime RequiredDate
+        {
+            get
+            {
+                return this.RequiredDateField;
+            }
+            set
+            {
+                this.RequiredDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long UnitOfMeasure
+        {
+            get
+            {
+                return this.UnitOfMeasureField;
+            }
+            set
+            {
+                this.UnitOfMeasureField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string WMSLocationId
+        {
+            get
+            {
+                return this.WMSLocationIdField;
+            }
+            set
+            {
+                this.WMSLocationIdField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="XppObjectBase", Namespace="http://schemas.datacontract.org/2004/07/Microsoft.Dynamics.Ax.Xpp")]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDefaultDimensionDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDimensionDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKEAMEntityDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKEAMEntityPagedListDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventLocationDataContract))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventSumDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTableDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTablePagedListDataContract))]
@@ -132,8 +423,9 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationPagedListDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderPagedListDataContract))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderPagedListDataContract))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract))]
     public partial class XppObjectBase : object
     {
     }
@@ -700,298 +992,6 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="GMKInventReqDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
-    public partial class GMKInventReqDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
-    {
-        
-        private long AGSWORecIdField;
-        
-        private decimal CostAmountField;
-        
-        private decimal CostPriceField;
-        
-        private string CreatedByField;
-        
-        private System.DateTime CreatedDateTimeField;
-        
-        private string CurrencyField;
-        
-        private string InventLocationIdField;
-        
-        private string InventSiteIdField;
-        
-        private string ItemIdField;
-        
-        private string ModifiedByField;
-        
-        private System.DateTime ModifiedDateTimeField;
-        
-        private string PreparerUserIdField;
-        
-        private SparepartManagementSystem.Service.GMKSMSServiceGroup.NoYes ProcessField;
-        
-        private string ProductNameField;
-        
-        private decimal QtyField;
-        
-        private long RecIdField;
-        
-        private System.DateTime RequiredDateField;
-        
-        private long UnitOfMeasureField;
-        
-        private string WMSLocationIdField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long AGSWORecId
-        {
-            get
-            {
-                return this.AGSWORecIdField;
-            }
-            set
-            {
-                this.AGSWORecIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal CostAmount
-        {
-            get
-            {
-                return this.CostAmountField;
-            }
-            set
-            {
-                this.CostAmountField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal CostPrice
-        {
-            get
-            {
-                return this.CostPriceField;
-            }
-            set
-            {
-                this.CostPriceField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string CreatedBy
-        {
-            get
-            {
-                return this.CreatedByField;
-            }
-            set
-            {
-                this.CreatedByField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime CreatedDateTime
-        {
-            get
-            {
-                return this.CreatedDateTimeField;
-            }
-            set
-            {
-                this.CreatedDateTimeField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Currency
-        {
-            get
-            {
-                return this.CurrencyField;
-            }
-            set
-            {
-                this.CurrencyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string InventLocationId
-        {
-            get
-            {
-                return this.InventLocationIdField;
-            }
-            set
-            {
-                this.InventLocationIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string InventSiteId
-        {
-            get
-            {
-                return this.InventSiteIdField;
-            }
-            set
-            {
-                this.InventSiteIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ItemId
-        {
-            get
-            {
-                return this.ItemIdField;
-            }
-            set
-            {
-                this.ItemIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ModifiedBy
-        {
-            get
-            {
-                return this.ModifiedByField;
-            }
-            set
-            {
-                this.ModifiedByField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime ModifiedDateTime
-        {
-            get
-            {
-                return this.ModifiedDateTimeField;
-            }
-            set
-            {
-                this.ModifiedDateTimeField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string PreparerUserId
-        {
-            get
-            {
-                return this.PreparerUserIdField;
-            }
-            set
-            {
-                this.PreparerUserIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.NoYes Process
-        {
-            get
-            {
-                return this.ProcessField;
-            }
-            set
-            {
-                this.ProcessField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ProductName
-        {
-            get
-            {
-                return this.ProductNameField;
-            }
-            set
-            {
-                this.ProductNameField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal Qty
-        {
-            get
-            {
-                return this.QtyField;
-            }
-            set
-            {
-                this.QtyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long RecId
-        {
-            get
-            {
-                return this.RecIdField;
-            }
-            set
-            {
-                this.RecIdField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime RequiredDate
-        {
-            get
-            {
-                return this.RequiredDateField;
-            }
-            set
-            {
-                this.RequiredDateField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long UnitOfMeasure
-        {
-            get
-            {
-                return this.UnitOfMeasureField;
-            }
-            set
-            {
-                this.UnitOfMeasureField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string WMSLocationId
-        {
-            get
-            {
-                return this.WMSLocationIdField;
-            }
-            set
-            {
-                this.WMSLocationIdField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GMKInventSumDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
     public partial class GMKInventSumDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
     {
@@ -1001,6 +1001,8 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         private decimal AvailPhysicalField;
         
         private string InventLocationIdField;
+        
+        private string InventSiteIdField;
         
         private string ItemIdField;
         
@@ -1054,6 +1056,19 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
             set
             {
                 this.InventLocationIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string InventSiteId
+        {
+            get
+            {
+                return this.InventSiteIdField;
+            }
+            set
+            {
+                this.InventSiteIdField = value;
             }
         }
         
@@ -2455,88 +2470,6 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="GMKWorkOrderPagedListDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
-    public partial class GMKWorkOrderPagedListDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
-    {
-        
-        private SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract[] ItemsField;
-        
-        private int PageNumberField;
-        
-        private int PageSizeField;
-        
-        private int TotalCountField;
-        
-        private int TotalPagesField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract[] Items
-        {
-            get
-            {
-                return this.ItemsField;
-            }
-            set
-            {
-                this.ItemsField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int PageNumber
-        {
-            get
-            {
-                return this.PageNumberField;
-            }
-            set
-            {
-                this.PageNumberField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int PageSize
-        {
-            get
-            {
-                return this.PageSizeField;
-            }
-            set
-            {
-                this.PageSizeField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int TotalCount
-        {
-            get
-            {
-                return this.TotalCountField;
-            }
-            set
-            {
-                this.TotalCountField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int TotalPages
-        {
-            get
-            {
-                return this.TotalPagesField;
-            }
-            set
-            {
-                this.TotalPagesField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GMKWorkOrderLineDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
     public partial class GMKWorkOrderLineDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
     {
@@ -2838,6 +2771,88 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
             set
             {
                 this.WorkOrderTypeField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GMKWorkOrderPagedListDataContract", Namespace="http://schemas.datacontract.org/2004/07/Dynamics.Ax.Application")]
+    public partial class GMKWorkOrderPagedListDataContract : SparepartManagementSystem.Service.GMKSMSServiceGroup.XppObjectBase
+    {
+        
+        private SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract[] ItemsField;
+        
+        private int PageNumberField;
+        
+        private int PageSizeField;
+        
+        private int TotalCountField;
+        
+        private int TotalPagesField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract[] Items
+        {
+            get
+            {
+                return this.ItemsField;
+            }
+            set
+            {
+                this.ItemsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PageNumber
+        {
+            get
+            {
+                return this.PageNumberField;
+            }
+            set
+            {
+                this.PageNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PageSize
+        {
+            get
+            {
+                return this.PageSizeField;
+            }
+            set
+            {
+                this.PageSizeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalCount
+        {
+            get
+            {
+                return this.TotalCountField;
+            }
+            set
+            {
+                this.TotalCountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalPages
+        {
+            get
+            {
+                return this.TotalPagesField;
+            }
+            set
+            {
+                this.TotalPagesField = value;
             }
         }
     }
@@ -3319,46 +3334,33 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     public interface GMKSMSService
     {
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTable", ReplyAction="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTableResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTableAifFaultF" +
-            "ault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventReqList", ReplyAction="http://tempuri.org/GMKSMSService/getInventReqListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventReqListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getEAMEntityPagedList", ReplyAction="http://tempuri.org/GMKSMSService/getEAMEntityPagedListResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getEAMEntityPagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetEAMEntityPagedListResponse> getEAMEntityPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetEAMEntityPagedListRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/deleteInventReq", ReplyAction="http://tempuri.org/GMKSMSService/deleteInventReqResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/deleteInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventSumList", ReplyAction="http://tempuri.org/GMKSMSService/getInventSumListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventSumListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventSumListResponse> getInventSumListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventSumListRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/createInventJournalTable", ReplyAction="http://tempuri.org/GMKSMSService/createInventJournalTableResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/createInventJournalTableAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getDimensionList", ReplyAction="http://tempuri.org/GMKSMSService/getDimensionListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getDimensionListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/addWorkOrderLine", ReplyAction="http://tempuri.org/GMKSMSService/addWorkOrderLineResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/addWorkOrderLineAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventReq", ReplyAction="http://tempuri.org/GMKSMSService/getInventReqResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqResponse> getInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventReqList", ReplyAction="http://tempuri.org/GMKSMSService/getInventReqListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventReqListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/createInventJournalTable", ReplyAction="http://tempuri.org/GMKSMSService/createInventJournalTableResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/createInventJournalTableAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecId", ReplyAction="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecIdResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecIdAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventSumList", ReplyAction="http://tempuri.org/GMKSMSService/getInventSumListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventSumListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventSumListResponse> getInventSumListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventSumListRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/addInventReq", ReplyAction="http://tempuri.org/GMKSMSService/addInventReqResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/addInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventTablePagedList", ReplyAction="http://tempuri.org/GMKSMSService/getInventTablePagedListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventTablePagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getPurchLineList", ReplyAction="http://tempuri.org/GMKSMSService/getPurchLineListResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getPurchLineListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
@@ -3368,45 +3370,42 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getPurchTableAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTableResponse> getPurchTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTableRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/addWorkOrderLine", ReplyAction="http://tempuri.org/GMKSMSService/addWorkOrderLineResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/addWorkOrderLineAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/addInventReq", ReplyAction="http://tempuri.org/GMKSMSService/addInventReqResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/addInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTable", ReplyAction="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTableResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/closeWorkOrderAndPostInventJournalTableAifFaultF" +
+            "ault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getDimensionList", ReplyAction="http://tempuri.org/GMKSMSService/getDimensionListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getDimensionListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventLocationList", ReplyAction="http://tempuri.org/GMKSMSService/getInventLocationListResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventLocationListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventLocationListResponse> getInventLocationListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventLocationListRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventTablePagedList", ReplyAction="http://tempuri.org/GMKSMSService/getInventTablePagedListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventTablePagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/deleteInventReq", ReplyAction="http://tempuri.org/GMKSMSService/deleteInventReqResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/deleteInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getPurchTablePagedList", ReplyAction="http://tempuri.org/GMKSMSService/getPurchTablePagedListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getPurchTablePagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateInventReq", ReplyAction="http://tempuri.org/GMKSMSService/updateInventReqResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWMSLocationPagedList", ReplyAction="http://tempuri.org/GMKSMSService/getWMSLocationPagedListResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWMSLocationPagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateWorkOrder", ReplyAction="http://tempuri.org/GMKSMSService/updateWorkOrderResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateWorkOrderAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWorkOrder", ReplyAction="http://tempuri.org/GMKSMSService/getWorkOrderResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWorkOrderAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecId", ReplyAction="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecIdResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/deleteInventReqWithListOfRecIdAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWorkOrderLineList", ReplyAction="http://tempuri.org/GMKSMSService/getWorkOrderLineListResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWorkOrderLineListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderLineListResponse> getWorkOrderLineListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderLineListRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLines", ReplyAction="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLinesResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLinesAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventTable", ReplyAction="http://tempuri.org/GMKSMSService/getInventTableResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventTableAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWorkOrder", ReplyAction="http://tempuri.org/GMKSMSService/getWorkOrderResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWorkOrderAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWMSLocation", ReplyAction="http://tempuri.org/GMKSMSService/getWMSLocationResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWMSLocationAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
@@ -3416,62 +3415,78 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/postPurchPackingSlipAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServicePostPurchPackingSlipResponse> postPurchPackingSlipAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServicePostPurchPackingSlipRequest request);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateWorkOrderLine", ReplyAction="http://tempuri.org/GMKSMSService/updateWorkOrderLineResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateWorkOrderLineAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWMSLocationPagedList", ReplyAction="http://tempuri.org/GMKSMSService/getWMSLocationPagedListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWMSLocationPagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest request);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWorkOrderPagedList", ReplyAction="http://tempuri.org/GMKSMSService/getWorkOrderPagedListResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWorkOrderPagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListResponse> getWorkOrderPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateInventReq", ReplyAction="http://tempuri.org/GMKSMSService/updateInventReqResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateInventReqAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateWorkOrder", ReplyAction="http://tempuri.org/GMKSMSService/updateWorkOrderResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateWorkOrderAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getPurchTablePagedList", ReplyAction="http://tempuri.org/GMKSMSService/getPurchTablePagedListResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getPurchTablePagedListAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getWorkOrderLine", ReplyAction="http://tempuri.org/GMKSMSService/getWorkOrderLineResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getWorkOrderLineAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderLineResponse> getWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderLineRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/updateWorkOrderLine", ReplyAction="http://tempuri.org/GMKSMSService/updateWorkOrderLineResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/updateWorkOrderLineAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getInventTable", ReplyAction="http://tempuri.org/GMKSMSService/getInventTableResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getInventTableAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLines", ReplyAction="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLinesResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(SparepartManagementSystem.Service.GMKSMSServiceGroup.AifFault), Action="http://tempuri.org/GMKSMSService/getVendPackingSlipJourWithLinesAifFaultFault", Name="AifFault", Namespace="http://schemas.microsoft.com/dynamics/2008/01/documents/Fault")]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventReqListRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        public long agsWoRecId;
         
-        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest()
+        public GMKSMSServiceGetInventReqListRequest()
         {
         }
         
-        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public GMKSMSServiceGetInventReqListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long agsWoRecId)
         {
             this.CallContext = CallContext;
-            this.parm = parm;
+            this.agsWoRecId = agsWoRecId;
         }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventReqListResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract[] response;
         
-        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse()
+        public GMKSMSServiceGetInventReqListResponse()
         {
         }
         
-        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        public GMKSMSServiceGetInventReqListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract[] response)
         {
             this.response = response;
         }
@@ -3532,21 +3547,21 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceDeleteInventReqRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddWorkOrderLineRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceAddWorkOrderLineRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
         
-        public GMKSMSServiceDeleteInventReqRequest()
+        public GMKSMSServiceAddWorkOrderLineRequest()
         {
         }
         
-        public GMKSMSServiceDeleteInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        public GMKSMSServiceAddWorkOrderLineRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
         {
             this.CallContext = CallContext;
             this.parm = parm;
@@ -3556,18 +3571,106 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceDeleteInventReqResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddWorkOrderLineResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceAddWorkOrderLineResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
         
-        public GMKSMSServiceDeleteInventReqResponse()
+        public GMKSMSServiceAddWorkOrderLineResponse()
         {
         }
         
-        public GMKSMSServiceDeleteInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        public GMKSMSServiceAddWorkOrderLineResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventReqRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
+        
+        public GMKSMSServiceGetInventReqRequest()
+        {
+        }
+        
+        public GMKSMSServiceGetInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventReqResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract response;
+        
+        public GMKSMSServiceGetInventReqResponse()
+        {
+        }
+        
+        public GMKSMSServiceGetInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCreateInventJournalTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceCreateInventJournalTableRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        
+        public GMKSMSServiceCreateInventJournalTableRequest()
+        {
+        }
+        
+        public GMKSMSServiceCreateInventJournalTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCreateInventJournalTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceCreateInventJournalTableResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        
+        public GMKSMSServiceCreateInventJournalTableResponse()
+        {
+        }
+        
+        public GMKSMSServiceCreateInventJournalTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
         {
             this.response = response;
         }
@@ -3628,262 +3731,62 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCreateInventJournalTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceCreateInventJournalTableRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTablePagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventTablePagedListRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        public int pageNumber;
         
-        public GMKSMSServiceCreateInventJournalTableRequest()
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
+        public int pageSize;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
+        public string itemId;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
+        public string productName;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=4)]
+        public string searchName;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=5)]
+        public string[] itemIdFilters;
+        
+        public GMKSMSServiceGetInventTablePagedListRequest()
         {
         }
         
-        public GMKSMSServiceCreateInventJournalTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
-        {
-            this.CallContext = CallContext;
-            this.parm = parm;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCreateInventJournalTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceCreateInventJournalTableResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
-        
-        public GMKSMSServiceCreateInventJournalTableResponse()
-        {
-        }
-        
-        public GMKSMSServiceCreateInventJournalTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetDimensionListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetDimensionListRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public string dimensionName;
-        
-        public GMKSMSServiceGetDimensionListRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetDimensionListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string dimensionName)
+        public GMKSMSServiceGetInventTablePagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string itemId, string productName, string searchName, string[] itemIdFilters)
         {
             this.CallContext = CallContext;
-            this.dimensionName = dimensionName;
+            this.pageNumber = pageNumber;
+            this.pageSize = pageSize;
+            this.itemId = itemId;
+            this.productName = productName;
+            this.searchName = searchName;
+            this.itemIdFilters = itemIdFilters;
         }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetDimensionListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetDimensionListResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTablePagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventTablePagedListResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDimensionDataContract[] response;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTablePagedListDataContract response;
         
-        public GMKSMSServiceGetDimensionListResponse()
+        public GMKSMSServiceGetInventTablePagedListResponse()
         {
         }
         
-        public GMKSMSServiceGetDimensionListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDimensionDataContract[] response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventReqRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
-        
-        public GMKSMSServiceGetInventReqRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
-        {
-            this.CallContext = CallContext;
-            this.parm = parm;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventReqResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract response;
-        
-        public GMKSMSServiceGetInventReqResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventReqListRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public long agsWoRecId;
-        
-        public GMKSMSServiceGetInventReqListRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetInventReqListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long agsWoRecId)
-        {
-            this.CallContext = CallContext;
-            this.agsWoRecId = agsWoRecId;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventReqListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventReqListResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract[] response;
-        
-        public GMKSMSServiceGetInventReqListResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetInventReqListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract[] response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqWithListOfRecIdRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceDeleteInventReqWithListOfRecIdRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public long[] recIds;
-        
-        public GMKSMSServiceDeleteInventReqWithListOfRecIdRequest()
-        {
-        }
-        
-        public GMKSMSServiceDeleteInventReqWithListOfRecIdRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long[] recIds)
-        {
-            this.CallContext = CallContext;
-            this.recIds = recIds;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqWithListOfRecIdResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceDeleteInventReqWithListOfRecIdResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
-        
-        public GMKSMSServiceDeleteInventReqWithListOfRecIdResponse()
-        {
-        }
-        
-        public GMKSMSServiceDeleteInventReqWithListOfRecIdResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceAddInventReqRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
-        
-        public GMKSMSServiceAddInventReqRequest()
-        {
-        }
-        
-        public GMKSMSServiceAddInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
-        {
-            this.CallContext = CallContext;
-            this.parm = parm;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceAddInventReqResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
-        
-        public GMKSMSServiceAddInventReqResponse()
-        {
-        }
-        
-        public GMKSMSServiceAddInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        public GMKSMSServiceGetInventTablePagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTablePagedListDataContract response)
         {
             this.response = response;
         }
@@ -3980,21 +3883,21 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddWorkOrderLineRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceAddWorkOrderLineRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceAddInventReqRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
         
-        public GMKSMSServiceAddWorkOrderLineRequest()
+        public GMKSMSServiceAddInventReqRequest()
         {
         }
         
-        public GMKSMSServiceAddWorkOrderLineRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public GMKSMSServiceAddInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
         {
             this.CallContext = CallContext;
             this.parm = parm;
@@ -4004,18 +3907,106 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddWorkOrderLineResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceAddWorkOrderLineResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceAddInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceAddInventReqResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
         
-        public GMKSMSServiceAddWorkOrderLineResponse()
+        public GMKSMSServiceAddInventReqResponse()
         {
         }
         
-        public GMKSMSServiceAddWorkOrderLineResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        public GMKSMSServiceAddInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        
+        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest()
+        {
+        }
+        
+        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        
+        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse()
+        {
+        }
+        
+        public GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetDimensionListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetDimensionListRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public string dimensionName;
+        
+        public GMKSMSServiceGetDimensionListRequest()
+        {
+        }
+        
+        public GMKSMSServiceGetDimensionListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string dimensionName)
+        {
+            this.CallContext = CallContext;
+            this.dimensionName = dimensionName;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetDimensionListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetDimensionListResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDimensionDataContract[] response;
+        
+        public GMKSMSServiceGetDimensionListResponse()
+        {
+        }
+        
+        public GMKSMSServiceGetDimensionListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKDimensionDataContract[] response)
         {
             this.response = response;
         }
@@ -4068,128 +4059,8 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTablePagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventTablePagedListRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public int pageNumber;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
-        public int pageSize;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
-        public string itemId;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
-        public string productName;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=4)]
-        public string searchName;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=5)]
-        public string[] itemIdFilters;
-        
-        public GMKSMSServiceGetInventTablePagedListRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetInventTablePagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string itemId, string productName, string searchName, string[] itemIdFilters)
-        {
-            this.CallContext = CallContext;
-            this.pageNumber = pageNumber;
-            this.pageSize = pageSize;
-            this.itemId = itemId;
-            this.productName = productName;
-            this.searchName = searchName;
-            this.itemIdFilters = itemIdFilters;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTablePagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventTablePagedListResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTablePagedListDataContract response;
-        
-        public GMKSMSServiceGetInventTablePagedListResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetInventTablePagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTablePagedListDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetPurchTablePagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetPurchTablePagedListRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public int pageNumber;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
-        public int pageSize;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
-        public string[] filters;
-        
-        public GMKSMSServiceGetPurchTablePagedListRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetPurchTablePagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm, string[] filters)
-        {
-            this.CallContext = CallContext;
-            this.pageNumber = pageNumber;
-            this.pageSize = pageSize;
-            this.parm = parm;
-            this.filters = filters;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetPurchTablePagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetPurchTablePagedListResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTablePagedListDataContract response;
-        
-        public GMKSMSServiceGetPurchTablePagedListResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetPurchTablePagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTablePagedListDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateInventReqRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceDeleteInventReqRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
@@ -4198,11 +4069,11 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
         
-        public GMKSMSServiceUpdateInventReqRequest()
+        public GMKSMSServiceDeleteInventReqRequest()
         {
         }
         
-        public GMKSMSServiceUpdateInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        public GMKSMSServiceDeleteInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
         {
             this.CallContext = CallContext;
             this.parm = parm;
@@ -4212,74 +4083,18 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateInventReqResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceDeleteInventReqResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
         
-        public GMKSMSServiceUpdateInventReqResponse()
+        public GMKSMSServiceDeleteInventReqResponse()
         {
         }
         
-        public GMKSMSServiceUpdateInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWMSLocationPagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetWMSLocationPagedListRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public int pageNumber;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
-        public int pageSize;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
-        public string[] filters;
-        
-        public GMKSMSServiceGetWMSLocationPagedListRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetWMSLocationPagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm, string[] filters)
-        {
-            this.CallContext = CallContext;
-            this.pageNumber = pageNumber;
-            this.pageSize = pageSize;
-            this.parm = parm;
-            this.filters = filters;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWMSLocationPagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetWMSLocationPagedListResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationPagedListDataContract response;
-        
-        public GMKSMSServiceGetWMSLocationPagedListResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetWMSLocationPagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationPagedListDataContract response)
+        public GMKSMSServiceDeleteInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
         {
             this.response = response;
         }
@@ -4288,86 +4103,42 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateWorkOrderRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqWithListOfRecIdRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceDeleteInventReqWithListOfRecIdRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm;
+        public long[] recIds;
         
-        public GMKSMSServiceUpdateWorkOrderRequest()
+        public GMKSMSServiceDeleteInventReqWithListOfRecIdRequest()
         {
         }
         
-        public GMKSMSServiceUpdateWorkOrderRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
+        public GMKSMSServiceDeleteInventReqWithListOfRecIdRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long[] recIds)
         {
             this.CallContext = CallContext;
-            this.parm = parm;
+            this.recIds = recIds;
         }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateWorkOrderResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceDeleteInventReqWithListOfRecIdResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceDeleteInventReqWithListOfRecIdResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
         
-        public GMKSMSServiceUpdateWorkOrderResponse()
+        public GMKSMSServiceDeleteInventReqWithListOfRecIdResponse()
         {
         }
         
-        public GMKSMSServiceUpdateWorkOrderResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWorkOrderRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetWorkOrderRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public string agsEAMWOID;
-        
-        public GMKSMSServiceGetWorkOrderRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetWorkOrderRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string agsEAMWOID)
-        {
-            this.CallContext = CallContext;
-            this.agsEAMWOID = agsEAMWOID;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWorkOrderResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetWorkOrderResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract response;
-        
-        public GMKSMSServiceGetWorkOrderResponse()
-        {
-        }
-        
-        public GMKSMSServiceGetWorkOrderResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract response)
+        public GMKSMSServiceDeleteInventReqWithListOfRecIdResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
         {
             this.response = response;
         }
@@ -4420,42 +4191,86 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetVendPackingSlipJourWithLinesRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetVendPackingSlipJourWithLinesRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventTableRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public string packingSlipId;
+        public string itemId;
         
-        public GMKSMSServiceGetVendPackingSlipJourWithLinesRequest()
+        public GMKSMSServiceGetInventTableRequest()
         {
         }
         
-        public GMKSMSServiceGetVendPackingSlipJourWithLinesRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string packingSlipId)
+        public GMKSMSServiceGetInventTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string itemId)
         {
             this.CallContext = CallContext;
-            this.packingSlipId = packingSlipId;
+            this.itemId = itemId;
         }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetVendPackingSlipJourWithLinesResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetVendPackingSlipJourWithLinesResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetInventTableResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKVendPackingSlipJourDataContract response;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTableDataContract response;
         
-        public GMKSMSServiceGetVendPackingSlipJourWithLinesResponse()
+        public GMKSMSServiceGetInventTableResponse()
         {
         }
         
-        public GMKSMSServiceGetVendPackingSlipJourWithLinesResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKVendPackingSlipJourDataContract response)
+        public GMKSMSServiceGetInventTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTableDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWorkOrderRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetWorkOrderRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public string agsEAMWOID;
+        
+        public GMKSMSServiceGetWorkOrderRequest()
+        {
+        }
+        
+        public GMKSMSServiceGetWorkOrderRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string agsEAMWOID)
+        {
+            this.CallContext = CallContext;
+            this.agsEAMWOID = agsEAMWOID;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWorkOrderResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetWorkOrderResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract response;
+        
+        public GMKSMSServiceGetWorkOrderResponse()
+        {
+        }
+        
+        public GMKSMSServiceGetWorkOrderResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract response)
         {
             this.response = response;
         }
@@ -4552,6 +4367,106 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderLineRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateWorkOrderLineRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        
+        public GMKSMSServiceUpdateWorkOrderLineRequest()
+        {
+        }
+        
+        public GMKSMSServiceUpdateWorkOrderLineRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderLineResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateWorkOrderLineResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        
+        public GMKSMSServiceUpdateWorkOrderLineResponse()
+        {
+        }
+        
+        public GMKSMSServiceUpdateWorkOrderLineResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWMSLocationPagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetWMSLocationPagedListRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public int pageNumber;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
+        public int pageSize;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
+        public string[] filters;
+        
+        public GMKSMSServiceGetWMSLocationPagedListRequest()
+        {
+        }
+        
+        public GMKSMSServiceGetWMSLocationPagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm, string[] filters)
+        {
+            this.CallContext = CallContext;
+            this.pageNumber = pageNumber;
+            this.pageSize = pageSize;
+            this.parm = parm;
+            this.filters = filters;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWMSLocationPagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetWMSLocationPagedListResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationPagedListDataContract response;
+        
+        public GMKSMSServiceGetWMSLocationPagedListResponse()
+        {
+        }
+        
+        public GMKSMSServiceGetWMSLocationPagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationPagedListDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetWorkOrderPagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
     public partial class GMKSMSServiceGetWorkOrderPagedListRequest
     {
@@ -4566,18 +4481,18 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         public int pageSize;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
-        public string agsEAMWOID;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm;
         
         public GMKSMSServiceGetWorkOrderPagedListRequest()
         {
         }
         
-        public GMKSMSServiceGetWorkOrderPagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string agsEAMWOID)
+        public GMKSMSServiceGetWorkOrderPagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
         {
             this.CallContext = CallContext;
             this.pageNumber = pageNumber;
             this.pageSize = pageSize;
-            this.agsEAMWOID = agsEAMWOID;
+            this.parm = parm;
         }
     }
     
@@ -4596,6 +4511,150 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         public GMKSMSServiceGetWorkOrderPagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderPagedListDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateInventReqRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateInventReqRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm;
+        
+        public GMKSMSServiceUpdateInventReqRequest()
+        {
+        }
+        
+        public GMKSMSServiceUpdateInventReqRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateInventReqResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateInventReqResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        
+        public GMKSMSServiceUpdateInventReqResponse()
+        {
+        }
+        
+        public GMKSMSServiceUpdateInventReqResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateWorkOrderRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm;
+        
+        public GMKSMSServiceUpdateWorkOrderRequest()
+        {
+        }
+        
+        public GMKSMSServiceUpdateWorkOrderRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
+        {
+            this.CallContext = CallContext;
+            this.parm = parm;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceUpdateWorkOrderResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
+        
+        public GMKSMSServiceUpdateWorkOrderResponse()
+        {
+        }
+        
+        public GMKSMSServiceUpdateWorkOrderResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
+        {
+            this.response = response;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetPurchTablePagedListRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetPurchTablePagedListRequest
+    {
+        
+        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public int pageNumber;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=1)]
+        public int pageSize;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=2)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm;
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=3)]
+        public string[] filters;
+        
+        public GMKSMSServiceGetPurchTablePagedListRequest()
+        {
+        }
+        
+        public GMKSMSServiceGetPurchTablePagedListRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm, string[] filters)
+        {
+            this.CallContext = CallContext;
+            this.pageNumber = pageNumber;
+            this.pageSize = pageSize;
+            this.parm = parm;
+            this.filters = filters;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetPurchTablePagedListResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetPurchTablePagedListResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTablePagedListDataContract response;
+        
+        public GMKSMSServiceGetPurchTablePagedListResponse()
+        {
+        }
+        
+        public GMKSMSServiceGetPurchTablePagedListResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTablePagedListDataContract response)
         {
             this.response = response;
         }
@@ -4652,86 +4711,42 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderLineRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateWorkOrderLineRequest
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetVendPackingSlipJourWithLinesRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetVendPackingSlipJourWithLinesRequest
     {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
         public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm;
+        public string packingSlipId;
         
-        public GMKSMSServiceUpdateWorkOrderLineRequest()
+        public GMKSMSServiceGetVendPackingSlipJourWithLinesRequest()
         {
         }
         
-        public GMKSMSServiceUpdateWorkOrderLineRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
-        {
-            this.CallContext = CallContext;
-            this.parm = parm;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceUpdateWorkOrderLineResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceUpdateWorkOrderLineResponse
-    {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response;
-        
-        public GMKSMSServiceUpdateWorkOrderLineResponse()
-        {
-        }
-        
-        public GMKSMSServiceUpdateWorkOrderLineResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKServiceResponseDataContract response)
-        {
-            this.response = response;
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTableRequest", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventTableRequest
-    {
-        
-        [System.ServiceModel.MessageHeaderAttribute(Namespace="http://schemas.microsoft.com/dynamics/2010/01/datacontracts")]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public string itemId;
-        
-        public GMKSMSServiceGetInventTableRequest()
-        {
-        }
-        
-        public GMKSMSServiceGetInventTableRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string itemId)
+        public GMKSMSServiceGetVendPackingSlipJourWithLinesRequest(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string packingSlipId)
         {
             this.CallContext = CallContext;
-            this.itemId = itemId;
+            this.packingSlipId = packingSlipId;
         }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetInventTableResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
-    public partial class GMKSMSServiceGetInventTableResponse
+    [System.ServiceModel.MessageContractAttribute(WrapperName="GMKSMSServiceGetVendPackingSlipJourWithLinesResponse", WrapperNamespace="http://tempuri.org", IsWrapped=true)]
+    public partial class GMKSMSServiceGetVendPackingSlipJourWithLinesResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tempuri.org", Order=0)]
-        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTableDataContract response;
+        public SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKVendPackingSlipJourDataContract response;
         
-        public GMKSMSServiceGetInventTableResponse()
+        public GMKSMSServiceGetVendPackingSlipJourWithLinesResponse()
         {
         }
         
-        public GMKSMSServiceGetInventTableResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventTableDataContract response)
+        public GMKSMSServiceGetVendPackingSlipJourWithLinesResponse(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKVendPackingSlipJourDataContract response)
         {
             this.response = response;
         }
@@ -4788,17 +4803,17 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest request)
         {
-            return base.Channel.closeWorkOrderAndPostInventJournalTableAsync(request);
+            return base.Channel.getInventReqListAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long agsWoRecId)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest();
             inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).closeWorkOrderAndPostInventJournalTableAsync(inValue);
+            inValue.agsWoRecId = agsWoRecId;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventReqListAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -4818,17 +4833,45 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest request)
         {
-            return base.Channel.deleteInventReqAsync(request);
+            return base.Channel.addWorkOrderLineAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest();
             inValue.CallContext = CallContext;
             inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).deleteInventReqAsync(inValue);
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).addWorkOrderLineAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest request)
+        {
+            return base.Channel.getInventReqAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqResponse> getInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventReqAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest request)
+        {
+            return base.Channel.createInventJournalTableAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).createInventJournalTableAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -4848,87 +4891,22 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest request)
         {
-            return base.Channel.createInventJournalTableAsync(request);
+            return base.Channel.getInventTablePagedListAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableResponse> createInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string itemId, string productName, string searchName, string[] itemIdFilters)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCreateInventJournalTableRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest();
             inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).createInventJournalTableAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest request)
-        {
-            return base.Channel.getDimensionListAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string dimensionName)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest();
-            inValue.CallContext = CallContext;
-            inValue.dimensionName = dimensionName;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getDimensionListAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest request)
-        {
-            return base.Channel.getInventReqAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqResponse> getInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqRequest();
-            inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventReqAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest request)
-        {
-            return base.Channel.getInventReqListAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListResponse> getInventReqListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long agsWoRecId)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventReqListRequest();
-            inValue.CallContext = CallContext;
-            inValue.agsWoRecId = agsWoRecId;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventReqListAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest request)
-        {
-            return base.Channel.deleteInventReqWithListOfRecIdAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long[] recIds)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest();
-            inValue.CallContext = CallContext;
-            inValue.recIds = recIds;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).deleteInventReqWithListOfRecIdAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest request)
-        {
-            return base.Channel.addInventReqAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest();
-            inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).addInventReqAsync(inValue);
+            inValue.pageNumber = pageNumber;
+            inValue.pageSize = pageSize;
+            inValue.itemId = itemId;
+            inValue.productName = productName;
+            inValue.searchName = searchName;
+            inValue.itemIdFilters = itemIdFilters;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventTablePagedListAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -4960,17 +4938,45 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest request)
         {
-            return base.Channel.addWorkOrderLineAsync(request);
+            return base.Channel.addInventReqAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineResponse> addWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqResponse> addInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddWorkOrderLineRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceAddInventReqRequest();
             inValue.CallContext = CallContext;
             inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).addWorkOrderLineAsync(inValue);
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).addInventReqAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest request)
+        {
+            return base.Channel.closeWorkOrderAndPostInventJournalTableAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableResponse> closeWorkOrderAndPostInventJournalTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceCloseWorkOrderAndPostInventJournalTableRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).closeWorkOrderAndPostInventJournalTableAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest request)
+        {
+            return base.Channel.getDimensionListAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListResponse> getDimensionListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string dimensionName)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetDimensionListRequest();
+            inValue.CallContext = CallContext;
+            inValue.dimensionName = dimensionName;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getDimensionListAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -4988,98 +4994,31 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest request)
         {
-            return base.Channel.getInventTablePagedListAsync(request);
+            return base.Channel.deleteInventReqAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListResponse> getInventTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string itemId, string productName, string searchName, string[] itemIdFilters)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqResponse> deleteInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTablePagedListRequest();
-            inValue.CallContext = CallContext;
-            inValue.pageNumber = pageNumber;
-            inValue.pageSize = pageSize;
-            inValue.itemId = itemId;
-            inValue.productName = productName;
-            inValue.searchName = searchName;
-            inValue.itemIdFilters = itemIdFilters;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventTablePagedListAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest request)
-        {
-            return base.Channel.getPurchTablePagedListAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm, string[] filters)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest();
-            inValue.CallContext = CallContext;
-            inValue.pageNumber = pageNumber;
-            inValue.pageSize = pageSize;
-            inValue.parm = parm;
-            inValue.filters = filters;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getPurchTablePagedListAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest request)
-        {
-            return base.Channel.updateInventReqAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqRequest();
             inValue.CallContext = CallContext;
             inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateInventReqAsync(inValue);
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).deleteInventReqAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest request)
         {
-            return base.Channel.getWMSLocationPagedListAsync(request);
+            return base.Channel.deleteInventReqWithListOfRecIdAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm, string[] filters)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdResponse> deleteInventReqWithListOfRecIdAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, long[] recIds)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceDeleteInventReqWithListOfRecIdRequest();
             inValue.CallContext = CallContext;
-            inValue.pageNumber = pageNumber;
-            inValue.pageSize = pageSize;
-            inValue.parm = parm;
-            inValue.filters = filters;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getWMSLocationPagedListAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest request)
-        {
-            return base.Channel.updateWorkOrderAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest();
-            inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateWorkOrderAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest request)
-        {
-            return base.Channel.getWorkOrderAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string agsEAMWOID)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest();
-            inValue.CallContext = CallContext;
-            inValue.agsEAMWOID = agsEAMWOID;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getWorkOrderAsync(inValue);
+            inValue.recIds = recIds;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).deleteInventReqWithListOfRecIdAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -5097,17 +5036,31 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest request)
         {
-            return base.Channel.getVendPackingSlipJourWithLinesAsync(request);
+            return base.Channel.getInventTableAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string packingSlipId)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string itemId)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest();
             inValue.CallContext = CallContext;
-            inValue.packingSlipId = packingSlipId;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getVendPackingSlipJourWithLinesAsync(inValue);
+            inValue.itemId = itemId;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventTableAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest request)
+        {
+            return base.Channel.getWorkOrderAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderResponse> getWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string agsEAMWOID)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderRequest();
+            inValue.CallContext = CallContext;
+            inValue.agsEAMWOID = agsEAMWOID;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getWorkOrderAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -5139,19 +5092,95 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest request)
+        {
+            return base.Channel.updateWorkOrderLineAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateWorkOrderLineAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest request)
+        {
+            return base.Channel.getWMSLocationPagedListAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListResponse> getWMSLocationPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWMSLocationDataContract parm, string[] filters)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWMSLocationPagedListRequest();
+            inValue.CallContext = CallContext;
+            inValue.pageNumber = pageNumber;
+            inValue.pageSize = pageSize;
+            inValue.parm = parm;
+            inValue.filters = filters;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getWMSLocationPagedListAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getWorkOrderPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListRequest request)
         {
             return base.Channel.getWorkOrderPagedListAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListResponse> getWorkOrderPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, string agsEAMWOID)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListResponse> getWorkOrderPagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
         {
             SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetWorkOrderPagedListRequest();
             inValue.CallContext = CallContext;
             inValue.pageNumber = pageNumber;
             inValue.pageSize = pageSize;
-            inValue.agsEAMWOID = agsEAMWOID;
+            inValue.parm = parm;
             return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getWorkOrderPagedListAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest request)
+        {
+            return base.Channel.updateInventReqAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqResponse> updateInventReqAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKInventReqDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateInventReqRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateInventReqAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest request)
+        {
+            return base.Channel.updateWorkOrderAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderResponse> updateWorkOrderAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderDataContract parm)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderRequest();
+            inValue.CallContext = CallContext;
+            inValue.parm = parm;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateWorkOrderAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest request)
+        {
+            return base.Channel.getPurchTablePagedListAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListResponse> getPurchTablePagedListAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, int pageNumber, int pageSize, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKPurchTableDataContract parm, string[] filters)
+        {
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetPurchTablePagedListRequest();
+            inValue.CallContext = CallContext;
+            inValue.pageNumber = pageNumber;
+            inValue.pageSize = pageSize;
+            inValue.parm = parm;
+            inValue.filters = filters;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getPurchTablePagedListAsync(inValue);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -5170,31 +5199,17 @@ namespace SparepartManagementSystem.Service.GMKSMSServiceGroup
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest request)
+        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest request)
         {
-            return base.Channel.updateWorkOrderLineAsync(request);
+            return base.Channel.getVendPackingSlipJourWithLinesAsync(request);
         }
         
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineResponse> updateWorkOrderLineAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKWorkOrderLineDataContract parm)
+        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesResponse> getVendPackingSlipJourWithLinesAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string packingSlipId)
         {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceUpdateWorkOrderLineRequest();
+            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetVendPackingSlipJourWithLinesRequest();
             inValue.CallContext = CallContext;
-            inValue.parm = parm;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).updateWorkOrderLineAsync(inValue);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService.getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest request)
-        {
-            return base.Channel.getInventTableAsync(request);
-        }
-        
-        public System.Threading.Tasks.Task<SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableResponse> getInventTableAsync(SparepartManagementSystem.Service.GMKSMSServiceGroup.CallContext CallContext, string itemId)
-        {
-            SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest inValue = new SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSServiceGetInventTableRequest();
-            inValue.CallContext = CallContext;
-            inValue.itemId = itemId;
-            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getInventTableAsync(inValue);
+            inValue.packingSlipId = packingSlipId;
+            return ((SparepartManagementSystem.Service.GMKSMSServiceGroup.GMKSMSService)(this)).getVendPackingSlipJourWithLinesAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
