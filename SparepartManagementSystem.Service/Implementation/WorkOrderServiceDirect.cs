@@ -153,7 +153,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
         }
     }
 
-    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderPagedList(int pageNumber, int pageSize, WorkOrderHeaderDto dto)
+    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderPagedList(int pageNumber, int pageSize, WorkOrderHeaderSearchDto dto)
     {
         try
         {
@@ -161,7 +161,7 @@ public class WorkOrderServiceDirect : IWorkOrderServiceDirect
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                agsEAMWOID = dto.AGSEAMWOID,
+                parm = _mapper.MapToGMKWorkOrderDataContract(dto)
             };
 
             if (_client is GMKSMSServiceClient client)

@@ -145,6 +145,11 @@ public partial class MapperlyMapper
     public partial IEnumerable<WorkOrderHeaderDto> MapToListOfWorkOrderHeaderDto(IEnumerable<GMKWorkOrderDataContract> source);
     public partial IEnumerable<GMKWorkOrderDataContract> MapToListOfGMKWorkOrderDataContract(IEnumerable<WorkOrderHeaderDto> source);
     
+    // Work Order Header Search Direct
+    public partial GMKWorkOrderDataContract MapToGMKWorkOrderDataContract(WorkOrderHeaderSearchDto workOrderHeaderSearchDto);
+    public partial WorkOrderHeaderSearchDto MapToWorkOrderHeaderSearchDto(GMKWorkOrderDataContract gmkWorkOrderDataContract);
+    
+    
     // Work Order Line Direct
     public partial WorkOrderLineDto MapToWorkOrderLineDto(GMKWorkOrderLineDataContract gmkWorkOrderLineDataContract);
     public partial GMKWorkOrderLineDataContract MapToGMKWorkOrderLineDataContract(WorkOrderLineDto workOrderLineDto);

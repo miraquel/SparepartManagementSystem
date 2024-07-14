@@ -749,7 +749,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             {
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                agsEAMWOID = dto.AGSEAMWOID
+                parm = _mapper.MapToGMKWorkOrderDataContract(dto)
             };
 
             if (_client is GMKSMSServiceClient client)
@@ -980,8 +980,7 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             var request = new GMKSMSServiceGetWorkOrderPagedListRequest
             {
                 pageNumber = pageNumber,
-                pageSize = pageSize,
-                agsEAMWOID = dto.AGSEAMWOID
+                pageSize = pageSize
             };
 
             if (_client is GMKSMSServiceClient client)
