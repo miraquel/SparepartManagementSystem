@@ -125,7 +125,7 @@ public class UserWarehouseServiceController : ControllerBase
     }
     
     [MapToApiVersion(1.0)]
-    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.UserWarehouseActivity.Read }])]
+    //[TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.UserWarehouseActivity.Read }])]
     [HttpGet("{userId:int}")]
     public async Task<ActionResult<UserWarehouseDto>> GetDefaultUserWarehouseByUserId(int userId)
     {
