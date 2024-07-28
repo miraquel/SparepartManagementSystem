@@ -6,6 +6,7 @@ public interface IGMKSMSServiceGroup
 {
     Task<ServiceResponse<InventTableDto>> GetInventTable(string itemId);
     Task<ServiceResponse<PagedListDto<InventTableDto>>> GetInventTablePagedList(int pageNumber, int pageSize, InventTableSearchDto dto);
+    Task<ServiceResponse<string>> GetInventTableLabelTemplate(InventTableDto dto, int copies = 1);
     Task<ServiceResponse<PagedListDto<InventTableDto>>> GetRawInventTablePagedList(int pageNumber, int pageSize, InventTableSearchDto dto);
     Task<ServiceResponse<PagedListDto<PurchTableDto>>> GetPurchTablePagedList(int pageNumber, int pageSize, PurchTableSearchDto dto);
     Task<ServiceResponse<IEnumerable<PurchLineDto>>> GetPurchLineList(string purchId);
@@ -19,7 +20,7 @@ public interface IGMKSMSServiceGroup
     Task<ServiceResponse<IEnumerable<WorkOrderLineDto>>> GetWorkOrderLineListV2(string workOrderHeaderId);
     Task<ServiceResponse<IEnumerable<InventLocationDto>>> GetInventLocationList(InventLocationDto dto);
     Task<ServiceResponse<IEnumerable<DimensionDto>>> GetDimensionList(string dimensionName);
-    Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(string packingSlipId);
+    Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(VendPackingSlipJourDto dto);
     
     #region Obsolete
     [Obsolete("Use GetWorkOrderPagedListV2 instead", true)]

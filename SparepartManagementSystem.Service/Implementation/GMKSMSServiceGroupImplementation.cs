@@ -196,7 +196,98 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
             }
         }
     }
-    
+
+    public async Task<ServiceResponse<string>> GetInventTableLabelTemplate(InventTableDto dto, int copies = 1)
+    {
+        try
+        {
+            var request = new GMKSMSServiceGetInventTableRequest
+            {
+                itemId = dto.ItemId
+            };
+
+            if (_client is GMKSMSServiceClient client)
+            {
+                request.CallContext = _context;
+                await client.OpenAsync();
+            }
+
+            var response = _client.getInventTableAsync(request).Result;
+            
+            var item = _mapper.MapToInventTableDto(response.response);
+            
+            List<string> itemName = [];
+            if (item is { ProductName.Length: > 44 })
+            {
+                var firstLine = item.ProductName[..44].Trim();
+                itemName.Add($"TEXT 0, 5, \"1\", 0, 1, 2, \"{firstLine}\"");
+                
+                var secondLine = item.ProductName[firstLine.Length..].Trim();
+                itemName.Add($"TEXT 0, 55, \"0\", 0, 1, 2, \"{(secondLine.Length > 44 ? secondLine[..44] : secondLine)}\"");
+            }
+            else
+            {
+                var firstLine = item.ProductName.Trim();
+                // replace \" with \["]
+                firstLine = firstLine.Replace("\"", "\\[\"]");
+                itemName.Add($"TEXT 0, 25, \"1\", 0, 1, 2, \"{firstLine}\"");
+            }
+            string[] printData =
+            [
+                "SIZE 72 mm,30 mm",
+                "CLS",
+                "CODEPAGE 850",
+                ..itemName,
+                $"TEXT 0, 110, \"1\", 0, 1, 1, \"Item Id: {item.ItemId}\"",
+                "TEXT 0, 150, \"1\", 0, 1, 1, \"*this label is printed\"",
+                "TEXT 0, 190, \"1\", 0, 1, 1, \"from the master inventory\"",
+                $"QRCODE 320,110,H,3,A,0,\"http://www.gmk.id/{item.ItemId}/\"",
+                $"PRINT 1, {copies}",
+                "END",
+            ];
+
+            return new ServiceResponse<string>
+            {
+                Data = string.Join("\n", printData),
+                Message = "Invent Table Label Template retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            return new ServiceResponse<string>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+        finally
+        {
+            if (_client is GMKSMSServiceClient client)
+            {
+                if (client.State == CommunicationState.Faulted)
+                {
+                    client.Abort();
+                }
+                else
+                {
+                    client.Close();
+                }
+            }
+        }
+    }
+
     public async Task<ServiceResponse<PagedListDto<InventTableDto>>> GetRawInventTablePagedList(int pageNumber, int pageSize, InventTableSearchDto dto)
     {
         try
@@ -940,13 +1031,13 @@ public class GMKSMSServiceGroupImplementation : IGMKSMSServiceGroup
         }
     }
 
-    public async Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(string packingSlipId)
+    public async Task<ServiceResponse<VendPackingSlipJourDto>> GetVendPackingSlipJourWithLines(VendPackingSlipJourDto dto)
     {
         try
         {
             var request = new GMKSMSServiceGetVendPackingSlipJourWithLinesRequest
             {
-                packingSlipId = packingSlipId
+                parm = _mapper.MapToGMKVendPackingSlipJourDataContract(dto)
             };
 
             if (_client is GMKSMSServiceClient client)
