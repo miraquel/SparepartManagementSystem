@@ -202,4 +202,18 @@ public class GoodsReceiptServiceController : ControllerBase
 
         return BadRequest(result);
     }
+    
+    [MapToApiVersion(1.0)]
+    [TypeFilter(typeof(ClaimRequirementFilter), Arguments = [new[] { PermissionType.GoodsReceiptActivity.Read }])]
+    [HttpGet]
+    public async Task<IActionResult> GetGoodsReceiptLabelTemplate([FromQuery] GoodsReceiptLineDto dto, [FromQuery] int copies = 1)
+    {
+        var result = await _goodsReceiptService.GetGoodsReceiptLabelTemplate(dto, copies);
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
 }

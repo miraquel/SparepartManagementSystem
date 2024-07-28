@@ -11,6 +11,7 @@ public interface IGoodsReceiptLineRepository
     Task Delete(int id);
     Task<IEnumerable<GoodsReceiptLine>> GetAll();
     Task<GoodsReceiptLine> GetById(int id, bool forUpdate = false);
+    Task<GoodsReceiptHeader> GetByIdWithGoodsReceiptHeader(int id, bool forUpdate = false);
     Task<IEnumerable<GoodsReceiptLine>> GetByParams(Dictionary<string, string> parameters);
     Task<IEnumerable<GoodsReceiptLine>> GetByGoodsReceiptHeaderId(int goodsReceiptHeaderId);
     Task BulkAdd(IEnumerable<GoodsReceiptLine> entities, Action<object, object>? onSqlBulkCopyError = null,
