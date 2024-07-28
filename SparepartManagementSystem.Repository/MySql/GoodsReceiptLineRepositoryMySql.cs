@@ -68,6 +68,46 @@ internal class GoodsReceiptLineRepositoryMySql : IGoodsReceiptLineRepository
         return result;
     }
 
+    public async Task<GoodsReceiptHeader> GetByIdWithGoodsReceiptHeader(int id, bool forUpdate = false)
+    {
+        const string sql = """
+                           SELECT * FROM GoodsReceiptHeaders
+                           JOIN GoodsReceiptLines ON GoodsReceiptHeaders.GoodsReceiptHeaderId = GoodsReceiptLines.GoodsReceiptHeaderId
+                           WHERE GoodsReceiptLines.GoodsReceiptLineId = @GoodsReceiptLineId
+                           """;
+        
+        const string sqlForUpdate = """
+                                    SELECT * FROM GoodsReceiptHeaders
+                                    JOIN GoodsReceiptLines ON GoodsReceiptHeaders.GoodsReceiptHeaderId = GoodsReceiptLines.GoodsReceiptHeaderId
+                                    WHERE GoodsReceiptLines.GoodsReceiptLineId = @GoodsReceiptLineId
+                                    FOR UPDATE
+                                    """;
+        
+        var result = new GoodsReceiptHeader();
+
+        _ = await _sqlConnection.QueryAsync<GoodsReceiptHeader, GoodsReceiptLine, GoodsReceiptHeader>(
+            forUpdate ? sqlForUpdate : sql, (header, line) =>
+            {
+                if (result.GoodsReceiptHeaderId == 0)
+                {
+                    result = header;
+                }
+
+                line.AcceptChanges();
+                result.GoodsReceiptLines.Add(line);
+
+                return result;
+            }, new { GoodsReceiptLineId = id }, splitOn: "GoodsReceiptLineId", transaction: _dbTransaction);
+        
+        if (result.GoodsReceiptHeaderId == 0)
+        {
+            throw new InvalidOperationException($"Goods receipt Line and Header with Id {id} not found");
+        }
+
+        result.AcceptChanges();
+        return result;
+    }
+
     public async Task<IEnumerable<GoodsReceiptLine>> GetByParams(Dictionary<string, string> parameters)
     {
         var builder = new SqlBuilder();

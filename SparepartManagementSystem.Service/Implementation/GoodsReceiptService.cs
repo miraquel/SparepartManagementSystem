@@ -706,4 +706,81 @@ public class GoodsReceiptService : IGoodsReceiptService
             };
         }
     }
+
+    public async Task<ServiceResponse<string>> GetGoodsReceiptLabelTemplate(GoodsReceiptLineDto dto, int copies = 1)
+    {
+        try
+        {
+            var goodsReceiptHeader = await _unitOfWork.GoodsReceiptLineRepository.GetByIdWithGoodsReceiptHeader(dto.GoodsReceiptLineId);
+            var goodsReceiptLine = goodsReceiptHeader.GoodsReceiptLines.SingleOrDefault() ?? throw new Exception("Goods Receipt Line not found");
+            
+            var response = await _gmkSmsServiceGroup.GetVendPackingSlipJourWithLines(new VendPackingSlipJourDto
+            {
+                PurchId = goodsReceiptHeader.PurchId,
+                PackingSlipId = goodsReceiptHeader.PackingSlipId,
+                DeliveryDate = goodsReceiptHeader.TransDate
+            });
+            var vendPackingSlipJour = response.Data ?? throw new Exception(response.ErrorMessages?.FirstOrDefault() ?? "Error when retrieving VendPackingSlipJour");
+            var item = vendPackingSlipJour.VendPackingSlipTrans.FirstOrDefault(x => x.ItemId == goodsReceiptLine.ItemId) ?? throw new Exception("Item not found in VendPackingSlipTrans");
+            
+            List<string> itemName = [];
+            if (item is { ItemName.Length: > 44 })
+            {
+                var firstLine = item.ItemName[..44].Trim();
+                itemName.Add($"TEXT 0, 5, \"1\", 0, 1, 2, \"{firstLine}\"");
+                
+                var secondLine = item.ItemName[firstLine.Length..].Trim();
+                itemName.Add($"TEXT 0, 55, \"0\", 0, 1, 2, \"{(secondLine.Length > 44 ? secondLine[..44] : secondLine)}\"");
+            }
+            else
+            {
+                var firstLine = item.ItemName.Trim();
+                // replace \" with \["]
+                firstLine = firstLine.Replace("\"", "\\[\"]");
+                itemName.Add($"TEXT 0, 25, \"1\", 0, 1, 2, \"{firstLine}\"");
+            }
+
+            string[] printData =
+            [
+                "SIZE 72 mm,30 mm",
+                "CLS",
+                "CODEPAGE 850",
+                ..itemName,
+                $"TEXT 0, 110, \"1\", 0, 1, 1, \"Item Id: {item.ItemId}\"",
+                $"TEXT 0, 150, \"1\", 0, 1, 1, \"GR No: {vendPackingSlipJour.InternalPackingSlipId}\"",
+                $"TEXT 0, 190, \"1\", 0, 1, 1, \"GR Date: {vendPackingSlipJour.DeliveryDate:dd-MMM-yyyy}\"",
+                $"QRCODE 320,110,H,3,A,0,\"http://www.gmk.id/{item.ItemId}/\"",
+                $"PRINT 1, {copies}",
+                "END",
+            ];
+            
+            return new ServiceResponse<string>
+            {
+                Data = string.Join("\r\n", printData),
+                Message = "Goods Receipt Label Template retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            var errorMessages = new List<string>
+            {
+                ex.Message
+            };
+
+            if (ex.StackTrace is not null)
+            {
+                errorMessages.Add(ex.StackTrace);
+            }
+
+            _logger.Error(ex, ex.Message);
+
+            return new ServiceResponse<string>
+            {
+                Error = ex.GetType().Name,
+                ErrorMessages = errorMessages,
+                Success = false
+            };
+        }
+    }
 }

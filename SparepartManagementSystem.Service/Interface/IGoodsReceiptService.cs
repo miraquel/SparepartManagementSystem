@@ -19,4 +19,5 @@ public interface IGoodsReceiptService
     Task<ServiceResponse<GoodsReceiptHeaderDto>> AddAndReturnGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto);
     Task<ServiceResponse> UpdateGoodsReceiptHeaderWithLines(GoodsReceiptHeaderDto dto);
     Task<ServiceResponse> PostToAx(GoodsReceiptHeaderDto dto);
+    Task<ServiceResponse<string>> GetGoodsReceiptLabelTemplate(GoodsReceiptLineDto dto, int copies = 1);
 }
