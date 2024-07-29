@@ -55,29 +55,47 @@ Windows Exporter is one of the metrics provider. It provides metrics related to 
 ### Create a Task Scheduler
 - Open Task Scheduler by Pressing `⊞ Win + R` and enter `taskschd.msc`.
 - Create a task by clicking `Create basic task` button on the top right corner.
+
   ![Create basic task](task_scheduler_create_basic_task.jpg "Create basic task")
+  
 - Fill the task name and click next.
+
   ![Fill task name](task_scheduler_fill_name.jpg "Fill task name")
+  
 - Select `When the computer starts` as the task trigger.
+
   ![Task Trigger](task_scheduler_trigger.jpg "Task trigger")
+
 - Select `Start a program` as the task action.
+
   ![Task action](task_scheduler_action.jpg "Task action")
+
 - Select `C:\windows_exporter\windows_exporter.exe` as the Task Program and `--config.file="C:\windows_exporter\config.yml" --config.file.insecure-skip-verify` as the argument.
+
   ![Task action program](task_scheduler_action_program.jpg "Task action program")
+
 - Review the task, check `Open properties dialog for this task when I click Finish`, and click `Finish`
+
   ![Task review](task_scheduler_review.jpg "Task review")
+
 - In the general tab:
   - Change the user to run the task by clicking `Change User or Group`.
   - Select `Run whether user is logged on or not`
   - Check `Do not store password.`
   - Check `Hidden`
+  
   ![Task tab general](task_scheduler_properties_general.jpg "Task tab general")
+
 - In the condition tab, uncheck `Start the task only if the computer is on AC power`
+
   ![Task tab conditions](task_scheduler_properties_conditions.jpg "Task tab conditions")
+
 - In the settings tab, uncheck `Stop the task if it runs longer than`.
+
   ![Task tab settings](task_scheduler_properties_settings.jpg "Task tab settings")
 - Click `OK` to finalize the configuration.
 - Select the `Windows Exporter` Task and click `Run`
+
   ![Task run](task_scheduler_run.jpg "Task run")
     
 ## Node Exporter
