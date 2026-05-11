@@ -10,7 +10,12 @@ using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeaderWi
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderLine;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderHeader;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderLine;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionById;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByWorkOrderLineId;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderById;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByIdWithLines;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByParamsPagedList;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderLineById;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderLineByWorkOrderHeaderId;
 using SparepartManagementSystem.Service.Features.WorkOrders.UpdateWorkOrderHeader;
@@ -20,48 +25,59 @@ using SparepartManagementSystem.Service.Mapper;
 
 namespace SparepartManagementSystem.Service.Tests.Features.WorkOrders;
 
-public class GetWorkOrderHeaderByIdHandlerTests
+public class GetItemRequisitionByWorkOrderLineIdHandlerTests
 {
     [Fact]
-    public async Task Handle_WhenRepositorySucceeds_ReturnsMappedHeader()
+    public async Task Handle_WhenRepositorySucceeds_ReturnsMappedItemRequisitions()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>(MockBehavior.Strict);
-        var repositoryMock = new Mock<IWorkOrderHeaderRepository>(MockBehavior.Strict);
+        var repositoryMock = new Mock<IItemRequisitionRepository>(MockBehavior.Strict);
         var mapper = new MapperlyMapper();
-        var header = new WorkOrderHeader
+        var itemRequisitions = new[]
         {
-            WorkOrderHeaderId = 55,
-            AGSEAMWOID = "WO-55",
-            AGSEAMWRID = "WR-55",
-            AGSEAMEntityID = "ENT-55",
-            Name = "Conveyor",
-            HeaderTitle = "Inspect conveyor",
-            AGSEAMPriorityID = "HIGH",
-            AGSEAMWOTYPE = "PREV",
-            AGSEAMWOStatusID = "OPEN"
+            new ItemRequisition
+            {
+                ItemRequisitionId = 101,
+                WorkOrderLineId = 77,
+                ItemId = "ITEM-101",
+                ItemName = "Bearing",
+                Quantity = 2,
+                RequestQuantity = 1
+            },
+            new ItemRequisition
+            {
+                ItemRequisitionId = 102,
+                WorkOrderLineId = 77,
+                ItemId = "ITEM-102",
+                ItemName = "Seal",
+                Quantity = 5,
+                RequestQuantity = 3
+            }
         };
 
-        unitOfWorkMock.SetupGet(unitOfWork => unitOfWork.WorkOrderHeaderRepository)
+        unitOfWorkMock.SetupGet(unitOfWork => unitOfWork.ItemRequisitionRepository)
             .Returns(repositoryMock.Object);
-        repositoryMock.Setup(repository => repository.GetById(55, false))
-            .ReturnsAsync(header);
+        repositoryMock.Setup(repository => repository.GetByWorkOrderLineId(77))
+            .ReturnsAsync(itemRequisitions);
 
-        var handler = new GetWorkOrderHeaderByIdHandler(mapper, unitOfWorkMock.Object);
+        var handler = new GetItemRequisitionByWorkOrderLineIdHandler(mapper, unitOfWorkMock.Object);
 
-        var result = await handler.Handle(55);
+        var result = await handler.Handle(77);
 
         Assert.True(result.Success);
+        Assert.Equal("Item Requisitions retrieved successfully", result.Message);
         Assert.NotNull(result.Data);
-        Assert.Equal(55, result.Data!.WorkOrderHeaderId);
-        Assert.Equal("WO-55", result.Data.AGSEAMWOID);
-        Assert.Equal("Inspect conveyor", result.Data.HeaderTitle);
+        var data = result.Data!.ToList();
+        Assert.Equal(2, data.Count);
+        Assert.Equal(101, data[0].ItemRequisitionId);
+        Assert.Equal("Seal", data[1].ItemName);
         Assert.Null(result.Error);
         unitOfWorkMock.Verify(unitOfWork => unitOfWork.Rollback(), Times.Never);
         unitOfWorkMock.Verify(unitOfWork => unitOfWork.Commit(), Times.Never);
     }
 
     [Fact]
-    public async Task GetWorkOrderHeaderById_WhenCalled_DelegatesToHandler()
+    public async Task GetItemRequisitionByWorkOrderLineId_WhenCalled_DelegatesToHandler()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>(MockBehavior.Strict);
         var addHeaderHandlerMock = new Mock<IAddWorkOrderHeaderHandler>(MockBehavior.Strict);
@@ -69,12 +85,12 @@ public class GetWorkOrderHeaderByIdHandlerTests
         var addLineHandlerMock = new Mock<IAddWorkOrderLineHandler>(MockBehavior.Strict);
         var deleteHeaderHandlerMock = new Mock<IDeleteWorkOrderHeaderHandler>(MockBehavior.Strict);
         var deleteLineHandlerMock = new Mock<IDeleteWorkOrderLineHandler>(MockBehavior.Strict);
-        var getAllPagedListHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList.IGetAllWorkOrderHeaderPagedListHandler>(MockBehavior.Strict);
-        var getItemRequisitionByIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionById.IGetItemRequisitionByIdHandler>(MockBehavior.Strict);
-        var getItemRequisitionByWorkOrderLineIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByWorkOrderLineId.IGetItemRequisitionByWorkOrderLineIdHandler>(MockBehavior.Strict);
+        var getAllPagedListHandlerMock = new Mock<IGetAllWorkOrderHeaderPagedListHandler>(MockBehavior.Strict);
+        var getItemRequisitionByIdHandlerMock = new Mock<IGetItemRequisitionByIdHandler>(MockBehavior.Strict);
+        var getItemRequisitionByWorkOrderLineIdHandlerMock = new Mock<IGetItemRequisitionByWorkOrderLineIdHandler>(MockBehavior.Strict);
         var getHeaderByIdHandlerMock = new Mock<IGetWorkOrderHeaderByIdHandler>(MockBehavior.Strict);
-        var getHeaderByIdWithLinesHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByIdWithLines.IGetWorkOrderHeaderByIdWithLinesHandler>(MockBehavior.Strict);
-        var getHeaderByParamsPagedListHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByParamsPagedList.IGetWorkOrderHeaderByParamsPagedListHandler>(MockBehavior.Strict);
+        var getHeaderByIdWithLinesHandlerMock = new Mock<IGetWorkOrderHeaderByIdWithLinesHandler>(MockBehavior.Strict);
+        var getHeaderByParamsPagedListHandlerMock = new Mock<IGetWorkOrderHeaderByParamsPagedListHandler>(MockBehavior.Strict);
         var getLineByIdHandlerMock = new Mock<IGetWorkOrderLineByIdHandler>(MockBehavior.Strict);
         var getLinesByHeaderIdHandlerMock = new Mock<IGetWorkOrderLineByWorkOrderHeaderIdHandler>(MockBehavior.Strict);
         var updateHeaderHandlerMock = new Mock<IUpdateWorkOrderHeaderHandler>(MockBehavior.Strict);
@@ -83,17 +99,21 @@ public class GetWorkOrderHeaderByIdHandlerTests
         {
             Username = "tester"
         });
-        var expectedResponse = new ServiceResponse<WorkOrderHeaderDto>
+        var expectedResponse = new ServiceResponse<IEnumerable<ItemRequisitionDto>>
         {
             Success = true,
-            Data = new WorkOrderHeaderDto
-            {
-                WorkOrderHeaderId = 55,
-                HeaderTitle = "Inspect conveyor"
-            }
+            Data =
+            [
+                new ItemRequisitionDto
+                {
+                    ItemRequisitionId = 101,
+                    ItemId = "ITEM-101",
+                    ItemName = "Bearing"
+                }
+            ]
         };
 
-        getHeaderByIdHandlerMock.Setup(handler => handler.Handle(55))
+        getItemRequisitionByWorkOrderLineIdHandlerMock.Setup(handler => handler.Handle(77))
             .ReturnsAsync(expectedResponse);
 
         using var serviceProvider = new ServiceCollection()
@@ -119,28 +139,28 @@ public class GetWorkOrderHeaderByIdHandlerTests
 
         var service = ActivatorUtilities.CreateInstance<WorkOrderService>(serviceProvider);
 
-        var result = await service.GetWorkOrderHeaderById(55);
+        var result = await service.GetItemRequisitionByWorkOrderLineId(77);
 
         Assert.Same(expectedResponse, result);
-        getHeaderByIdHandlerMock.Verify(handler => handler.Handle(55), Times.Once);
+        getItemRequisitionByWorkOrderLineIdHandlerMock.Verify(handler => handler.Handle(77), Times.Once);
     }
 
     [Fact]
     public async Task Handle_WhenRepositoryThrows_ReturnsErrorResponse()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>(MockBehavior.Strict);
-        var repositoryMock = new Mock<IWorkOrderHeaderRepository>(MockBehavior.Strict);
+        var repositoryMock = new Mock<IItemRequisitionRepository>(MockBehavior.Strict);
         var mapper = new MapperlyMapper();
-        var expectedException = new InvalidOperationException("header read failed");
+        var expectedException = new InvalidOperationException("item requisition list read failed");
 
-        unitOfWorkMock.SetupGet(unitOfWork => unitOfWork.WorkOrderHeaderRepository)
+        unitOfWorkMock.SetupGet(unitOfWork => unitOfWork.ItemRequisitionRepository)
             .Returns(repositoryMock.Object);
-        repositoryMock.Setup(repository => repository.GetById(55, false))
+        repositoryMock.Setup(repository => repository.GetByWorkOrderLineId(77))
             .ThrowsAsync(expectedException);
 
-        var handler = new GetWorkOrderHeaderByIdHandler(mapper, unitOfWorkMock.Object);
+        var handler = new GetItemRequisitionByWorkOrderLineIdHandler(mapper, unitOfWorkMock.Object);
 
-        var result = await handler.Handle(55);
+        var result = await handler.Handle(77);
 
         Assert.False(result.Success);
         Assert.Equal(nameof(InvalidOperationException), result.Error);

@@ -182,6 +182,8 @@ public class UpdateWorkOrderHeaderHandlerTests
         var deleteHeaderHandlerMock = new Mock<IDeleteWorkOrderHeaderHandler>(MockBehavior.Strict);
         var deleteLineHandlerMock = new Mock<IDeleteWorkOrderLineHandler>(MockBehavior.Strict);
         var getAllPagedListHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList.IGetAllWorkOrderHeaderPagedListHandler>(MockBehavior.Strict);
+        var getItemRequisitionByIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionById.IGetItemRequisitionByIdHandler>(MockBehavior.Strict);
+        var getItemRequisitionByWorkOrderLineIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByWorkOrderLineId.IGetItemRequisitionByWorkOrderLineIdHandler>(MockBehavior.Strict);
         var getHeaderByIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderById.IGetWorkOrderHeaderByIdHandler>(MockBehavior.Strict);
         var getHeaderByIdWithLinesHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByIdWithLines.IGetWorkOrderHeaderByIdWithLinesHandler>(MockBehavior.Strict);
         var getHeaderByParamsPagedListHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByParamsPagedList.IGetWorkOrderHeaderByParamsPagedListHandler>(MockBehavior.Strict);
@@ -217,6 +219,8 @@ public class UpdateWorkOrderHeaderHandlerTests
             .AddSingleton(deleteHeaderHandlerMock.Object)
             .AddSingleton(deleteLineHandlerMock.Object)
             .AddSingleton(getAllPagedListHandlerMock.Object)
+            .AddSingleton(getItemRequisitionByIdHandlerMock.Object)
+            .AddSingleton(getItemRequisitionByWorkOrderLineIdHandlerMock.Object)
             .AddSingleton(getHeaderByIdHandlerMock.Object)
             .AddSingleton(getHeaderByIdWithLinesHandlerMock.Object)
             .AddSingleton(getHeaderByParamsPagedListHandlerMock.Object)
