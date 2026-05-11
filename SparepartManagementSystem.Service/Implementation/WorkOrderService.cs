@@ -10,6 +10,7 @@ using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderHeade
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderLine;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionById;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByParams;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByWorkOrderLineId;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderById;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByIdWithLines;
@@ -35,6 +36,7 @@ public class WorkOrderService : IWorkOrderService
     private readonly IDeleteWorkOrderLineHandler _deleteWorkOrderLineHandler;
     private readonly IGetAllWorkOrderHeaderPagedListHandler _getAllWorkOrderHeaderPagedListHandler;
     private readonly IGetItemRequisitionByIdHandler _getItemRequisitionByIdHandler;
+    private readonly IGetItemRequisitionByParamsHandler _getItemRequisitionByParamsHandler;
     private readonly IGetItemRequisitionByWorkOrderLineIdHandler _getItemRequisitionByWorkOrderLineIdHandler;
     private readonly IGetWorkOrderHeaderByIdHandler _getWorkOrderHeaderByIdHandler;
     private readonly IGetWorkOrderHeaderByIdWithLinesHandler _getWorkOrderHeaderByIdWithLinesHandler;
@@ -56,6 +58,7 @@ public class WorkOrderService : IWorkOrderService
         IDeleteWorkOrderLineHandler deleteWorkOrderLineHandler,
         IGetAllWorkOrderHeaderPagedListHandler getAllWorkOrderHeaderPagedListHandler,
         IGetItemRequisitionByIdHandler getItemRequisitionByIdHandler,
+        IGetItemRequisitionByParamsHandler getItemRequisitionByParamsHandler,
         IGetItemRequisitionByWorkOrderLineIdHandler getItemRequisitionByWorkOrderLineIdHandler,
         IGetWorkOrderHeaderByIdHandler getWorkOrderHeaderByIdHandler,
         IGetWorkOrderHeaderByIdWithLinesHandler getWorkOrderHeaderByIdWithLinesHandler,
@@ -75,6 +78,7 @@ public class WorkOrderService : IWorkOrderService
         _deleteWorkOrderLineHandler = deleteWorkOrderLineHandler;
         _getAllWorkOrderHeaderPagedListHandler = getAllWorkOrderHeaderPagedListHandler;
         _getItemRequisitionByIdHandler = getItemRequisitionByIdHandler;
+        _getItemRequisitionByParamsHandler = getItemRequisitionByParamsHandler;
         _getItemRequisitionByWorkOrderLineIdHandler = getItemRequisitionByWorkOrderLineIdHandler;
         _getWorkOrderHeaderByIdHandler = getWorkOrderHeaderByIdHandler;
         _getWorkOrderHeaderByIdWithLinesHandler = getWorkOrderHeaderByIdWithLinesHandler;
@@ -289,39 +293,9 @@ public class WorkOrderService : IWorkOrderService
         return _getItemRequisitionByIdHandler.Handle(id);
     }
 
-    public async Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByParams(Dictionary<string, string> parameters)
+    public Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByParams(Dictionary<string, string> parameters)
     {
-        try
-        {
-            var itemRequisitions = await _unitOfWork.ItemRequisitionRepository.GetByParams(parameters);
-            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
-            {
-                Success = true,
-                Data = _mapper.MapToListOfItemRequisitionDto(itemRequisitions),
-                Message = "Item Requisitions retrieved successfully"
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<IEnumerable<ItemRequisitionDto>>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getItemRequisitionByParamsHandler.Handle(parameters);
     }
 
     public Task<ServiceResponse<IEnumerable<ItemRequisitionDto>>> GetItemRequisitionByWorkOrderLineId(int id)
