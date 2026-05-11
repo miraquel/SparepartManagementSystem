@@ -6,6 +6,7 @@ using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeader;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeaderWithLines;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderLine;
+using SparepartManagementSystem.Service.Features.WorkOrders.DeleteItemRequisition;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderHeader;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderLine;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList;
@@ -32,6 +33,7 @@ public class WorkOrderService : IWorkOrderService
     private readonly IAddWorkOrderHeaderHandler _addWorkOrderHeaderHandler;
     private readonly IAddWorkOrderHeaderWithLinesHandler _addWorkOrderHeaderWithLinesHandler;
     private readonly IAddWorkOrderLineHandler _addWorkOrderLineHandler;
+    private readonly IDeleteItemRequisitionHandler _deleteItemRequisitionHandler;
     private readonly IDeleteWorkOrderHeaderHandler _deleteWorkOrderHeaderHandler;
     private readonly IDeleteWorkOrderLineHandler _deleteWorkOrderLineHandler;
     private readonly IGetAllWorkOrderHeaderPagedListHandler _getAllWorkOrderHeaderPagedListHandler;
@@ -54,6 +56,7 @@ public class WorkOrderService : IWorkOrderService
         IAddWorkOrderHeaderHandler addWorkOrderHeaderHandler,
         IAddWorkOrderHeaderWithLinesHandler addWorkOrderHeaderWithLinesHandler,
         IAddWorkOrderLineHandler addWorkOrderLineHandler,
+        IDeleteItemRequisitionHandler deleteItemRequisitionHandler,
         IDeleteWorkOrderHeaderHandler deleteWorkOrderHeaderHandler,
         IDeleteWorkOrderLineHandler deleteWorkOrderLineHandler,
         IGetAllWorkOrderHeaderPagedListHandler getAllWorkOrderHeaderPagedListHandler,
@@ -74,6 +77,7 @@ public class WorkOrderService : IWorkOrderService
         _addWorkOrderHeaderHandler = addWorkOrderHeaderHandler;
         _addWorkOrderHeaderWithLinesHandler = addWorkOrderHeaderWithLinesHandler;
         _addWorkOrderLineHandler = addWorkOrderLineHandler;
+        _deleteItemRequisitionHandler = deleteItemRequisitionHandler;
         _deleteWorkOrderHeaderHandler = deleteWorkOrderHeaderHandler;
         _deleteWorkOrderLineHandler = deleteWorkOrderLineHandler;
         _getAllWorkOrderHeaderPagedListHandler = getAllWorkOrderHeaderPagedListHandler;
@@ -247,45 +251,9 @@ public class WorkOrderService : IWorkOrderService
         }
     }
 
-    public async Task<ServiceResponse> DeleteItemRequisition(int id)
+    public Task<ServiceResponse> DeleteItemRequisition(int id)
     {
-        try
-        {
-            await _unitOfWork.ItemRequisitionRepository.Delete(id);
-            
-            _logger.Information("Item Requisition deleted successfully, Item Requisition Id: {ItemRequisitionId}", id);
-            
-            await _unitOfWork.Commit();
-            
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Item Requisition deleted successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _deleteItemRequisitionHandler.Handle(id);
     }
 
     public Task<ServiceResponse<ItemRequisitionDto>> GetItemRequisitionById(int id)

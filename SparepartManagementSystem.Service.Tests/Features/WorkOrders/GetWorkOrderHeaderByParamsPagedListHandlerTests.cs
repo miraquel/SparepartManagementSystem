@@ -80,6 +80,7 @@ public class GetWorkOrderHeaderByParamsPagedListHandlerTests
         var getItemRequisitionByIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionById.IGetItemRequisitionByIdHandler>(MockBehavior.Strict);
         var getItemRequisitionByWorkOrderLineIdHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByWorkOrderLineId.IGetItemRequisitionByWorkOrderLineIdHandler>(MockBehavior.Strict);
         var getItemRequisitionByParamsHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.GetItemRequisitionByParams.IGetItemRequisitionByParamsHandler>(MockBehavior.Strict);
+        var deleteItemRequisitionHandlerMock = new Mock<SparepartManagementSystem.Service.Features.WorkOrders.DeleteItemRequisition.IDeleteItemRequisitionHandler>(MockBehavior.Strict);
         var getHeaderByIdHandlerMock = new Mock<IGetWorkOrderHeaderByIdHandler>(MockBehavior.Strict);
         var getHeaderByIdWithLinesHandlerMock = new Mock<IGetWorkOrderHeaderByIdWithLinesHandler>(MockBehavior.Strict);
         var getHeaderByParamsPagedListHandlerMock = new Mock<IGetWorkOrderHeaderByParamsPagedListHandler>(MockBehavior.Strict);
@@ -124,6 +125,7 @@ public class GetWorkOrderHeaderByParamsPagedListHandlerTests
             .AddSingleton(getItemRequisitionByIdHandlerMock.Object)
             .AddSingleton(getItemRequisitionByWorkOrderLineIdHandlerMock.Object)
             .AddSingleton(getItemRequisitionByParamsHandlerMock.Object)
+            .AddSingleton(deleteItemRequisitionHandlerMock.Object)
             .AddSingleton(getHeaderByIdHandlerMock.Object)
             .AddSingleton(getHeaderByIdWithLinesHandlerMock.Object)
             .AddSingleton(getHeaderByParamsPagedListHandlerMock.Object)

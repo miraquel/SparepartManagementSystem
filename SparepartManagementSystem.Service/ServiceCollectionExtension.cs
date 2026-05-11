@@ -9,6 +9,7 @@ using SparepartManagementSystem.Service.EventHandlers;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeader;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeaderWithLines;
 using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderLine;
+using SparepartManagementSystem.Service.Features.WorkOrders.DeleteItemRequisition;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderHeader;
 using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderLine;
 using SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList;
@@ -48,6 +49,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IAddWorkOrderHeaderHandler, AddWorkOrderHeaderHandler>();
         services.AddScoped<IAddWorkOrderHeaderWithLinesHandler, AddWorkOrderHeaderWithLinesHandler>();
         services.AddScoped<IAddWorkOrderLineHandler, AddWorkOrderLineHandler>();
+        services.AddScoped<IDeleteItemRequisitionHandler, DeleteItemRequisitionHandler>();
         services.AddScoped<IDeleteWorkOrderHeaderHandler, DeleteWorkOrderHeaderHandler>();
         services.AddScoped<IDeleteWorkOrderLineHandler, DeleteWorkOrderLineHandler>();
         services.AddScoped<IGetAllWorkOrderHeaderPagedListHandler, GetAllWorkOrderHeaderPagedListHandler>();
