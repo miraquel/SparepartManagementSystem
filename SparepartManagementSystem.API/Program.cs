@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -45,26 +44,6 @@ public static class Program
         var serilogConfiguration = new LoggerConfiguration();
 
         serilogConfiguration.ReadFrom.Configuration(config);
-
-        if (!Enum.TryParse<DatabaseProvider>(config["DatabaseProvider"], out var databaseProvider))
-        {
-            throw new InvalidEnumArgumentException(nameof(databaseProvider), (int)databaseProvider, typeof(DatabaseProvider));
-        }
-
-        switch (databaseProvider)
-        {
-            case DatabaseProvider.MySql:
-                serilogConfiguration.WriteTo.MySQL(config["ConnectionStrings:MySQL"]);
-                break;
-            case DatabaseProvider.SqlServer:
-                // serilogConfiguration.WriteTo.MSSqlServer(config["ConnectionStrings:SqlServer"]);
-                // break;
-            case DatabaseProvider.PostgresSql:
-            case DatabaseProvider.Oracle:
-            case DatabaseProvider.SqLite:
-            default:
-                throw new InvalidOperationException("Database provider not supported");
-        }
 
         if (builder.Environment.IsDevelopment())
         {

@@ -3,6 +3,19 @@ using SparepartManagementSystem.Domain;
 using SparepartManagementSystem.Repository.UnitOfWork;
 using SparepartManagementSystem.Service.DTO;
 using SparepartManagementSystem.Service.EventHandlers;
+using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeader;
+using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderHeaderWithLines;
+using SparepartManagementSystem.Service.Features.WorkOrders.AddWorkOrderLine;
+using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderHeader;
+using SparepartManagementSystem.Service.Features.WorkOrders.DeleteWorkOrderLine;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetAllWorkOrderHeaderPagedList;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderById;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByIdWithLines;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderHeaderByParamsPagedList;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderLineById;
+using SparepartManagementSystem.Service.Features.WorkOrders.GetWorkOrderLineByWorkOrderHeaderId;
+using SparepartManagementSystem.Service.Features.WorkOrders.UpdateWorkOrderHeader;
+using SparepartManagementSystem.Service.Features.WorkOrders.UpdateWorkOrderLine;
 using SparepartManagementSystem.Service.Interface;
 using SparepartManagementSystem.Service.Mapper;
 
@@ -13,567 +26,110 @@ public class WorkOrderService : IWorkOrderService
     private readonly MapperlyMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly RepositoryEvents _repositoryEvents;
+    private readonly IAddWorkOrderHeaderHandler _addWorkOrderHeaderHandler;
+    private readonly IAddWorkOrderHeaderWithLinesHandler _addWorkOrderHeaderWithLinesHandler;
+    private readonly IAddWorkOrderLineHandler _addWorkOrderLineHandler;
+    private readonly IDeleteWorkOrderHeaderHandler _deleteWorkOrderHeaderHandler;
+    private readonly IDeleteWorkOrderLineHandler _deleteWorkOrderLineHandler;
+    private readonly IGetAllWorkOrderHeaderPagedListHandler _getAllWorkOrderHeaderPagedListHandler;
+    private readonly IGetWorkOrderHeaderByIdHandler _getWorkOrderHeaderByIdHandler;
+    private readonly IGetWorkOrderHeaderByIdWithLinesHandler _getWorkOrderHeaderByIdWithLinesHandler;
+    private readonly IGetWorkOrderHeaderByParamsPagedListHandler _getWorkOrderHeaderByParamsPagedListHandler;
+    private readonly IGetWorkOrderLineByIdHandler _getWorkOrderLineByIdHandler;
+    private readonly IGetWorkOrderLineByWorkOrderHeaderIdHandler _getWorkOrderLineByWorkOrderHeaderIdHandler;
+    private readonly IUpdateWorkOrderHeaderHandler _updateWorkOrderHeaderHandler;
+    private readonly IUpdateWorkOrderLineHandler _updateWorkOrderLineHandler;
     private readonly ILogger _logger = Log.ForContext<GoodsReceiptService>();
 
-    public WorkOrderService(MapperlyMapper mapper, IUnitOfWork unitOfWork, RepositoryEvents repositoryEvents)
+    public WorkOrderService(
+        MapperlyMapper mapper,
+        IUnitOfWork unitOfWork,
+        RepositoryEvents repositoryEvents,
+        IAddWorkOrderHeaderHandler addWorkOrderHeaderHandler,
+        IAddWorkOrderHeaderWithLinesHandler addWorkOrderHeaderWithLinesHandler,
+        IAddWorkOrderLineHandler addWorkOrderLineHandler,
+        IDeleteWorkOrderHeaderHandler deleteWorkOrderHeaderHandler,
+        IDeleteWorkOrderLineHandler deleteWorkOrderLineHandler,
+        IGetAllWorkOrderHeaderPagedListHandler getAllWorkOrderHeaderPagedListHandler,
+        IGetWorkOrderHeaderByIdHandler getWorkOrderHeaderByIdHandler,
+        IGetWorkOrderHeaderByIdWithLinesHandler getWorkOrderHeaderByIdWithLinesHandler,
+        IGetWorkOrderHeaderByParamsPagedListHandler getWorkOrderHeaderByParamsPagedListHandler,
+        IGetWorkOrderLineByIdHandler getWorkOrderLineByIdHandler,
+        IGetWorkOrderLineByWorkOrderHeaderIdHandler getWorkOrderLineByWorkOrderHeaderIdHandler,
+        IUpdateWorkOrderHeaderHandler updateWorkOrderHeaderHandler,
+        IUpdateWorkOrderLineHandler updateWorkOrderLineHandler)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _repositoryEvents = repositoryEvents;
+        _addWorkOrderHeaderHandler = addWorkOrderHeaderHandler;
+        _addWorkOrderHeaderWithLinesHandler = addWorkOrderHeaderWithLinesHandler;
+        _addWorkOrderLineHandler = addWorkOrderLineHandler;
+        _deleteWorkOrderHeaderHandler = deleteWorkOrderHeaderHandler;
+        _deleteWorkOrderLineHandler = deleteWorkOrderLineHandler;
+        _getAllWorkOrderHeaderPagedListHandler = getAllWorkOrderHeaderPagedListHandler;
+        _getWorkOrderHeaderByIdHandler = getWorkOrderHeaderByIdHandler;
+        _getWorkOrderHeaderByIdWithLinesHandler = getWorkOrderHeaderByIdWithLinesHandler;
+        _getWorkOrderHeaderByParamsPagedListHandler = getWorkOrderHeaderByParamsPagedListHandler;
+        _getWorkOrderLineByIdHandler = getWorkOrderLineByIdHandler;
+        _getWorkOrderLineByWorkOrderHeaderIdHandler = getWorkOrderLineByWorkOrderHeaderIdHandler;
+        _updateWorkOrderHeaderHandler = updateWorkOrderHeaderHandler;
+        _updateWorkOrderLineHandler = updateWorkOrderLineHandler;
     }
     
-    public async Task<ServiceResponse> AddWorkOrderHeader(WorkOrderHeaderDto dto)
+    public Task<ServiceResponse> AddWorkOrderHeader(WorkOrderHeaderDto dto)
     {
-        try
-        {
-            var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
-            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd, _repositoryEvents.OnBeforeAdd);
-            
-            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
-                
-            _logger.Information("Work Order Header added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Header added successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _addWorkOrderHeaderHandler.Handle(dto);
     }
 
-    public async Task<ServiceResponse> AddWorkOrderHeaderWithLines(WorkOrderHeaderDto dto)
+    public Task<ServiceResponse> AddWorkOrderHeaderWithLines(WorkOrderHeaderDto dto)
     {
-        try
-        {
-            var workOrderHeaderAdd = _mapper.MapToWorkOrderHeader(dto);
-            await _unitOfWork.WorkOrderHeaderRepository.Add(workOrderHeaderAdd, _repositoryEvents.OnBeforeAdd);
-            
-            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
-
-            var workOrderLines = _mapper.MapToListOfWorkOrderLine(dto.WorkOrderLines);
-            
-            _repositoryEvents.OnBeforeAdd += (_, args) =>
-            {
-                if (args.Entity is not WorkOrderLine workOrderLine) return;
-                workOrderLine.WorkOrderHeaderId = lastInsertedId;
-            };
-            
-            await _unitOfWork.WorkOrderLineRepository.BulkAdd(workOrderLines, _repositoryEvents.OnBeforeAdd);
-                
-            _logger.Information("Work Order Header and lines added successfully, Work Order Header Id: {WorkOrderHeaderId}", lastInsertedId);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Header added successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _addWorkOrderHeaderWithLinesHandler.Handle(dto);
     }
 
-    public async Task<ServiceResponse> UpdateWorkOrderHeader(WorkOrderHeaderDto dto)
+    public Task<ServiceResponse> UpdateWorkOrderHeader(WorkOrderHeaderDto dto)
     {
-        try
-        {
-            var record = await _unitOfWork.WorkOrderHeaderRepository.GetById(dto.WorkOrderHeaderId, true);
-
-            if (record.ModifiedDateTime > dto.ModifiedDateTime)
-            {
-                throw new Exception("Work Order Header has been modified by another user, please refresh and try again");
-            }
-
-            record.UpdateProperties(_mapper.MapToWorkOrderHeader(dto));
-            
-            if (!record.IsChanged)
-            {
-                return new ServiceResponse
-                {
-                    Success = true,
-                    Message = "No changes detected in Work Order Header"
-                }; 
-            }
-            
-            await _unitOfWork.WorkOrderHeaderRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
-            
-            _logger.Information("Work Order Header updated successfully, Work Order Header Id: {WorkOrderHeaderId}", dto.WorkOrderHeaderId);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Header updated successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _updateWorkOrderHeaderHandler.Handle(dto);
     }
-    public async Task<ServiceResponse> DeleteWorkOrderHeader(int id)
+    public Task<ServiceResponse> DeleteWorkOrderHeader(int id)
     {
-        try
-        {
-            await _unitOfWork.WorkOrderHeaderRepository.Delete(id);
-            
-            _logger.Information("Work Order Header deleted successfully, Work Order Header Id: {WorkOrderHeaderId}", id);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Header deleted successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _deleteWorkOrderHeaderHandler.Handle(id);
     }
-    public async Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeaderById(int id)
+    public Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeaderById(int id)
     {
-        try
-        {
-            var workOrderHeader = await _unitOfWork.WorkOrderHeaderRepository.GetById(id);
-            
-            return new ServiceResponse<WorkOrderHeaderDto>
-            {
-                Success = true,
-                Data = _mapper.MapToWorkOrderHeaderDto(workOrderHeader)
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<WorkOrderHeaderDto>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getWorkOrderHeaderByIdHandler.Handle(id);
     }
-    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetAllWorkOrderHeaderPagedList(int pageNumber, int pageSize)
+    public Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetAllWorkOrderHeaderPagedList(int pageNumber, int pageSize)
     {
-        try
-        {
-            var result = await _unitOfWork.WorkOrderHeaderRepository.GetAllPagedList(pageNumber, pageSize);
-            
-            _logger.Information("Work Order Headers fetched successfully, Total Count: {TotalCount}", result.TotalCount);
-            
-            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
-            {
-                Data = new PagedListDto<WorkOrderHeaderDto>(
-                    _mapper.MapToListOfWorkOrderHeaderDto(result.Items),
-                    result.PageNumber,
-                    result.PageSize,
-                    result.TotalCount),
-                Message = "Work Order Headers retrieved successfully",
-                Success = true,
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getAllWorkOrderHeaderPagedListHandler.Handle(pageNumber, pageSize);
     }
-    public async Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
+    public Task<ServiceResponse<PagedListDto<WorkOrderHeaderDto>>> GetWorkOrderHeaderByParamsPagedList(int pageNumber, int pageSize, Dictionary<string, string> parameters)
     {
-        try
-        {
-            var result = await _unitOfWork.WorkOrderHeaderRepository.GetByParamsPagedList(pageNumber, pageSize, parameters);
-            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
-            {
-                Data = new PagedListDto<WorkOrderHeaderDto>(
-                    _mapper.MapToListOfWorkOrderHeaderDto(result.Items),
-                    result.PageNumber,
-                    result.PageSize,
-                    result.TotalCount),
-                Message = "Work Order Headers retrieved successfully",
-                Success = true,
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<PagedListDto<WorkOrderHeaderDto>>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getWorkOrderHeaderByParamsPagedListHandler.Handle(pageNumber, pageSize, parameters);
     }
-    public async Task<ServiceResponse> AddWorkOrderLine(WorkOrderLineDto dto)
+    public Task<ServiceResponse> AddWorkOrderLine(WorkOrderLineDto dto)
     {
-        try
-        {
-            var workOrderLineAdd = _mapper.MapToWorkOrderLine(dto);
-            await _unitOfWork.WorkOrderLineRepository.Add(workOrderLineAdd, _repositoryEvents.OnBeforeAdd);
-            
-            var lastInsertedId = await _unitOfWork.GetLastInsertedId();
-                
-            _logger.Information("Work Order Line added successfully, Work Order Line Id: {WorkOrderLineId}", lastInsertedId);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Line added successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _addWorkOrderLineHandler.Handle(dto);
     }
-    public async Task<ServiceResponse> UpdateWorkOrderLine(WorkOrderLineDto dto)
+    public Task<ServiceResponse> UpdateWorkOrderLine(WorkOrderLineDto dto)
     {
-        try
-        {
-            var record = await _unitOfWork.WorkOrderLineRepository.GetById(dto.WorkOrderLineId, true);
-            
-            if (record.ModifiedDateTime > dto.ModifiedDateTime)
-            {
-                throw new Exception("Work Order Line has been modified by another user, please refresh and try again");
-            }
-            
-            record.UpdateProperties(_mapper.MapToWorkOrderLine(dto));
-
-            if (!record.IsChanged)
-            {
-                return new ServiceResponse
-                {
-                    Success = true,
-                    Message = "No changes detected in Work Order Line"
-                };
-            }
-            
-            await _unitOfWork.WorkOrderLineRepository.Update(record, _repositoryEvents.OnBeforeUpdate);
-            
-            _logger.Information("Work Order Line updated successfully, Work Order Line Id: {WorkOrderLineId}", dto.WorkOrderLineId);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Line updated successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _updateWorkOrderLineHandler.Handle(dto);
     }
-    public async Task<ServiceResponse> DeleteWorkOrderLine(int id)
+    public Task<ServiceResponse> DeleteWorkOrderLine(int id)
     {
-        try
-        {
-            await _unitOfWork.ItemRequisitionRepository.Delete(id);
-            
-            _logger.Information("Work Order Line deleted successfully, Work Order Line Id: {WorkOrderLineId}", id);
-            
-            await _unitOfWork.Commit();
-
-            return new ServiceResponse
-            {
-                Success = true,
-                Message = "Work Order Line deleted successfully",
-            };
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.Rollback();
-
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _deleteWorkOrderLineHandler.Handle(id);
     }
-    public async Task<ServiceResponse<WorkOrderLineDto>> GetWorkOrderLineById(int id)
+    public Task<ServiceResponse<WorkOrderLineDto>> GetWorkOrderLineById(int id)
     {
-        try
-        {
-            var workOrderLine = await _unitOfWork.WorkOrderLineRepository.GetById(id);
-            
-            return new ServiceResponse<WorkOrderLineDto>
-            {
-                Success = true,
-                Data = _mapper.MapToWorkOrderLineDto(workOrderLine),
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<WorkOrderLineDto>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getWorkOrderLineByIdHandler.Handle(id);
     }
-    public async Task<ServiceResponse<IEnumerable<WorkOrderLineDto>>> GetWorkOrderLineByWorkOrderHeaderId(int id)
+    public Task<ServiceResponse<IEnumerable<WorkOrderLineDto>>> GetWorkOrderLineByWorkOrderHeaderId(int id)
     {
-        try
-        {
-            var workOrderLines = await _unitOfWork.WorkOrderLineRepository.GetByWorkOrderHeaderId(id);
-            
-            return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
-            {
-                Data = _mapper.MapToListOfWorkOrderLineDto(workOrderLines),
-                Message = "Work Order Lines retrieved successfully",
-                Success = true,
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<IEnumerable<WorkOrderLineDto>>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getWorkOrderLineByWorkOrderHeaderIdHandler.Handle(id);
     }
-    public async Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeaderByIdWithLines(int id)
+    public Task<ServiceResponse<WorkOrderHeaderDto>> GetWorkOrderHeaderByIdWithLines(int id)
     {
-        try
-        {
-            var workOrderHeader = await _unitOfWork.WorkOrderHeaderRepository.GetByIdWithLines(id);
-            
-            return new ServiceResponse<WorkOrderHeaderDto>
-            {
-                Success = true,
-                Data = _mapper.MapToWorkOrderHeaderDto(workOrderHeader),
-            };
-        }
-        catch (Exception ex)
-        {
-            var errorMessages = new List<string>
-            {
-                ex.Message
-            };
-
-            if (ex.StackTrace is not null)
-            {
-                errorMessages.Add(ex.StackTrace);
-            }
-
-            _logger.Error(ex, ex.Message);
-
-            return new ServiceResponse<WorkOrderHeaderDto>
-            {
-                Error = ex.GetType().Name,
-                ErrorMessages = errorMessages,
-                Success = false
-            };
-        }
+        return _getWorkOrderHeaderByIdWithLinesHandler.Handle(id);
     }
 
     public async Task<ServiceResponse> AddItemRequisition(ItemRequisitionDto dto)

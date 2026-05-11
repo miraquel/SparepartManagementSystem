@@ -21,9 +21,7 @@ public class ServiceCollectionHelper
     {
         var services = new ServiceCollection();
         
-        services.AddSingleton<IConfiguration>(_ => new ConfigurationBuilder()
-            .AddUserSecrets<ServiceCollectionHelper>()
-            .Build());
+        services.AddSingleton<IConfiguration>(_ => RepositoryTestDatabase.CreateConfiguration());
         services.AddSingleton<MapperlyMapper>();
         services.AddRepository();
 

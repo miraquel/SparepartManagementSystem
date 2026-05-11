@@ -382,7 +382,8 @@ public class GoodsReceiptLineRepositoryTest : IAsyncLifetime
             
             foreach (var message in infoMessageEventArgs.Errors)
             {
-                Assert.Equal("Duplicate entry '1' for key 'goodsreceiptlines.PRIMARY'", message.Message);
+                Assert.Contains("Duplicate entry '1' for key", message.Message, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("goodsreceiptlines.primary", message.Message, StringComparison.OrdinalIgnoreCase);
             }
         }
     }

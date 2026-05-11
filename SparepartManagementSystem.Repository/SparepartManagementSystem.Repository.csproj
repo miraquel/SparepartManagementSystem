@@ -14,11 +14,9 @@
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
         <PackageReference Include="MySqlConnector" Version="2.3.7" />
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     </ItemGroup>
 
 </Project>

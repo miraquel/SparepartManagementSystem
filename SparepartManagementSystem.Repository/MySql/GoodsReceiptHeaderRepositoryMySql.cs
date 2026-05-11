@@ -50,7 +50,14 @@ internal class GoodsReceiptHeaderRepositoryMySql : IGoodsReceiptHeaderRepository
     public async Task<IEnumerable<GoodsReceiptHeader>> GetAll()
     {
         const string sql = "SELECT * FROM GoodsReceiptHeaders";
-        return await _sqlConnection.QueryAsync<GoodsReceiptHeader>(sql, transaction: _dbTransaction);
+        var results = (await _sqlConnection.QueryAsync<GoodsReceiptHeader>(sql, transaction: _dbTransaction)).ToArray();
+
+        foreach (var result in results)
+        {
+            result.AcceptChanges();
+        }
+
+        return results;
     }
 
     public async Task<GoodsReceiptHeader> GetById(int id, bool forUpdate = false)
